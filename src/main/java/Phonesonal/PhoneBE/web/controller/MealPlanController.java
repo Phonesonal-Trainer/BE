@@ -1,7 +1,7 @@
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.service.RecommendMealService.RecommendMealQueryService;
-import Phonesonal.PhoneBE.web.dto.MealPlanResponseDTO;
+import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +21,12 @@ public class MealPlanController {
     private final RecommendMealQueryService recommendMealQueryService;
 
     @GetMapping("/plans")
-    public ResponseEntity<List<MealPlanResponseDTO>> getMealPlans(
+    public ResponseEntity<List<RecommendMealResponseDTO>> getMealPlans(
             @RequestParam Long userId,
             @RequestParam(required = false) Integer weekNumber,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<MealPlanResponseDTO> plans = recommendMealQueryService.getMealPlans(userId, weekNumber, date);
+        List<RecommendMealResponseDTO> plans = recommendMealQueryService.getMealPlans(userId, weekNumber, date);
         return ResponseEntity.ok(plans);
     }
 }
