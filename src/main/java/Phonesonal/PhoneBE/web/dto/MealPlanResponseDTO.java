@@ -7,15 +7,15 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-public class MealPlanResponse {
+public class MealPlanResponseDTO {
     private Long foodId;
     private String mealTime;
     private LocalDate date;
     private Float quantity;
     private String complete;
 
-    public static MealPlanResponse from(RecommendMeal entity) {
-        return new MealPlanResponse(
+    public static MealPlanResponseDTO from(RecommendMeal entity) {
+        return new MealPlanResponseDTO(
                 entity.getFoodId(),
                 entity.getMealTime().name(),
                 entity.getDate(),

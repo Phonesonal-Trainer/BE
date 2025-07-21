@@ -1,7 +1,7 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
-import Phonesonal.PhoneBE.web.dto.MealPlanResponse;
+import Phonesonal.PhoneBE.web.dto.MealPlanResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
     private final RecommendMealRepository recommendMealRepository;
 
     @Override
-    public List<MealPlanResponse> getMealPlans(Long userId, Integer weekNumber, LocalDate date) {
+    public List<MealPlanResponseDTO> getMealPlans(Long userId, Integer weekNumber, LocalDate date) {
         List<RecommendMeal> meals;
 
         if (weekNumber != null) {
@@ -28,7 +28,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
         }
 
         return meals.stream()
-                .map(MealPlanResponse::from)
+                .map(MealPlanResponseDTO::from)
                 .collect(Collectors.toList());
     }
 }
