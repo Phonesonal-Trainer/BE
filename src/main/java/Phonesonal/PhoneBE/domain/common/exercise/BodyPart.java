@@ -1,6 +1,6 @@
-package Phonesonal.PhoneBE.domain.common;
+package Phonesonal.PhoneBE.domain.common.exercise;
 
-import Phonesonal.PhoneBE.domain.enums.BodyCategory;
+import Phonesonal.PhoneBE.domain.enums.exercise.BodyCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

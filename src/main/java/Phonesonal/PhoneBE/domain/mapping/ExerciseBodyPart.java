@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.domain.mapping;
 
-import Phonesonal.PhoneBE.domain.common.BodyPart;
+import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
+import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ public class ExerciseBodyPart {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exercise_id", nullable = false)
-    private UserExercise userExercise; // 사용자 운동 정보
+    private Exercise exercise; // 사용자 운동 정보
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "body_part_id", nullable = false)

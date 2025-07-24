@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.domain.enums;
+package Phonesonal.PhoneBE.domain.enums.exercise;
 
 public enum BodyPart {
     //chest

@@ -1,13 +1,13 @@
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
+import Phonesonal.PhoneBE.service.ExerciseService;
+import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseDetailResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,13 +19,32 @@ public class ExerciseController {
 
     private ExerciseService exerciseService;
 
-    @Operation(summary = "운동 목록 조회")
+    @Operation(summary = "모든 운동 목록 조회(검색용)")
     @GetMapping
-    public ApiResponse<List<ExerciseResponseDto>> getMyExercises(
+    public ApiResponse<List<ExerciseResponseDTO>> getExercisesList(
             //@AuthenticationPrincipal CustomerUserDetails userDetails
+            @RequestParam Long userId //임시
     ) {
         //Long userId = userDetails.getUser().getId();
-        return ApiResponse.onSuccess(exerciseService.getMyExercises());
+        return ApiResponse.onSuccess(exerciseService.getExercisesList(userId));
     }
+
+    @Operation(summary = "운동 상세 조회")
+    @GetMapping("/{exerciseId}")
+    public ApiResponse<ExerciseDetailResponseDTO> getExerciseDetail(
+            @PathVariable Long exerciseId
+    ) {
+        return ApiResponse.onSuccess(exerciseService.getExerciseDetail(exerciseId));
+    }
+
+//    @Operation(summary = "즐겨찾기된 운동 목록 조회")
+//    @GetMapping("/bookmarked")
+//    public ApiResponse<List<ExerciseResponseDTO>> getBookmarkedExercises(
+//            //@AuthenticationPrincipal CustomerUserDetails userDetails
+//            @RequestParam Long userId //임시
+//    ) {
+//        //Long userId = userDetails.getUser().getId();
+//        return ApiResponse.onSuccess(exerciseService.getBookmarkedExerciseList(userId));
+//    }
 
 }

@@ -1,12 +1,12 @@
-package Phonesonal.PhoneBE.domain.common;
+package Phonesonal.PhoneBE.domain.common.exercise;
 
-import Phonesonal.PhoneBE.domain.enums.BodyPart;
-import Phonesonal.PhoneBE.domain.enums.ExerciseType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import Phonesonal.PhoneBE.domain.enums.exercise.BodyPart;
+import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,8 +31,8 @@ public class Exercise {
     @Column(nullable = false)
     private ExerciseType type = ExerciseType.etc; // etc 기본값
 
-    @Column
-    private BodyPart bodyPart;
+//    @Column
+//    private BodyPart bodyPart;
 
     @Column
     private String youtubeUrl; // 유튜브 URL
@@ -43,9 +43,15 @@ public class Exercise {
     @Column
     private Integer defaultSetCount; // 기본 세트 수
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description; //운동 설명
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String caution; // 운동 주의사항
+
+    @Column
+    private String imageUrl; // 운동 이미지 URL
+
+    @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY)
+    private List<ExerciseBodyPart> bodyParts; // 운동 부위 정보
 }
