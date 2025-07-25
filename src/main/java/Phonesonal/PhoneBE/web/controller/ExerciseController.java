@@ -17,10 +17,10 @@ import java.util.List;
 @Tag(name = "exercise", description = "운동 관련 API")
 public class ExerciseController {
 
-    private ExerciseService exerciseService;
+    private final ExerciseService exerciseService;
 
     @Operation(summary = "모든 운동 목록 조회(검색용)")
-    @GetMapping
+    @GetMapping("list")
     public ApiResponse<List<ExerciseResponseDTO>> getExercisesList(
             //@AuthenticationPrincipal CustomerUserDetails userDetails
             @RequestParam Long userId //임시

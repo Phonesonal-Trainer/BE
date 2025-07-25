@@ -7,6 +7,8 @@ import Phonesonal.PhoneBE.domain.enums.exercise.Weekday;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -19,19 +21,22 @@ public class UserExercise {
     private Long id;
 
     @Column
-    private Integer Count; // 유저 설정 운동 횟수
+    private Integer count; // 유저 설정 운동 횟수
 
     @Column
-    private Integer Weight; // 유저 설정 운동 중량
+    private Integer weight; // 유저 설정 운동 중량
 
     @Column(nullable = false)
-    private State state;
+    private State state; // 운동 상태 (예: 진행 중, 완료 등)
 
     @Column(nullable = false)
-    private Integer weeks; // 운동 주차
+    private Integer weekNumber; // 운동 주차
 
     @Column(nullable = false)
-    private Weekday date; // 운동 요일
+    private LocalDate date; // 운동 한 날짜
+
+    @Column(nullable = false)
+    private Weekday weekday; // 운동 요일
 
     @Column
     private Integer setCount; // 유저 설정 운동 세트 수

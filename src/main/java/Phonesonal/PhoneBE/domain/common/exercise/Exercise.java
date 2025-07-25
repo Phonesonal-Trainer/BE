@@ -41,7 +41,7 @@ public class Exercise {
     private Integer kcal; // 1회당 칼로리 소모량
 
     @Column
-    private Integer defaultSetCount; // 기본 세트 수
+    private Integer defaultSet; // 기본 세트 수
 
     @Column(columnDefinition = "TEXT")
     private String description; //운동 설명
