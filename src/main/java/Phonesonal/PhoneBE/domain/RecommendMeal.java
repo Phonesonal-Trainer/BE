@@ -1,5 +1,7 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.Food;
+import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import jakarta.persistence.*;
@@ -9,7 +11,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Setter
+@Setter // setter 쓰지마.
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,11 +22,11 @@ public class RecommendMeal {
     private Long planId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "food_id", nullable = false)
+    @JoinColumn(name = "foodId", nullable = false)
     private Food food;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     private Integer weekNumber;
@@ -48,6 +50,8 @@ public class RecommendMeal {
         }
     } // 기본값 unchecked
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_period_id", nullable = false)
+    private GoalPeriod goalPeriod;
 
 }
-

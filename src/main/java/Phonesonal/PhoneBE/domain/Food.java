@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,12 +16,15 @@ public class Food {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long foodId;
 
+    //음식 이름
     @Column(length = 100, nullable = false)
     private String name;
 
+    // 양
     @Column(length = 50)
     private String servingSize;
 
+    // 영양소
     private Float calorie;
     private Float carb;
     private Float protein;
@@ -30,8 +34,9 @@ public class Food {
     @JoinColumn(name = "created_by_user_id")
     private User createdBy;
 
+    // true: 사용자 직접 입력, false: 추천 음식
     @Column(nullable = false)
-    private Boolean isCustom; // true: 사용자 직접 입력, false: 추천 음식
+    private Boolean isCustom;
 
     @PrePersist
     public void prePersist() {
