@@ -1,4 +1,4 @@
 package Phonesonal.PhoneBE.domain.mapping;
 
-public class userPurpose {
+public class UserPurpose {
 }
