@@ -35,6 +35,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/kakao/login")
+    @Operation(summary = "카카오 로그인 API", description = "카카오 서버 내부 처리용")
     public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
         // 프론트엔드로 code 전달하면서 리다이렉트
         return ResponseEntity.status(HttpStatus.FOUND)
@@ -43,6 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/kakao/login")
+    @Operation(summary = "카카오 로그인 API", description = "카카오 로그인")
     public ApiResponse<LoginResultDTO> userCheck(@RequestBody KakaoRequestDTO request) {
         String authCode = request.getAuthCode();
         String accessToken = kakaoService.getAccessToken(authCode);
@@ -73,6 +75,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
+    @Operation(summary = "회원가입 API", description = "신규회원 정보 기입, 가입")
     public ApiResponse<LoginResultDTO> signup(@RequestBody SignupRequestDTO request) {
         System.out.println("=== Authorization Header ===");
         System.out.println("Received tempToken: " + request.getTempToken());

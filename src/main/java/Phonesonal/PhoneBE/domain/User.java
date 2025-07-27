@@ -5,7 +5,6 @@ import Phonesonal.PhoneBE.domain.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,8 +21,6 @@ public class User {
     //소셜 이메일
     @Column(nullable = false, unique = true)
     private String email;
-
-    private String password;
 
     //소셜로부터 받아온 이름
     private String name;
@@ -42,6 +39,12 @@ public class User {
 
     //무게
     private int weight;
+
+    //체지방률 (%)
+    private double bodyFatPercentage;
+
+    //골격근량 (kg)
+    private double skeletalMuscleWeight;
 
     //나이
     private int age;
