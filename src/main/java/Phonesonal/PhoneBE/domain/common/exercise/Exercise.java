@@ -1,6 +1,5 @@
 package Phonesonal.PhoneBE.domain.common.exercise;
 
-import Phonesonal.PhoneBE.domain.enums.exercise.BodyPart;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
 import jakarta.persistence.*;
@@ -31,9 +30,6 @@ public class Exercise {
     @Column(nullable = false)
     private ExerciseType type = ExerciseType.etc; // etc 기본값
 
-//    @Column
-//    private BodyPart bodyPart;
-
     @Column
     private String youtubeUrl; // 유튜브 URL
 
@@ -54,4 +50,11 @@ public class Exercise {
 
     @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY)
     private List<ExerciseBodyPart> bodyParts; // 운동 부위 정보
+
+    //커스텀 운동 구분 필드
+    @Column
+    private Boolean isCustom = false; // 커스텀 운동 여부
+
+    @Column
+    private Long createdByUserId; // 커스텀 운동을 생성한 유저의 ID
 }

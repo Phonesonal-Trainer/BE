@@ -2,10 +2,17 @@ package Phonesonal.PhoneBE.service;
 
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;
+import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
+import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
+import Phonesonal.PhoneBE.domain.enums.exercise.State;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
+import Phonesonal.PhoneBE.repository.BodyPartRepository;
 import Phonesonal.PhoneBE.repository.ExerciseRepository;
 import Phonesonal.PhoneBE.repository.UserExerciseRepository;
+import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
@@ -14,14 +21,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ExerciseServiceImpl implements ExerciseService {
+    private final UserRepository userRepository;
     private final ExerciseRepository exerciseRepository;
     private final UserExerciseRepository userExerciseRepository;
+    private final BodyPartRepository bodyPartRepository;
 
     // exerciseId로 운동을 찾는 메서드
     private Exercise findExerciseById(Long exerciseId) {
@@ -109,20 +120,45 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public UserExerciseResponseDTO createUserExercise(CreateUserExerciseRequestDTO request, Long userId) {
-        // 유저 운동 생성 로직
+        // 1. 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        UserExercise userExercise = UserExercise.builder()
-                .userId(userId)
-                //.exercise(exercise)
-                .count(request.getCount())
-                .weight(request.getWeight())
-                .set(request.getSets())
-                .weekNumber(request.getWeekNumber())
-                .date(LocalDate.parse(request.getDate()))
+        // 2. 주차 계산 (계정 생성일로부터 몇 주차인지)
+        LocalDateTime userCreatedAt = user.getCreated_at();
+        LocalDate userCreatedDate = userCreatedAt.toLocalDate();
+        long daysBetween = ChronoUnit.DAYS.between(userCreatedDate, request.getExerciseDate());
+        int weekNumber = (int) (daysBetween / 7) + 1; // 1주차부터 시작
+
+        // 3. 무산소 운동인데 운동 부위를 선택하지 않은 경우 예외 처리
+        if (request.getType() == ExerciseType.anaerobic && request.getBodyCategory() == null) {
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+
+        // 4. 커스텀 Exercise 생성
+        Exercise customExercise = Exercise.builder()
+                .name(request.getName())
+                .type(request.getType())
+                .kcal(request.getKcal())
+                .isCustom(true)
+                .createdByUserId(userId)
                 .build();
 
-        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+        Exercise savedExercise = exerciseRepository.save(customExercise);
 
-        return convertToUserExerciseResponseDTO(savedUserExercise);
+        // 5. UserExercise 생성
+        UserExercise userExercise = UserExercise.builder()
+                .user(user)
+                .exercise(savedExercise)
+                .count(request.getCount())
+                .weight(request.getWeight())
+                .setCount(request.getSetCount())
+                .exerciseDate(request.getExerciseDate())
+                .weekNumber(weekNumber)
+                .state(State.pending)
+                .bookmark(false)
+                .build();
+
+        return convertToUserExerciseResponseDTO(userExerciseRepository.save(userExercise));
     }
 }

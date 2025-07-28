@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
+import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.service.ExerciseService;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
@@ -50,10 +51,11 @@ public class UserExerciseController {
 //    @Operation(summary = "유저 운동 시작")
 //    @PatchMapping("/start")
 //    public ApiResponse<UserExerciseResponseDTO> startUserExercise(
-//            @Valid UserExercise userExercise
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @RequestParam Long userExerciseID
 //    ) {
-//        // 유저 운동 시작 로직
-//        UserExercise startedExercise = exerciseService.startUserExercise(userExercise);
+//        Long userId = userDetails.getUser().getId();
+//        UserExercise startedExercise = exerciseService.startUserExercise(userId, userExerciseID);
 //        return ApiResponse.onSuccess(startedExercise);
 //    }
 //
