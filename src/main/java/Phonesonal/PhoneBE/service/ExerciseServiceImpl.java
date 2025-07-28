@@ -161,4 +161,32 @@ public class ExerciseServiceImpl implements ExerciseService {
 
         return convertToUserExerciseResponseDTO(userExerciseRepository.save(userExercise));
     }
+
+    public UserExerciseResponseDTO startUserExercise(Long userId, Long userExerciseId) {
+        // 1. UserExercise 조회
+        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+
+        // 2. 해당 운동이 요청한 사용자의 것인지 확인
+        if(!userExercise.getUser().getId().equals(userId)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 3. 이미 시작된 운동인지 확인
+        if (userExercise.getState() == State.pending) {
+            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_STARTED);
+        }
+
+        // 4. 완료된 운동인지 확인
+        if (userExercise.getState() == State.completed) {
+            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
+        }
+
+        // 5. 운동 상태를 진행 중으로 변경
+        userExercise.setState(State.inProgress);
+
+        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+        return convertToUserExerciseResponseDTO(savedUserExercise);
+    }
 }

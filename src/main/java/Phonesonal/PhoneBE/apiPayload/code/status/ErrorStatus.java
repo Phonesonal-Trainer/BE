@@ -27,9 +27,12 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NOT_FOUND_FOR_RESET_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER4011", "일치하는 유저 정보가 존재하지 않습니다"),
 
     //운동 관련 에러
-    EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4001", "운동을 찾을 수 없습니다."),
-    EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4002", "이미 완료된 운동입니다."),
-    EXERCISE_INVALID_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4003", "유효하지 않은 운동 상태입니다."),
+    EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4041", "운동을 찾을 수 없습니다."),
+    EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4091", "이미 완료된 운동입니다."),
+    EXERCISE_INVALID_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4001", "유효하지 않은 운동 상태입니다."),
+    USER_EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4042", "사용자의 운동 기록을 찾을 수 없습니다."),
+    USER_EXERCISE_ALREADY_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4092", "이미 시작된 운동입니다."),
+    USER_EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4093", "이미 완료된 운동입니다."),
     BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
