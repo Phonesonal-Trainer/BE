@@ -103,7 +103,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .weight(ue.getWeight())
                 .sets(ue.getSetCount())
                 .weekNumber(ue.getWeekNumber())
-                .date(ue.getDate().toString())
+                .date(ue.getExerciseDate().toString())
                 .build();
     }
 

@@ -33,7 +33,7 @@ public class UserExercise {
     private Integer weekNumber; // 운동 주차
 
     @Column(nullable = false)
-    private LocalDate date; // 운동 한 날짜
+    private LocalDate exerciseDate; // 운동 한 날짜
 
     @Column(nullable = false)
     private Weekday weekday; // 운동 요일
