@@ -11,10 +11,11 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Setter // setter 쓰지마.
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// 식단플랜 (주차 간 추천한 식단)
 public class RecommendMeal {
 
     @Id
@@ -22,14 +23,10 @@ public class RecommendMeal {
     private Long planId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "foodId", nullable = false)
     private Food food;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
     private User user;
-
-    private Integer weekNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10, nullable = false)
@@ -46,9 +43,9 @@ public class RecommendMeal {
     @PrePersist
     public void prePersist() {
         if (this.complete == null) {
-            this.complete = CompleteStatus.UNCHECKED;
+            this.complete = CompleteStatus.INCOMPLETE;
         }
-    } // 기본값 unchecked
+    } // 기본값 incomplete
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_period_id", nullable = false)

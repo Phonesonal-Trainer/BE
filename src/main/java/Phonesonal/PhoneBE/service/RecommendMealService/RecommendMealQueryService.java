@@ -6,5 +6,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RecommendMealQueryService {
-    List<RecommendMealResponseDTO> getMealPlans(Long userId, Integer weekNumber, LocalDate date);
+    List<RecommendMealResponseDTO> getMealPlans(Long userId, LocalDate date);
 }

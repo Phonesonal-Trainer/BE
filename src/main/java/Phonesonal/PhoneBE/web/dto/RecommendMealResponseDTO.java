@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.web.dto;
 
 import Phonesonal.PhoneBE.domain.RecommendMeal;
+import Phonesonal.PhoneBE.domain.enums.MealTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,20 +15,10 @@ public class RecommendMealResponseDTO {
 
     private Long foodId;
     private String foodName;
-    private String mealTime;
+    private MealTime mealTime;
     private LocalDate date;
     private Float quantity;
     private String complete;
-
-    public static RecommendMealResponseDTO from(RecommendMeal entity) {
-        return RecommendMealResponseDTO.builder()
-                .foodId(entity.getFood().getFoodId())
-                .foodName(entity.getFood().getName())
-                .mealTime(entity.getMealTime().name())
-                .date(entity.getDate())
-                .quantity(entity.getQuantity())
-                .complete(entity.getComplete().name())
-                .build();
-    }
+    private Integer weekNumber;
 }
 

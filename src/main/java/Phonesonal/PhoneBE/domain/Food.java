@@ -10,6 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// 모든 음식 (식단 플랜에 넣을 세트, 사용자가 직접 추가한 음식 both)
+
 public class Food {
 
     @Id

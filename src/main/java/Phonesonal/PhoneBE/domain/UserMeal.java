@@ -7,12 +7,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_meal")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+// 유저가 직접 추가한 식단(식단 기록 시)
 public class UserMeal {
 
     @Id
@@ -21,11 +21,9 @@ public class UserMeal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "food_id", nullable = false)
     private Food food;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -33,9 +31,6 @@ public class UserMeal {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "week_number", nullable = false)
-    private int weekNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "meal_time", nullable = false)

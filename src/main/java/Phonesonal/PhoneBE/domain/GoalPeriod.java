@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,6 @@ public class GoalPeriod {
     private Long goalPeriodId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
     private User user;
 
     @Column(nullable = false)
