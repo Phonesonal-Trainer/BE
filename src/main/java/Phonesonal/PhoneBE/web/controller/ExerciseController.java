@@ -1,12 +1,14 @@
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
+import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.ExerciseService;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,16 +24,16 @@ public class ExerciseController {
     @Operation(summary = "모든 운동 목록 조회(검색용)")
     @GetMapping("list")
     public ApiResponse<List<ExerciseResponseDTO>> getExercisesList(
-            //@AuthenticationPrincipal CustomerUserDetails userDetails
-            @RequestParam Long userId //임시
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        //Long userId = userDetails.getUser().getId();
+        Long userId = userDetails.getUser().getId();
         return ApiResponse.onSuccess(exerciseService.getExercisesList(userId));
     }
 
     @Operation(summary = "운동 상세 조회")
     @GetMapping("/{exerciseId}")
     public ApiResponse<ExerciseDetailResponseDTO> getExerciseDetail(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long exerciseId
     ) {
         return ApiResponse.onSuccess(exerciseService.getExerciseDetail(exerciseId));

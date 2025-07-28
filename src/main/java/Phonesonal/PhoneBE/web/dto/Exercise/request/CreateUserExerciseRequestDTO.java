@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class UserExerciseRequestDTO { //유저가 직접 운동 만들기
+public class CreateUserExerciseRequestDTO { //유저가 직접 운동 만들기
     private Integer count;
     private Integer weight;
     private Integer sets;

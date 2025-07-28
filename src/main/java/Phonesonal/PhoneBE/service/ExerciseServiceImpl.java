@@ -6,7 +6,7 @@ import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.ExerciseRepository;
 import Phonesonal.PhoneBE.repository.UserExerciseRepository;
-import Phonesonal.PhoneBE.web.dto.Exercise.request.UserExerciseRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
@@ -107,23 +107,22 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .build();
     }
 
-//    @Override
-//    public UserExerciseResponseDTO createUserExercise(UserExerciseRequestDTO request, Long userId) {
-//        // 유저 운동 생성 로직
-//
-//
-//        UserExercise userExercise = UserExercise.builder()
-//                .userId(userId)
-//                //.exercise(exercise)
-//                .count(request.getCount())
-//                .weight(request.getWeight())
-//                .set(request.getSets())
-//                .weekNumber(request.getWeekNumber())
-//                .date(LocalDate.parse(request.getDate()))
-//                .build();
-//
-//        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
-//
-//        return convertToUserExerciseResponseDTO(savedUserExercise);
-//    }
+    @Override
+    public UserExerciseResponseDTO createUserExercise(CreateUserExerciseRequestDTO request, Long userId) {
+        // 유저 운동 생성 로직
+
+        UserExercise userExercise = UserExercise.builder()
+                .userId(userId)
+                //.exercise(exercise)
+                .count(request.getCount())
+                .weight(request.getWeight())
+                .set(request.getSets())
+                .weekNumber(request.getWeekNumber())
+                .date(LocalDate.parse(request.getDate()))
+                .build();
+
+        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+        return convertToUserExerciseResponseDTO(savedUserExercise);
+    }
 }
