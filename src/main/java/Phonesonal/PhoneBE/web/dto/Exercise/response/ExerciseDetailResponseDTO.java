@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.web.dto.Exercise;
+package Phonesonal.PhoneBE.web.dto.Exercise.response;
 
 import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
 import lombok.Builder;

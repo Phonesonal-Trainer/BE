@@ -1,16 +1,19 @@
 package Phonesonal.PhoneBE.service;
 
+import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
+import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.ExerciseRepository;
 import Phonesonal.PhoneBE.repository.UserExerciseRepository;
-import Phonesonal.PhoneBE.repository.UserRepository;
-import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseDetailResponseDTO;
-import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.request.UserExerciseRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,12 @@ import java.util.stream.Collectors;
 public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final UserExerciseRepository userExerciseRepository;
+
+    // exerciseId로 운동을 찾는 메서드
+    private Exercise findExerciseById(Long exerciseId) {
+        return exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.EXERCISE_NOT_FOUND));
+    }
 
     @Override
     public List<ExerciseResponseDTO> getExercisesList(Long userId) {
@@ -38,8 +47,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public ExerciseDetailResponseDTO getExerciseDetail(Long exerciseId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new RuntimeException("Exercise not found with id: " + exerciseId));
+        Exercise exercise = findExerciseById(exerciseId);
 
         return convertToExerciseDetailResponseDTO(exercise);
     }
@@ -75,4 +83,47 @@ public class ExerciseServiceImpl implements ExerciseService {
     private boolean checkIfBookmarked(Long exerciseId, Long userId) {
         return userExerciseRepository.existsByUserIdAndExerciseIdAndBookmarkTrue(userId, exerciseId);
     }
+
+    @Override
+    public List<UserExerciseResponseDTO> getMyExercisesList(Long userId, LocalDate exerciseDate) {
+        List<UserExercise> userExercises = userExerciseRepository.findByUserIdAndExerciseDate(userId, exerciseDate);
+
+        return userExercises.stream()
+                .map(this::convertToUserExerciseResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserExerciseResponseDTO convertToUserExerciseResponseDTO(UserExercise ue) {
+        return UserExerciseResponseDTO.builder()
+                .userExerciseId(ue.getId())
+                .exerciseId(ue.getExercise().getId())
+                .name(ue.getExercise().getName())
+                //.type(ue.getExercise().getType())
+                .count(ue.getCount())
+                .weight(ue.getWeight())
+                .sets(ue.getSetCount())
+                .weekNumber(ue.getWeekNumber())
+                .date(ue.getDate().toString())
+                .build();
+    }
+
+//    @Override
+//    public UserExerciseResponseDTO createUserExercise(UserExerciseRequestDTO request, Long userId) {
+//        // 유저 운동 생성 로직
+//
+//
+//        UserExercise userExercise = UserExercise.builder()
+//                .userId(userId)
+//                //.exercise(exercise)
+//                .count(request.getCount())
+//                .weight(request.getWeight())
+//                .set(request.getSets())
+//                .weekNumber(request.getWeekNumber())
+//                .date(LocalDate.parse(request.getDate()))
+//                .build();
+//
+//        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+//
+//        return convertToUserExerciseResponseDTO(savedUserExercise);
+//    }
 }

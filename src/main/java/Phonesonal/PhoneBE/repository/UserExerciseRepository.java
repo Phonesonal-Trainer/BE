@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface UserExerciseRepository extends JpaRepository<UserExercise, Long> {
@@ -20,4 +21,6 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     // 특정 사용자의 특정 운동 조회
     @Query("SELECT ue FROM UserExercise ue WHERE ue.user.id = :userId AND ue.exercise.id = :exerciseId")
     List<UserExercise> findByUserIdAndExerciseId(@Param("userId") Long userId, @Param("exerciseId") Long exerciseId);
+
+    List<UserExercise> findByUserIdAndExerciseDate(Long userId, LocalDate exerciseDate);
 }

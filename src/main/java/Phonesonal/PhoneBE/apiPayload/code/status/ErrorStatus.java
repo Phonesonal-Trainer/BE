@@ -24,7 +24,13 @@ public enum ErrorStatus implements BaseErrorCode {
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER4002", "닉네임은 필수 입니다."),
     SMS_SEND_FAIL(HttpStatus.BAD_GATEWAY, "SMS4001", "인증번호를 발송할 수 없습니다"),
     USER_NOT_FOUND_FOR_FIND_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER4010", "일치하는 유저 정보가 존재하지 않습니다."),
-    USER_NOT_FOUND_FOR_RESET_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER4011", "일치하는 유저 정보가 존재하지 않습니다");
+    USER_NOT_FOUND_FOR_RESET_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER4011", "일치하는 유저 정보가 존재하지 않습니다"),
+
+    //운동 관련 에러
+    EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4001", "운동을 찾을 수 없습니다."),
+    EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4002", "이미 완료된 운동입니다."),
+    EXERCISE_INVALID_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4003", "유효하지 않은 운동 상태입니다."),
+    BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

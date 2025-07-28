@@ -2,8 +2,8 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.service.ExerciseService;
-import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseDetailResponseDTO;
-import Phonesonal.PhoneBE.web.dto.Exercise.ExerciseResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
