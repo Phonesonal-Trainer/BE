@@ -15,4 +15,5 @@ public interface ExerciseService {
     List<UserExerciseResponseDTO> getMyExercisesList(Long userId, LocalDate exerciseDate);
     UserExerciseResponseDTO createUserExercise(CreateUserExerciseRequestDTO request, Long userId);
     UserExerciseResponseDTO startUserExercise(Long userId, Long exerciseId);
+    UserExerciseResponseDTO completeUserExercise(Long userId, Long exerciseId);
 }

@@ -3,16 +3,12 @@ package Phonesonal.PhoneBE.service;
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;
 import Phonesonal.PhoneBE.domain.User;
-import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
+import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.enums.exercise.State;
-import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
-import Phonesonal.PhoneBE.repository.BodyPartRepository;
-import Phonesonal.PhoneBE.repository.ExerciseRepository;
-import Phonesonal.PhoneBE.repository.UserExerciseRepository;
-import Phonesonal.PhoneBE.repository.UserRepository;
+import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
@@ -33,6 +29,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final BodyPartRepository bodyPartRepository;
+    private final DailyCalorieRepository dailyCalorieRepository;
 
     // exerciseId로 운동을 찾는 메서드
     private Exercise findExerciseById(Long exerciseId) {
@@ -162,6 +159,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return convertToUserExerciseResponseDTO(userExerciseRepository.save(userExercise));
     }
 
+    @Override
     public UserExerciseResponseDTO startUserExercise(Long userId, Long userExerciseId) {
         // 1. UserExercise 조회
         UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
@@ -188,5 +186,62 @@ public class ExerciseServiceImpl implements ExerciseService {
         UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
 
         return convertToUserExerciseResponseDTO(savedUserExercise);
+    }
+
+    @Override
+    public UserExerciseResponseDTO completeUserExercise(Long userId, Long userExerciseId) {
+        // 1. UserExercise 조회
+        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+
+        // 2. 해당 운동이 요청한 사용자의 것인지 확인
+        if(!userExercise.getUser().getId().equals(userId)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 3. 완료된 운동인지 확인
+        if (userExercise.getState() == State.completed) {
+            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
+        }
+
+        // 4. 시작이 안된 운동인지 확인
+        if (userExercise.getState() != State.pending) {
+            throw new GeneralException(ErrorStatus.USER_EXERCISE_NOT_STARTED);
+        }
+
+        // 5. 운동 상태를 진행 중으로 변경
+        userExercise.setState(State.completed);
+
+        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+        // 6. 칼로리 계산 및 업데이트
+        updateDailyCalories(userExercise);
+
+        return convertToUserExerciseResponseDTO(savedUserExercise);
+    }
+
+    // 칼로리 계산 및 업데이트 메서드
+    private void updateDailyCalories(UserExercise userExercise) {
+        // 총 소모 칼로리 계산: 1회 칼로리 × 횟수 × 세트 수
+        Exercise exercise = userExercise.getExercise();
+        Integer totalCalories = exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+
+        // 해당 날짜의 DailyCalorie 조회 또는 생성
+        User user = userExercise.getUser();
+        LocalDate exerciseDate = userExercise.getExerciseDate();
+
+        DailyCalorie dailyCalorie = dailyCalorieRepository.findByUserAndDate(user, exerciseDate)
+                .orElse(DailyCalorie.builder()
+                        .user(user)
+                        .date(exerciseDate)
+                        .totalCalories(0)
+                        .createdAt(LocalDateTime.now())
+                        .build());
+
+        // 칼로리 누적
+        dailyCalorie.setTotalCalories(dailyCalorie.getTotalCalories() + totalCalories);
+        dailyCalorie.setUpdatedAt(LocalDateTime.now());
+
+        dailyCalorieRepository.save(dailyCalorie);
     }
 }

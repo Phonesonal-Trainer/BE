@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
 import jakarta.persistence.*;
@@ -54,4 +55,9 @@ public class User {
 
     //계정 생성 시간
     private LocalDateTime created_at;
+
+    // 유저의 일일 칼로리 정보
+    @ManyToOne
+    @JoinColumn(name = "daily_calorie_id", nullable = false)
+    private DailyCalorie dailyCalorie;
 }

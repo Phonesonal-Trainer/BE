@@ -52,22 +52,23 @@ public class UserExerciseController {
     @PatchMapping("/start")
     public ApiResponse<UserExerciseResponseDTO> startUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long userExerciseID
+            @RequestParam Long userExerciseId
     ) {
         Long userId = userDetails.getUser().getId();
-        UserExerciseResponseDTO startedExercise = exerciseService.startUserExercise(userId, userExerciseID);
+        UserExerciseResponseDTO startedExercise = exerciseService.startUserExercise(userId, userExerciseId);
         return ApiResponse.onSuccess(startedExercise);
     }
-//
-//    @Operation(summary = "유저 운동 완료")
-//    @PatchMapping("/complete")
-//    public ApiResponse<UserExerciseResponseDTO> completeUserExercise(
-//            @Valid UserExercise userExercise
-//    ) {
-//        // 유저 운동 완료 로직
-//        UserExercise completedExercise = exerciseService.completeUserExercise(userExercise);
-//        return ApiResponse.onSuccess(completedExercise);
-//    }
+
+    @Operation(summary = "유저 운동 완료")
+    @PatchMapping("/complete")
+    public ApiResponse<UserExerciseResponseDTO> completeUserExercise(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long userExerciseId
+    ) {
+        Long userId = userDetails.getUser().getId();
+        UserExerciseResponseDTO completedExercise = exerciseService.completeUserExercise(userId, userExerciseId);
+        return ApiResponse.onSuccess(completedExercise);
+    }
 //
 //    @Operation(summary = "내 운동 목록 조회")
 //    @GetMapping("/my-exercises")
