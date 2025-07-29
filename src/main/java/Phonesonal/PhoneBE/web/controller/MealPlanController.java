@@ -32,7 +32,7 @@ public class MealPlanController {
             @ModelAttribute RecommendMealRequestDTO.GetMealPlanRequestDTO request
     ) {
         List<RecommendMealResponseDTO> plans = recommendMealQueryService.getMealPlans(
-                request.getUserId(), request.getDate()
+                request.getUserId(), request.getDate(), request.getMealTime()
         );
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, plans));
     }
