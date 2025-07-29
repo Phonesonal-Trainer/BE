@@ -2,6 +2,7 @@ package Phonesonal.PhoneBE.domain;
 
 import Phonesonal.PhoneBE.domain.Food;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import jakarta.persistence.*;

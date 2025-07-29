@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface GoalPeriodRepository extends JpaRepository<GoalPeriod, Long> {
 
     List<GoalPeriod> findByUserId(Long userId);
-    Optional<GoalPeriod> findByIdAndUserId(Long id, Long userId);
+    Optional<GoalPeriod> findById(Long id);
 }

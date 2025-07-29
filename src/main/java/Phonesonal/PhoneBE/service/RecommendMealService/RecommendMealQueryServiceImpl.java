@@ -1,7 +1,7 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
-import Phonesonal.PhoneBE.domain.GoalPeriod;
 import Phonesonal.PhoneBE.domain.RecommendMeal;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
@@ -28,7 +28,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
 
         List<RecommendMeal> meals = recommendMealRepository.findByUserIdAndDate(userId, date);
 
-        GoalPeriod goalPeriod = goalPeriodRepository.findByUser_Id(userId)
+        GoalPeriod goalPeriod = goalPeriodRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저의 GoalPeriod가 없습니다."));
 
         return meals.stream()
