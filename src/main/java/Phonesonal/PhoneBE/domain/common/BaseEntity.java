@@ -1,9 +1,6 @@
 package Phonesonal.PhoneBE.domain.common;
 
-<<<<<<< HEAD
-=======
 import jakarta.persistence.Column;
->>>>>>> dev
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
