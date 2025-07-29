@@ -12,8 +12,8 @@ public class DateUtil {
         // 현재 날짜의 주의 월요일
         LocalDate currentMonday = now.with(DayOfWeek.MONDAY);
 
-        // 주차 차이 계산 (0주차부터 시작)
+        // 주차 차이 계산 (1주차부터 시작)
         long weeksBetween = ChronoUnit.WEEKS.between(startMonday, currentMonday);
-        return (int) weeksBetween;
+        return (int) weeksBetween+1;
     }
 }
