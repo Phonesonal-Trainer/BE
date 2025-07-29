@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
+import Phonesonal.PhoneBE.apiPayload.code.util.DateUtil;
 import Phonesonal.PhoneBE.domain.RecommendMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
@@ -21,20 +22,21 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
     private final GoalPeriodRepository goalPeriodRepository;
 
     @Override
-    public List<RecommendMealResponseDTO> getMealPlans(Long userId, LocalDate date) {
+    public List<RecommendMealResponseDTO> getMealPlans(Long goalPeriodId, LocalDate date) {
         if (date == null) {
             throw new IllegalArgumentException("date 파라미터는 반드시 필요합니다.");
         }
 
-        List<RecommendMeal> meals = recommendMealRepository.findByUserIdAndDate(userId, date);
+        // 1. goalPeriodId 기준으로 GoalPeriod 조회
+        GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 GoalPeriod가 없습니다."));
 
-        GoalPeriod goalPeriod = goalPeriodRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저의 GoalPeriod가 없습니다."));
+        // 2. 해당 GoalPeriod와 날짜를 기준으로 RecommendMeal 조회
+        List<RecommendMeal> meals = recommendMealRepository.findByGoalPeriodAndDate(goalPeriod, date);
 
         return meals.stream()
-                // 주차 계산
                 .map(meal -> {
-                    int weekNumber = Period.between(goalPeriod.getStartDate(), meal.getDate()).getDays() / 7 + 1;
+                    int weekNumber = DateUtil.calculateWeek(goalPeriod.getStartDate(), meal.getDate());
                     return RecommendMealResponseDTO.builder()
                             .foodId(meal.getFood().getFoodId())
                             .foodName(meal.getFood().getName())
@@ -47,4 +49,6 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                 })
                 .collect(Collectors.toList());
     }
+
+
 }

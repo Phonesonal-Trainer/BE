@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,10 @@ public class UserMeal {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_period_id")
+    private GoalPeriod goalPeriod;
 
     @Column(nullable = false)
     private float quantity;
