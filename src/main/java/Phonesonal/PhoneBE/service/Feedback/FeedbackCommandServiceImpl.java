@@ -27,7 +27,7 @@ public class FeedbackCommandServiceImpl implements FeedbackCommandService {
     @Transactional
     @Override
     public Feedback createFeedback(Long userId, Long goalPeriodId, FeedbackRequestDTO.CreateDTO dto) {
-        GoalPeriod goalPeriod = goalPeriodRepository.findByIdAndUserId(goalPeriodId, userId)
+        GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
 
         int currentWeek = DateUtil.calculateWeek(goalPeriod.getStartDate(), LocalDate.now());
