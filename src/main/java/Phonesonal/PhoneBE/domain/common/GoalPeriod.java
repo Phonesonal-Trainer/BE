@@ -1,0 +1,36 @@
+package Phonesonal.PhoneBE.domain.common;
+
+import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.enums.ExerciseFeedback;
+import Phonesonal.PhoneBE.domain.enums.FoodFeedback;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.time.LocalDate;
+
+@Entity
+@Getter
+@Setter
+@DynamicUpdate
+@DynamicInsert
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class GoalPeriod extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "goal_period_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column
+    private LocalDate startDate;
+
+    @Column
+    private LocalDate endDate;
+}
