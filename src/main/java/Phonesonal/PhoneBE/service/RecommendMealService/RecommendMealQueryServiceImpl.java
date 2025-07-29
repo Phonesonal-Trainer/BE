@@ -1,7 +1,8 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
-import Phonesonal.PhoneBE.domain.GoalPeriod;
+import Phonesonal.PhoneBE.apiPayload.code.util.DateUtil;
 import Phonesonal.PhoneBE.domain.RecommendMeal;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
@@ -32,9 +33,9 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저의 GoalPeriod가 없습니다."));
 
         return meals.stream()
-                // 주차 계산
                 .map(meal -> {
-                    int weekNumber = Period.between(goalPeriod.getStartDate(), meal.getDate()).getDays() / 7 + 1;
+                    // 주차 계산
+                    int weekNumber = DateUtil.calculateWeek(goalPeriod.getStartDate(), meal.getDate());
                     return RecommendMealResponseDTO.builder()
                             .foodId(meal.getFood().getFoodId())
                             .foodName(meal.getFood().getName())
@@ -47,4 +48,5 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                 })
                 .collect(Collectors.toList());
     }
+
 }
