@@ -2,15 +2,15 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.enums.Gender;
+import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
 import Phonesonal.PhoneBE.repository.UserRepository;
-import Phonesonal.PhoneBE.security.CustomOAuth2UserService;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.security.JwtTokenProvider;
 import Phonesonal.PhoneBE.service.Auth.KakaoService;
 import Phonesonal.PhoneBE.web.dto.Auth.KakaoRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Auth.LoginResultDTO;
-import Phonesonal.PhoneBE.web.dto.Auth.SignupRequestDTO;
 import Phonesonal.PhoneBE.web.dto.InfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -76,13 +77,21 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입 API", description = "신규회원 정보 기입, 가입")
-    public ApiResponse<LoginResultDTO> signup(@RequestBody SignupRequestDTO request) {
-        System.out.println("=== Authorization Header ===");
-        System.out.println("Received tempToken: " + request.getTempToken());
-        System.out.println("===========================");
+    public ApiResponse<LoginResultDTO> signup(
+            @RequestParam String tempToken,
+            @RequestParam String nickname,
+            @RequestParam int age,
+            @RequestParam Gender gender,
+            @RequestParam Purpose purpose,
+            @RequestParam int deadline,
+            @RequestParam BigDecimal height,
+            @RequestParam BigDecimal weight,
+            @RequestParam(required = false) BigDecimal bodyFatRate,
+            @RequestParam(required = false) BigDecimal muscleMass
+    ) {
         try {
             // 임시 토큰에서 카카오 정보 추출
-            Map<String, Object> kakaoUserInfo = jwtTokenProvider.getKakaoInfoFromTempToken(request.getTempToken());
+            Map<String, Object> kakaoUserInfo = jwtTokenProvider.getKakaoInfoFromTempToken(tempToken);
             String kakaoName = kakaoUserInfo.get("nickname").toString();
             String kakaoEmail = kakaoUserInfo.get("email").toString();
 
@@ -95,15 +104,17 @@ public class AuthController {
             User newUser = User.builder()
                     .name(kakaoName)
                     .email(kakaoEmail)
-                    .nickname(request.getNickname())
-                    .age(request.getAge())
-                    .gender(request.getGender())
-                    .deadline(request.getDeadline())
-                    .height(request.getHeight())
-                    .weight(request.getWeight())
+                    .nickname(nickname)
+                    .age(age)
+                    .gender(gender)
+                    .purpose(purpose)
+                    .deadline(deadline)
+                    .height(height) // BigDecimal -> int 변환
+                    .weight(weight) // BigDecimal -> int 변환
+                    .bodyFatRate(bodyFatRate) // BigDecimal -> Double 변환
+                    .muscleMass(muscleMass) // BigDecimal -> Double 변환
                     .socialType(SocialType.KAKAO)
                     .created_at(LocalDateTime.now())
-                    // 카카오에서 받은 다른 정보들도 필요시 추가
                     .build();
 
             userRepository.save(newUser);
