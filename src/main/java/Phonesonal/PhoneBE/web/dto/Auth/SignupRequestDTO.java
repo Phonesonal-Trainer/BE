@@ -1,7 +1,10 @@
 package Phonesonal.PhoneBE.web.dto.Auth;
 
 import Phonesonal.PhoneBE.domain.enums.Gender;
+import Phonesonal.PhoneBE.domain.enums.Purpose;
 import lombok.Getter;
+
+import java.math.BigDecimal;
 
 @Getter
 public class SignupRequestDTO {
@@ -9,9 +12,10 @@ public class SignupRequestDTO {
     private String nickname;
     private int age;
     private Gender gender;
+    private Purpose purpose;
     private int deadline;
-    private int height;
-    private int weight;
-    //private int jibang;
-    //private int muscle;
+    private BigDecimal height;
+    private BigDecimal weight;
+    private BigDecimal bodyFatRate;
+    private BigDecimal muscleMass;
 }
