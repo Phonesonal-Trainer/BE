@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.repository;
 import Phonesonal.PhoneBE.domain.RecommendMeal;
 
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import jakarta.transaction.Transactional;
@@ -13,8 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Long> {
-    List<RecommendMeal> findByUserIdAndDate(Long userId, LocalDate date);
-
+    List<RecommendMeal> findByGoalPeriodAndDate(GoalPeriod goalPeriod, LocalDate date);
 
     @Modifying(clearAutomatically = true)
     @Transactional

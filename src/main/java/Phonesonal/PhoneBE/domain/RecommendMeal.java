@@ -49,7 +49,7 @@ public class RecommendMeal {
     } // 기본값 incomplete
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_period_id", nullable = false)
+    @JoinColumn(name = "goal_period_id")
     private GoalPeriod goalPeriod;
 
 }
