@@ -1,10 +1,11 @@
 package Phonesonal.PhoneBE.domain;
 
 import Phonesonal.PhoneBE.domain.enums.Gender;
+import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,13 +34,20 @@ public class User {
     private SocialType socialType;
 
     //성별
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     //키
-    private int height;
+    private BigDecimal height;
 
     //무게
-    private int weight;
+    private BigDecimal weight;
+
+    //체지방률 (%)
+    private BigDecimal bodyFatRate;
+
+    //골격근량 (kg)
+    private BigDecimal muscleMass;
 
     //체지방률 (%)
     private double bodyFatPercentage;
@@ -53,6 +61,14 @@ public class User {
     //목표기간
     private int deadline;
 
+    //사용목적
+    @Enumerated(EnumType.STRING)
+    private Purpose purpose;
+
     //계정 생성 시간
     private LocalDateTime created_at;
+
+    // Diagnosis와의 1:1 관계
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Diagnosis diagnosis;
 }
