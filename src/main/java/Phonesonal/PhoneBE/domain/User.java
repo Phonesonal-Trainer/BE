@@ -68,7 +68,12 @@ public class User {
     //계정 생성 시간
     private LocalDateTime created_at;
 
+    //목표기간
+    @Column(name = "current_goal_period_id")
+    private Long currentGoalPeriodId;
+  
     // Diagnosis와의 1:1 관계
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Diagnosis diagnosis;
+
 }
