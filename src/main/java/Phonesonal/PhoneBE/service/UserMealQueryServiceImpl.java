@@ -30,15 +30,25 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
 
         return userMeals.stream().map(userMeal -> {
             Food food = userMeal.getFood();
+
+            // 표시용 servingSize 계산: quantity 수정 안했으면 servingSize, 했으면 quantity 값 기반 표현
+            String displayedServingSize =
+                    (food.getQuantity() == null || food.getQuantity().equals(userMeal.getQuantity()))
+                            ? food.getServingSize()
+                            : userMeal.getQuantity() + "g";
+
             return UserMealResponseDTO.builder()
                     .recordId(userMeal.getId())
                     .foodId(food.getFoodId())
                     .foodName(food.getName())
+                    .imageUrl(food.getImageUrl())
                     .isCustom(food.getIsCustom())
                     .mealTime(userMeal.getMealTime())
                     .date(userMeal.getDate())
                     .quantity(userMeal.getQuantity())
                     .calorie(food.getCalorie())
+                    .defaultServingSize(food.getServingSize())         // 기준값
+                    .displayedServingSize(displayedServingSize)        // 보여줄 값
                     .build();
         }).collect(Collectors.toList());
     }

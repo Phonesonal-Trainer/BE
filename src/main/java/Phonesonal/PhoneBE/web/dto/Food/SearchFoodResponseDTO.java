@@ -8,9 +8,11 @@ import lombok.Getter;
 public class SearchFoodResponseDTO {
     private Long foodId;
     private String name;
-    private Float quantity;
+    private String servingSize; //1인분
+    // private Float quantity; //실제 양
     private Float calorie;
     private Float carb;
     private Float protein;
     private Float fat;
+    private String imageUrl;
 }

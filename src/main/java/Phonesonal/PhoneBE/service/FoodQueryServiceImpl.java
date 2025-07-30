@@ -23,10 +23,13 @@ public class FoodQueryServiceImpl implements FoodQueryService {
                 SearchFoodResponseDTO.builder()
                         .foodId(food.getFoodId())
                         .name(food.getName())
+                        .servingSize(food.getServingSize())
+                        // .quantity(food.getQuantity())
                         .calorie(food.getCalorie())
                         .carb(food.getCarb())
                         .protein(food.getProtein())
                         .fat(food.getFat())
+                        .imageUrl(food.getImageUrl())
                         .build()
         ).collect(Collectors.toList());
     }

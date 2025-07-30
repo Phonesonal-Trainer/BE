@@ -26,11 +26,18 @@ public class Food {
     @Column(length = 50)
     private Float quantity;
 
+    @Column(name = "serving_size", length = 50)
+    private String servingSize;
+
     // 영양소
     private Float calorie;
     private Float carb;
     private Float protein;
     private Float fat;
+
+    //이모티콘
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id")

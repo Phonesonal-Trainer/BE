@@ -51,9 +51,20 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
         UserMeal saved = userMealRepository.save(userMeal);
 
+        String displayedServingSize =
+                (food.getQuantity() == null || food.getQuantity().equals(saved.getQuantity()))
+                        ? food.getServingSize()
+                        : saved.getQuantity() + "g";
+
         return UserMealResponseDTO.builder()
                 .recordId(saved.getId())
+                .foodId(food.getFoodId())
                 .foodName(food.getName())
+                .imageUrl(food.getImageUrl())
+                .calorie(food.getCalorie())
+                .defaultServingSize(food.getServingSize())         // 기준값
+                .displayedServingSize(displayedServingSize)
+                .isCustom(food.getIsCustom())
                 .mealTime(saved.getMealTime())
                 .date(saved.getDate())
                 .quantity(saved.getQuantity())

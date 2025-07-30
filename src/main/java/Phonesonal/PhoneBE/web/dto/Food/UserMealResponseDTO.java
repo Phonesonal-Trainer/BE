@@ -18,4 +18,9 @@ public class UserMealResponseDTO {
     private Long foodId;
     private boolean isCustom;
     private Float calorie;
+    private String imageUrl;
+
+    private String displayedServingSize; // 실제 프론트에 보여줄 값 (dynamic)
+    private String defaultServingSize;  // DB에 저장된 디폴트 servingSize
+
 }
