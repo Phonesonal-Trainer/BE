@@ -97,4 +97,17 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
         userMealRepository.save(userMeal);
     }
 
+    @Override
+    public void updateQuantity(Long recordId, Float quantity) {
+        UserMeal userMeal = userMealRepository.findById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식단입니다."));
+
+        // isCustom == true인 경우 수정 불가(검색 리스트에서 추가한 식단만 수정 가능)
+        if (Boolean.TRUE.equals(userMeal.getFood().getIsCustom())) {
+            throw new IllegalArgumentException("직접 입력한 식단은 수정할 수 없습니다.");
+        }
+
+        userMeal.setQuantity(quantity);
+    }
+
 }

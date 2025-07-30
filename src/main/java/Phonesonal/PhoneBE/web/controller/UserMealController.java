@@ -11,6 +11,7 @@ import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO;
+import Phonesonal.PhoneBE.web.dto.UpdateUserMealQuantityRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -68,4 +69,15 @@ public class UserMealController {
         List<UserMealResponseDTO> result = userMealQueryService.getUserMeals(goalPeriodId, date, mealTime);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
+
+    @Operation(summary = "추가 식단 양 수정 (기존 음식 기반만 가능)")
+    @PatchMapping("/{recordId}")
+    public ResponseEntity<ApiResponse<String>> updateUserMealQuantity(
+            @PathVariable Long recordId,
+            @RequestBody UpdateUserMealQuantityRequestDTO requestDTO
+    ) {
+        userMealCommandService.updateQuantity(recordId, requestDTO.getQuantity());
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "수정 완료"));
+    }
+
 }
