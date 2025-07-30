@@ -13,6 +13,7 @@ import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -108,6 +109,7 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
         userMealRepository.save(userMeal);
     }
 
+    @Transactional
     @Override
     public void updateQuantity(Long recordId, Float quantity) {
         UserMeal userMeal = userMealRepository.findById(recordId)
