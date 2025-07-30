@@ -13,4 +13,9 @@ public class UserMealResponseDTO {
     private MealTime mealTime;
     private LocalDate date;
     private Float quantity;
+
+    //조화용으로 필드 추가
+    private Long foodId;
+    private boolean isCustom;
+    private Float calorie;
 }

@@ -2,8 +2,10 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
+import Phonesonal.PhoneBE.domain.enums.MealTime;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.UserMealCommandService;
+import Phonesonal.PhoneBE.service.UserMealQueryService;
 import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
@@ -11,10 +13,14 @@ import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,4 +56,16 @@ public class UserMealController {
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "저장 완료"));
     }
 
+    private final UserMealQueryService userMealQueryService;
+
+    @Operation(summary = "추가 식단 전체 조회 (직접 입력 + 기존 음식 기반)")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<UserMealResponseDTO>>> getUserMeals(
+            @RequestParam Long goalPeriodId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam MealTime mealTime
+    ) {
+        List<UserMealResponseDTO> result = userMealQueryService.getUserMeals(goalPeriodId, date, mealTime);
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
+    }
 }
