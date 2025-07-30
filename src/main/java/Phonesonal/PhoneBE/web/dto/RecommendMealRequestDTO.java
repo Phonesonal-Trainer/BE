@@ -20,21 +20,4 @@ public class RecommendMealRequestDTO {
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         private LocalDate date;
     }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class UpdateCompleteStatusRequestDTO {
-        private Long userId;
-        private Long foodId;
-        private MealTime mealTime;
-
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        private LocalDate date;
-
-        private String complete; // "CHECKED" or "UNCHECKED"
-    }
-
 }

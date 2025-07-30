@@ -1,8 +1,8 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
+import Phonesonal.PhoneBE.web.dto.UpdateCompleteStatusRequestDTO;
 import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
-import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO.UpdateCompleteStatusRequestDTO;
-import Phonesonal.PhoneBE.repository.RecommendMealRepository;
+import Phonesonal.PhoneBE.repository.Food.RecommendMealRepository;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,12 +13,13 @@ public class RecommendMealCommandService {
 
     private final RecommendMealRepository recommendMealRepository;
 
-    public CompleteStatusResponseDTO updateCompleteStatus(UpdateCompleteStatusRequestDTO request) {
+    public CompleteStatusResponseDTO updateCompleteStatus(UpdateCompleteStatusRequestDTO request, Long userId) {
         CompleteStatus complete = CompleteStatus.valueOf(request.getComplete().toUpperCase());
 
         recommendMealRepository.updateCompleteStatus(
-                request.getUserId(),
+                userId,
                 request.getFoodId(),
+                request.getGoalPeriodId(),
                 request.getDate(),
                 request.getMealTime(),
                 complete
