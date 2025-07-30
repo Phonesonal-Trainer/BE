@@ -13,6 +13,7 @@ import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +52,20 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
         UserMeal saved = userMealRepository.save(userMeal);
 
+        String displayedServingSize =
+                (food.getQuantity() == null || food.getQuantity().equals(saved.getQuantity()))
+                        ? food.getServingSize()
+                        : saved.getQuantity() + "g";
+
         return UserMealResponseDTO.builder()
                 .recordId(saved.getId())
+                .foodId(food.getFoodId())
                 .foodName(food.getName())
+                .imageUrl(food.getImageUrl())
+                .calorie(food.getCalorie())
+                .defaultServingSize(food.getServingSize())         // 기준값
+                .displayedServingSize(displayedServingSize)
+                .isCustom(food.getIsCustom())
                 .mealTime(saved.getMealTime())
                 .date(saved.getDate())
                 .quantity(saved.getQuantity())
@@ -95,6 +107,20 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
                 .build();
 
         userMealRepository.save(userMeal);
+    }
+
+    @Transactional
+    @Override
+    public void updateQuantity(Long recordId, Float quantity) {
+        UserMeal userMeal = userMealRepository.findById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식단입니다."));
+
+        // isCustom == true인 경우 수정 불가(검색 리스트에서 추가한 식단만 수정 가능)
+        if (Boolean.TRUE.equals(userMeal.getFood().getIsCustom())) {
+            throw new IllegalArgumentException("직접 입력한 식단은 수정할 수 없습니다.");
+        }
+
+        userMeal.setQuantity(quantity);
     }
 
 }
