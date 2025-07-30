@@ -24,7 +24,7 @@ public class Food {
 
     // 양
     @Column(length = 50)
-    private String servingSize;
+    private Float quantity;
 
     // 영양소
     private Float calorie;

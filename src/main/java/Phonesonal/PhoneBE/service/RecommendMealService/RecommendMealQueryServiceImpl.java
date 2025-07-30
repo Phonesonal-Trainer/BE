@@ -32,7 +32,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 GoalPeriod가 없습니다."));
 
         // 2. 해당 GoalPeriod, 날짜, mealTime을 기준으로 RecommendMeal 조회
-        List<RecommendMeal> meals = recommendMealRepository.findByGoalPeriodAndDate(goalPeriod, date, mealTime);
+        List<RecommendMeal> meals = recommendMealRepository.findByGoalPeriodAndDateAndMealTime(goalPeriod, date, mealTime);
 
         return meals.stream()
                 .map(meal -> {
@@ -49,6 +49,4 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                 })
                 .collect(Collectors.toList());
     }
-
-
 }

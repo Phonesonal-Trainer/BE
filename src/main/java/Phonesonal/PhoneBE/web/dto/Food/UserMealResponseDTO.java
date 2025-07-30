@@ -12,5 +12,5 @@ public class UserMealResponseDTO {
     private String foodName;
     private MealTime mealTime;
     private LocalDate date;
-    private float quantity;
+    private Float quantity;
 }

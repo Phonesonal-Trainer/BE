@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Long> {
-    List<RecommendMeal> findByGoalPeriodAndDate(GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
+    List<RecommendMeal> findByGoalPeriodAndDateAndMealTime(GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
 
     @Modifying(clearAutomatically = true)
     @Transactional

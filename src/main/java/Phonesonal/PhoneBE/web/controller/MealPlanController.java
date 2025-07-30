@@ -34,11 +34,11 @@ public class MealPlanController {
     public ResponseEntity<ApiResponse<List<RecommendMealResponseDTO>>> getMealPlans(
             @ModelAttribute RecommendMealRequestDTO.GetMealPlanRequestDTO request,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-                Long userId = userDetails.getUser().getId();
+                //Long userId = userDetails.getUser().getId();
                 Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
 
         List<RecommendMealResponseDTO> plans = recommendMealQueryService.getMealPlans(
-                userId,
+                goalPeriodId,
                 request.getDate(),
                 request.getMealTime()
         );

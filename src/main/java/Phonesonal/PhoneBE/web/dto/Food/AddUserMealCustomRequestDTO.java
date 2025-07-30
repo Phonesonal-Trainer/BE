@@ -8,10 +8,14 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class AddUserMealFromFoodRequestDTO {
-    private Long foodId;
-    // private Long goalPeriodId;
+public class AddUserMealCustomRequestDTO {
+    private String name;
+    //private Float quantity;
+    private Float calorie;
+    private Float carb;
+    private Float protein;
+    private Float fat;
     private LocalDate date;
     private MealTime mealTime;
-    // private float quantity; //optional
 }
+

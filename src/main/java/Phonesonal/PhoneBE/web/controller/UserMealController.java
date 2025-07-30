@@ -5,6 +5,7 @@ import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.UserMealCommandService;
 import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO;
@@ -28,8 +29,25 @@ public class UserMealController {
             @RequestBody AddUserMealFromFoodRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
-        UserMealResponseDTO result = userMealCommandService.addUserMealFromFood(requestDTO, userId);
+        // Long userId = userDetails.getUser().getId();
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+
+        UserMealResponseDTO result = userMealCommandService.addUserMealFromFood(requestDTO, goalPeriodId);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
+
+    @Operation(summary = "직접 입력한 식단 추가")
+    @PostMapping("/custom")
+    public ResponseEntity<ApiResponse<String>> addUserMealCustom(
+            @RequestBody AddUserMealCustomRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+
+        userMealCommandService.addUserMealCustom(requestDTO, userId, goalPeriodId);
+
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "저장 완료"));
+    }
+
 }

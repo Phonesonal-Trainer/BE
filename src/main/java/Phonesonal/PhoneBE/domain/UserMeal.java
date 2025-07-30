@@ -31,8 +31,11 @@ public class UserMeal {
     @JoinColumn(name = "goal_period_id")
     private GoalPeriod goalPeriod;
 
-    @Column(nullable = false)
-    private float quantity;
+    @Column(name = "week_number", nullable = false)
+    private Integer weekNumber;
+
+    @Column(nullable = true)
+    private Float quantity;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
