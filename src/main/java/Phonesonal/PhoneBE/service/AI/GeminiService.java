@@ -22,7 +22,7 @@ public class GeminiService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public String generateFitnessGoals(BigDecimal weight, BigDecimal height, BigDecimal bodyFatRate, BigDecimal muscleMass) {
+    public String generateFitnessGoals(BigDecimal weight, BigDecimal height, BigDecimal bodyFatRate, BigDecimal muscleMass, int deadline) {
         BigDecimal currentBMI = calculateBMI(weight, height);
 
         // 현재 상태 정보 구성
@@ -47,17 +47,18 @@ public class GeminiService {
         %s
         
         **요구사항:**
-        1. 건강하고 현실적인 3개월 목표 수치 설정
+        1. 건강하고 현실적인 %d개월 목표 수치 설정
         2. 일반적인 성인 기준으로 적정 목표 설정
         3. 의학적으로 안전한 범위 내에서 설정
+        4. 입력되지 않은 정보(체지방률, 골격근량)가 있다면 해당 필드는 null로 설정
         %s
         
         **응답 형식 (JSON):**
         {
           "targetWeight": [목표 체중 숫자값],
-          "targetBMI": [목표 BMI 숫자값],  
-          "targetBodyFatRate": [목표 체지방률 숫자값],
-          "targetMuscleMass": [골격근량 변동사항 텍스트(증가, 소폭 증가, 감소, 소폭 감소, 유지)],
+          "targetBMI": [목표 BMI 숫자값],
+          "targetBodyFatRate": %s,
+          "targetMuscleMass": %s,
           "recommendedNutrition": [권장 주 영양소 텍스트(ex: 고단백/저지방)],
           "recommendedCalories": [권장 일일 칼로리 숫자값],
           "workoutFrequency": [주간 운동 횟수 숫자값],
@@ -70,7 +71,13 @@ public class GeminiService {
         
         지시된 숫자값, 텍스트만 포함하고 그 외의 단위나 추가 텍스트는 제외해주세요.
         **중요: 반드시 순수 JSON만 응답하세요. 마크다운 코드블록(```)이나 추가 설명 없이 JSON 객체만 반환해주세요.**
-        """, currentStatus, generateAdditionalContext(bodyFatRate, muscleMass));
+        """,
+                currentStatus,
+                deadline,
+                generateAdditionalContext(bodyFatRate, muscleMass),
+                bodyFatRate != null ? "[목표 체지방률 숫자값]" : "null",
+                muscleMass != null ? "\"[골격근량 변동사항 텍스트(증가, 소폭 증가, 감소, 소폭 감소, 유지)]\"" : "null"
+        );
 
 
         // 요청 본문 구성

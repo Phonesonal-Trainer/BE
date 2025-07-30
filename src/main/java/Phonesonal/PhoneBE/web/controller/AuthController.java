@@ -13,6 +13,7 @@ import Phonesonal.PhoneBE.web.dto.Auth.KakaoRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Auth.LoginResultDTO;
 import Phonesonal.PhoneBE.web.dto.InfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "로그인 및 회원가입 관련 API")
 public class AuthController {
 
     private final KakaoService kakaoService;
