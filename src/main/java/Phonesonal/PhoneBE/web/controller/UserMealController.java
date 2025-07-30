@@ -30,7 +30,7 @@ public class UserMealController {
 
     private final UserMealCommandService userMealCommandService;
 
-    @Operation(summary = "유저 식단 직접 추가 (기존 음식 검색 기반)")
+    @Operation(summary = "기존 음식 검색 기반 추가 식단 업로드")
     @PostMapping("/from-food")
     public ResponseEntity<ApiResponse<UserMealResponseDTO>> addUserMealFromFood(
             @RequestBody AddUserMealFromFoodRequestDTO requestDTO,
@@ -43,7 +43,7 @@ public class UserMealController {
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 
-    @Operation(summary = "직접 입력한 식단 추가")
+    @Operation(summary = "직접 입력한 추가 식단 업로드")
     @PostMapping("/custom")
     public ResponseEntity<ApiResponse<String>> addUserMealCustom(
             @RequestBody AddUserMealCustomRequestDTO requestDTO,
@@ -70,7 +70,7 @@ public class UserMealController {
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 
-    @Operation(summary = "추가 식단 양 수정 (기존 음식 기반만 가능)")
+    @Operation(summary = "추가 식단 양 수정 (검색 기반 음식만 가능)")
     @PatchMapping("/{recordId}")
     public ResponseEntity<ApiResponse<String>> updateUserMealQuantity(
             @PathVariable Long recordId,
