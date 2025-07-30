@@ -1,16 +1,19 @@
 package Phonesonal.PhoneBE.web.controller;
 
+import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.RecommendMealService.RecommendMealCommandService;
 import Phonesonal.PhoneBE.service.RecommendMealService.RecommendMealQueryService;
 import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
 import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO;
 import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
+import Phonesonal.PhoneBE.web.dto.UpdateCompleteStatusRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,21 +32,28 @@ public class MealPlanController {
     @Operation(summary = "식단 플랜 조회")
     @GetMapping("/plans")
     public ResponseEntity<ApiResponse<List<RecommendMealResponseDTO>>> getMealPlans(
-            @ModelAttribute RecommendMealRequestDTO.GetMealPlanRequestDTO request
-    ) {
+            @ModelAttribute RecommendMealRequestDTO.GetMealPlanRequestDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+                Long userId = userDetails.getUser().getId();
+                Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+
         List<RecommendMealResponseDTO> plans = recommendMealQueryService.getMealPlans(
-                request.getUserId(), request.getDate(), request.getMealTime()
+                userId,
+                request.getDate(),
+                request.getMealTime()
         );
+
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, plans));
     }
 
     @Operation(summary = "식단 체크 상태 수정")
     @PatchMapping("/plans/complete")
     public ResponseEntity<ApiResponse<CompleteStatusResponseDTO>> updateCompleteStatus(
-            @RequestBody RecommendMealRequestDTO.UpdateCompleteStatusRequestDTO request
+            @RequestBody UpdateCompleteStatusRequestDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CompleteStatusResponseDTO result = recommendMealCommandService.updateCompleteStatus(request);
-        ApiResponse<CompleteStatusResponseDTO> response = ApiResponse.of(SuccessStatus._OK, result);
-        return ResponseEntity.ok(response);
+        Long userId = userDetails.getUser().getId();
+        CompleteStatusResponseDTO result = recommendMealCommandService.updateCompleteStatus(request, userId);
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 }

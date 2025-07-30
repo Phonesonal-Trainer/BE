@@ -5,13 +5,12 @@ import Phonesonal.PhoneBE.domain.RecommendMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
-import Phonesonal.PhoneBE.repository.RecommendMealRepository;
+import Phonesonal.PhoneBE.repository.Food.RecommendMealRepository;
 import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 

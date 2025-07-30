@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.repository;
+package Phonesonal.PhoneBE.repository.Food;
 import Phonesonal.PhoneBE.domain.RecommendMeal;
 
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
@@ -23,10 +23,10 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
             "AND rm.date = :date AND rm.mealTime = :mealTime")
     void updateCompleteStatus(
             @Param("userId") Long userId,
+            @Param("goalPeriodId") Long goalPeriodId,
             @Param("foodId") Long foodId,
             @Param("date") LocalDate date,
             @Param("mealTime") MealTime mealTime,
             @Param("complete") CompleteStatus complete
     );
 }
-
