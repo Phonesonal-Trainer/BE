@@ -26,6 +26,16 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
     private final FoodRepository foodRepository;
     private final GoalPeriodRepository goalPeriodRepository;
 
+    // quantity 초기값 세팅
+    private Float parseServingSizeToQuantity(String servingSize) {
+        if (servingSize == null) return 100.0f;
+        try {
+            return Float.parseFloat(servingSize.replaceAll("[^\\d.]", ""));
+        } catch (Exception e) {
+            return 100.0f;
+        }
+    }
+
     @Override
     public UserMealResponseDTO addUserMealFromFood(AddUserMealFromFoodRequestDTO dto, Long goalPeriodId) {
         Food food = foodRepository.findById(dto.getFoodId())
@@ -36,7 +46,10 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
         User user = goalPeriod.getUser();
 
-        Float quantity = (food.getQuantity() != null) ? food.getQuantity() : 100.0f;
+        //servingSize 기반으로 초기 quantity 설정
+        Float quantity = (food.getQuantity() != null)
+                ? food.getQuantity()
+                : parseServingSizeToQuantity(food.getServingSize());
 
         int weekNumber = DateUtil.calculateWeek(goalPeriod.getStartDate(), dto.getDate());
 
@@ -52,10 +65,7 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
         UserMeal saved = userMealRepository.save(userMeal);
 
-        String displayedServingSize =
-                (food.getQuantity() == null || food.getQuantity().equals(saved.getQuantity()))
-                        ? food.getServingSize()
-                        : saved.getQuantity() + "g";
+        String displayedServingSize = saved.getQuantity() + "g";
 
         return UserMealResponseDTO.builder()
                 .recordId(saved.getId())

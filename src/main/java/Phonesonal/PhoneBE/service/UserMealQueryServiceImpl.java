@@ -32,10 +32,7 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
             Food food = userMeal.getFood();
 
             // 표시용 servingSize 계산: quantity 수정 안했으면 servingSize, 했으면 quantity 값 기반 표현
-            String displayedServingSize =
-                    (food.getQuantity() == null || food.getQuantity().equals(userMeal.getQuantity()))
-                            ? food.getServingSize()
-                            : userMeal.getQuantity() + "g";
+            String displayedServingSize = userMeal.getQuantity() + "g";
 
             return UserMealResponseDTO.builder()
                     .recordId(userMeal.getId())
