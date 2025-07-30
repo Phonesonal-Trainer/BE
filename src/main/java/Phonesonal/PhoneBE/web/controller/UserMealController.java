@@ -70,7 +70,7 @@ public class UserMealController {
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 
-    @Operation(summary = "추가 식단 양 수정 (기존 음식 기반만 가능)")
+    @Operation(summary = "추가 식단 양 수정 (검색 기반 음식만 가능)")
     @PatchMapping("/{recordId}")
     public ResponseEntity<ApiResponse<String>> updateUserMealQuantity(
             @PathVariable Long recordId,
