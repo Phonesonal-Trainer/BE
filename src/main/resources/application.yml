@@ -37,12 +37,11 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-
 jwt:
-    secret: ${JWT_SECRET}
-    expiration: 3600000
-    refreshTokenValidity: 604800000
+  secret: ${JWT_SECRET}
+  expiration: 3600000
+  refreshTokenValidity: 604800000
 
 gemini:
-    api:
-      key: ${GEMINI_KEY}
+  api:
+    key: ${GEMINI_KEY}

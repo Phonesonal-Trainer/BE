@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @AllArgsConstructor
-public class WeightRecordRequestDTO {
+public class WeightRecordResponseDTO {
     private BigDecimal weight;
     private LocalDateTime recordDate;
     private Long userId;
