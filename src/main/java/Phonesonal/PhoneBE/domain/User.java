@@ -6,12 +6,12 @@ import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -50,6 +50,12 @@ public class User {
     //골격근량 (kg)
     private BigDecimal muscleMass;
 
+    //체지방률 (%)
+    private double bodyFatPercentage;
+
+    //골격근량 (kg)
+    private double skeletalMuscleWeight;
+
     //나이
     private int age;
 
@@ -63,6 +69,10 @@ public class User {
     //계정 생성 시간
     private LocalDateTime created_at;
 
+    //목표기간
+    @Column(name = "current_goal_period_id")
+    private Long currentGoalPeriodId;
+  
     // Diagnosis와의 1:1 관계
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Diagnosis diagnosis;
@@ -71,4 +81,5 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "daily_calorie_id")
     private DailyCalorie dailyCalorie;
+
 }

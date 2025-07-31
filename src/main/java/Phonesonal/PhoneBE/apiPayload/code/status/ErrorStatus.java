@@ -26,6 +26,13 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NOT_FOUND_FOR_FIND_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER4010", "일치하는 유저 정보가 존재하지 않습니다."),
     USER_NOT_FOUND_FOR_RESET_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER4011", "일치하는 유저 정보가 존재하지 않습니다"),
 
+    // 피드백 에러
+    FEEDBACK_NOT_FOUND(HttpStatus.BAD_REQUEST, "FEEDBACK4001","피드백이 존재하지 않습니다."),
+    FEEDBACK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "FEEDBACK4002","이번 주차 피드백이 이미 존재합니다."),
+
+    // 목표 관리 에러
+    INVALID_GOAL_PERIOD(HttpStatus.BAD_REQUEST, "GOAL4002","해당 목표 기간이 존재하지 않습니다."),
+
     //운동 관련 에러
     EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4041", "운동을 찾을 수 없습니다."),
     EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4001", "이미 완료된 운동입니다."),
