@@ -9,18 +9,18 @@ import java.time.LocalDate;
 @Builder
 public class UserMealResponseDTO {
     private Long recordId;
+    private Long foodId;
     private String foodName;
     private MealTime mealTime;
     private LocalDate date;
-    private Float quantity;
-
-    //조화용으로 필드 추가
-    private Long foodId;
     private boolean isCustom;
+    private Float carb;
+    private Float protein;
+    private Float fat;
     private Float calorie;
-    private String imageUrl;
-
+    private Float quantity;
     private String displayedServingSize; // 실제 프론트에 보여줄 값 (dynamic)
     private String defaultServingSize;  // DB에 저장된 디폴트 servingSize
+    private String imageUrl;
 
 }

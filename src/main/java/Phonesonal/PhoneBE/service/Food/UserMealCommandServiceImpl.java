@@ -72,7 +72,10 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
                 .foodName(food.getName())
                 .imageUrl(food.getImageUrl())
                 .calorie(food.getCalorie())
-                .defaultServingSize(food.getServingSize())         // 기준값
+                .carb(food.getCarb())
+                .protein(food.getProtein())
+                .fat(food.getFat())
+                .defaultServingSize(food.getServingSize())
                 .displayedServingSize(displayedServingSize)
                 .isCustom(food.getIsCustom())
                 .mealTime(saved.getMealTime())
