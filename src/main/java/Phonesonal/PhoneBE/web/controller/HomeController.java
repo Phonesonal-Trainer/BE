@@ -21,4 +21,11 @@ public class HomeController {
         HomeFullResponseDTO homeResponse = homeService.getHomeFullResponse(userId);
         return ApiResponse.onSuccess(homeResponse);
     }
+/*
+    @GetMapping("/{userId}/main/weight")
+    public ApiResponse<HomeFullResponseDTO> homeFullResponse(@PathVariable Long userId) {
+        HomeFullResponseDTO homeResponse = homeService.getHomeFullResponse(userId);
+        return ApiResponse.onSuccess(homeResponse);
+    }
+    */
 }

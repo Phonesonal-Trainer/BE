@@ -14,4 +14,5 @@ public interface ExerciseService {
     //List<ExerciseResponseDTO> getBookmarkedExerciseList(Long userId); // 북마크된 운동 목록 조회
     List<UserExerciseResponseDTO> getMyExercisesList(Long userId, LocalDate exerciseDate);
     //UserExerciseResponseDTO createUserExercise(UserExerciseRequestDTO request, Long userId);
+
 }
