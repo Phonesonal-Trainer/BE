@@ -1,6 +1,5 @@
 package Phonesonal.PhoneBE.domain.common.exercise;
 
-import Phonesonal.PhoneBE.domain.enums.exercise.BodyPart;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
 import jakarta.persistence.*;
@@ -28,11 +27,10 @@ public class Exercise {
     @Column
     private Integer defaultWeight; // 기본 중량
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private ExerciseType type = ExerciseType.etc; // etc 기본값
-
-//    @Column
-//    private BodyPart bodyPart;
 
     @Column
     private String youtubeUrl; // 유튜브 URL
@@ -54,4 +52,5 @@ public class Exercise {
 
     @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY)
     private List<ExerciseBodyPart> bodyParts; // 운동 부위 정보
+
 }

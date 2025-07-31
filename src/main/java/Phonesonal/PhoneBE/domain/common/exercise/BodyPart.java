@@ -1,10 +1,8 @@
 package Phonesonal.PhoneBE.domain.common.exercise;
 
 import Phonesonal.PhoneBE.domain.enums.exercise.BodyCategory;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -13,6 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BodyPart {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
@@ -24,6 +23,7 @@ public class BodyPart {
     @Column(nullable = false, length = 20)
     private String nameKo; // 부위 한국어 이름
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BodyCategory bodyCategory;
 }
