@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.domain.mapping;
 
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.exercise.State;
 import Phonesonal.PhoneBE.domain.enums.exercise.Weekday;
@@ -69,4 +70,9 @@ public class UserExercise {
         aerobic,   // 유산소
         etc
     }
+
+    // 목표 기간
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_period_id")
+    private GoalPeriod goalPeriod; // 목표 기간 정보, null일 경우 목표 기간 없음
 }
