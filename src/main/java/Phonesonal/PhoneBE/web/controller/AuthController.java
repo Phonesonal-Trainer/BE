@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,12 +39,12 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/kakao/login")
-    @Operation(summary = "카카오 로그인 API", description = "카카오 서버 내부 처리용")
     public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
-        // 프론트엔드로 code 전달하면서 리다이렉트
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("phonesonaltrainer://auth/callback?code=" + code))
-                .build();
+        // 리다이렉트 대신 JSON으로 code 반환
+        Map<String, String> response = new HashMap<>();
+        response.put("code", code);
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/kakao/login")
