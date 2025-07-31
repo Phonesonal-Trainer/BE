@@ -26,7 +26,7 @@ public class UserExerciseController {
     private final ExerciseService exerciseService;
 
     @Operation(summary = "내 운동 조회")
-    @GetMapping("/myExercises")
+    @GetMapping("/userExercises")
     public ApiResponse<List<UserExerciseResponseDTO>> getMyExercises(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate exerciseDate
@@ -38,7 +38,7 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "내 운동 생성(DB에 존재하는 운동)")
-    @PostMapping("/{ExerciseId}/personal")
+    @PostMapping("/{ExerciseId}/userExercise")
     public ApiResponse<UserExerciseResponseDTO> createUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long ExerciseId
@@ -49,7 +49,7 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "내 운동 생성(DB에 존재하지 않는 운동)")
-    @PostMapping("/personal/custom")
+    @PostMapping("/userExercise/custom")
     public ApiResponse<UserExerciseResponseDTO> createUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateUserExerciseRequestDTO userExercise
@@ -60,10 +60,10 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "유저 운동 시작")
-    @PatchMapping("/start")
+    @PatchMapping("userExercises/{userExerciseId}/start")
     public ApiResponse<UserExerciseResponseDTO> startUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long userExerciseId
+            @PathVariable Long userExerciseId
     ) {
         Long userId = userDetails.getUser().getId();
         UserExerciseResponseDTO startedExercise = exerciseService.startUserExercise(userId, userExerciseId);
@@ -71,10 +71,10 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "유저 운동 완료")
-    @PatchMapping("/complete")
+    @PatchMapping("userExercises/{userExerciseId}/complete")
     public ApiResponse<UserExerciseResponseDTO> completeUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long userExerciseId
+            @PathVariable Long userExerciseId
     ) {
         Long userId = userDetails.getUser().getId();
         UserExerciseResponseDTO completedExercise = exerciseService.completeUserExercise(userId, userExerciseId);
@@ -82,10 +82,10 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "운동 세트 수 변경")
-    @PatchMapping("/setCount")
+    @PatchMapping("userExercises/{userExerciseId}/setCount")
     public ApiResponse<UserExerciseResponseDTO> updateSetCount(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long userExerciseId,
+            @PathVariable Long userExerciseId,
             @RequestParam int setCount
     ) {
         Long userId = userDetails.getUser().getId();
@@ -94,10 +94,10 @@ public class UserExerciseController {
     }
 
     @Operation(summary = "운동 세트 당 횟수 변경")
-    @PatchMapping("/count")
+    @PatchMapping("userExercises/{userExerciseId}/count")
     public ApiResponse<UserExerciseResponseDTO> updateCountPerSet(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long userExerciseId,
+            @PathVariable Long userExerciseId,
             @RequestParam int countPerSet
     ) {
         Long userId = userDetails.getUser().getId();
