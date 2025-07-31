@@ -42,7 +42,7 @@ public class AuthController {
     public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
         // 프론트엔드로 code 전달하면서 리다이렉트
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://localhost:3000/auth/callback?code=" + code))
+                .location(URI.create("phonesonaltrainer://auth/callback?code=" + code))
                 .build();
     }
 
