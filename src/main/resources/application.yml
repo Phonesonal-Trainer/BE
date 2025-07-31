@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url:  ${DB_URL}
+    url: jdbc:mysql://localhost:3306/phoneLocal #${DB_URL}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    password: ys0720ys #${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -12,3 +12,36 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao-local:
+            client-id: 08f9f03081d3dd1ebeeba22ce1941148
+            client-secret: zlPWm1K4SYAgUhD56L7XxV0qTh89M3XU
+            redirect-uri: http://localhost:8080/auth/kakao/login
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            provider: kakao
+          kakao-prod:
+            client-id: 08f9f03081d3dd1ebeeba22ce1941148
+            client-secret: zlPWm1K4SYAgUhD56L7XxV0qTh89M3XU
+            redirect-uri: http://43.203.60.2:8080/auth/kakao/login
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            provider: kakao
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+jwt:
+    secret: mysecretkeyisForzaFerrariWhyNotForzaFerrari!!
+    expiration: 3600000
+    refreshTokenValidity: 604800000
+
+gemini:
+    api:
+      key: AIzaSyCKOKSAO4f39WGb3pf5UuEWKMrJ8Iom_J8

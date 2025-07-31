@@ -27,7 +27,9 @@ public class Exercise {
     @Column
     private Integer defaultWeight; // 기본 중량
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private ExerciseType type = ExerciseType.etc; // etc 기본값
 
     @Column
@@ -51,10 +53,4 @@ public class Exercise {
     @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY)
     private List<ExerciseBodyPart> bodyParts; // 운동 부위 정보
 
-    //커스텀 운동 구분 필드
-    @Column
-    private Boolean isCustom = false; // 커스텀 운동 여부
-
-    @Column
-    private Long createdByUserId; // 커스텀 운동을 생성한 유저의 ID
 }

@@ -55,7 +55,7 @@ public class GeminiService {
         **응답 형식 (JSON):**
         {
           "targetWeight": [목표 체중 숫자값],
-          "targetBMI": [목표 BMI 숫자값],  
+          "targetBMI": [목표 BMI 숫자값],
           "targetBodyFatRate": [목표 체지방률 숫자값],
           "targetMuscleMass": [골격근량 변동사항 텍스트(증가, 소폭 증가, 감소, 소폭 감소, 유지)],
           "recommendedNutrition": [권장 주 영양소 텍스트(ex: 고단백/저지방)],

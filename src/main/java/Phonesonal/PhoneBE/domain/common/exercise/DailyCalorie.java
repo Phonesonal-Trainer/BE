@@ -26,7 +26,8 @@ public class DailyCalorie {
     private LocalDate date;
 
     @Column(nullable = false)
-    private Integer totalCalories = 0; // 총 칼로리 섭취량
+    @Builder.Default
+    private Integer totalCalories = 0; // 총 칼로리 소모량
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
