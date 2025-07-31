@@ -22,7 +22,7 @@ import java.time.LocalDate;
             private int caloriePercentage;
             private int exercisePercentage;
             private BigDecimal targetWeight;
-            private int currentWeight;
+            private BigDecimal currentWeight;
             private String caloriestatus;
             private String exercisestatus;
             private String comment;

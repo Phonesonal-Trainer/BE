@@ -1,18 +1,17 @@
 package Phonesonal.PhoneBE.service.Home;
 
-import Phonesonal.PhoneBE.domain.Diagnosis;
-import Phonesonal.PhoneBE.domain.RecommendMeal;
-import Phonesonal.PhoneBE.domain.User;
-import Phonesonal.PhoneBE.domain.UserMeal;
-import Phonesonal.PhoneBE.repository.DiagnosisRepository;
-import Phonesonal.PhoneBE.repository.Food.FoodRepository;
+import Phonesonal.PhoneBE.domain.*;
+import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
+import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
+import Phonesonal.PhoneBE.domain.mapping.UserExercise;
+import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.Food.RecommendMealRepository;
-import Phonesonal.PhoneBE.repository.UserMealRepository;
-import Phonesonal.PhoneBE.repository.UserRepository;
+import Phonesonal.PhoneBE.repository.Food.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Home.HomeFullResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Home.HomeResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,9 +28,26 @@ public class HomeServiceImpl implements HomeCommandService {
     private final RecommendMealRepository recommendMealRepository;
     private final UserMealRepository userMealRepository;
     private final DiagnosisRepository diagnosisRepository;
-    private final FoodRepository foodRepository;
+    private final DailyCalorieRepository dailyCalorieRepository;
+    private final WeightRecordRepository weightRecordRepository;
+    private final UserExerciseRepository userExerciseRepository;
 
+    @Transactional(readOnly = true)
+    public int getBurnedCaloriesOnDate(Long user, LocalDate date) {
+        List<UserExercise> exercises = userExerciseRepository.findWithExerciseByUserIdAndDate(user, date);
 
+        return exercises.stream()
+                .filter(userExercise -> userExercise.getExercise() != null && !userExercise.getExercise().getId().equals(999999L)) // 커스텀 운동 제외
+                .mapToInt(userExercise -> {
+                    Exercise exercise = userExercise.getExercise();
+                    if (exercise != null && exercise.getKcal() != null
+                            && userExercise.getCount() != null && userExercise.getSetCount() != null) {
+                        return exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+                    }
+                    return 0;
+                })
+                .sum();
+    }
     public double getRecommendedCaloriesByDate(Long userId,LocalDate date) {
         List<RecommendMeal> meals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
 
@@ -83,6 +99,14 @@ public class HomeServiceImpl implements HomeCommandService {
         return totalFat;
     }
 
+    public int getTodayCaloriesBurnedByUser(Long userId, LocalDate date) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return dailyCalorieRepository.findByUserAndDate(user, date)
+                .map(DailyCalorie::getTotalCalories)
+                .orElse(0);
+    }
+
     public String HomeMealPercentageStatus(int percentage){
 
         String status;
@@ -115,21 +139,30 @@ public class HomeServiceImpl implements HomeCommandService {
         User user = userRepository.getReferenceById(userId);
         // 기존 진단이 있는지 확인
         Optional<Diagnosis> existingDiagnosis = diagnosisRepository.findByUserId(userId);
+        Optional<WeightRecord> recordedWeight = weightRecordRepository.findById(userId);
+
+        
         LocalDate date = LocalDate.now();
 
         // 임시 값 (프론트에서 홈화면을 테스트할 수 있게)
         double recommendedCalories = getRecommendedCaloriesByDate(userId, date);//추천 섭취 칼로리
-        int recommendedBurnedCalories = 1111;//추천 소비 칼로리
+        int recommendedBurnedCalories = getBurnedCaloriesOnDate(userId, date);//추천 소비 칼로리
         double todayConsumedCalories = getTodayConsumedCaloriesByDate(userId, date);// 오늘 섭취한 칼로리
-        int todayBurnedCalories = 1111;//오늘 소비한 칼로리
+        int todayBurnedCalories = getTodayCaloriesBurnedByUser(userId, date);//오늘 소비한 칼로리
 
         // 오늘 먹은 식단의 총 칼로리 - 오늘 운동한 총 소비 칼로리
         double todayCalories = todayConsumedCalories-todayBurnedCalories;
         //추천 식단의 총 칼로리 - 추천 운동의 총 소비 칼로리
         double targetCalories = recommendedCalories-recommendedBurnedCalories;
 
-        int currentWeight = 51;//목표 몸무게 (현재 몸무게는 생성일자 기준으로 가장 빠른 데이터로 출력 추가로 입력 api기능 구현해야함)
-        BigDecimal targetWeight = existingDiagnosis.get().getTargetWeight();
+        //목표 몸무게 (현재 몸무게는 생성일자 기준으로 가장 빠른 데이터로 출력 추가로 입력 api기능 구현해야함)
+        BigDecimal currentWeight = recordedWeight
+                .map(WeightRecord::getWeight)
+                .orElse(BigDecimal.ZERO);
+        BigDecimal targetWeight = existingDiagnosis
+                .map(Diagnosis::getTargetWeight)
+                .orElse(BigDecimal.ZERO); // 값이 없으면 0으로 기본 처리
+
         int caloriePercentage = (int)(todayConsumedCalories/recommendedCalories);
         int exercisePercentage = (int)(todayBurnedCalories/recommendedCalories);
         String exerciseStatus = HomeExercisePercentageStatus(exercisePercentage);
@@ -158,14 +191,14 @@ public class HomeServiceImpl implements HomeCommandService {
     public HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId) {
         User user = userRepository.getReferenceById(userId);
         //더미 데이터
-        String focusedparts = "하체"; // 집중 부위
+        String focusedBodyPart = "하체"; // 집중 부위
         int anaerobicExerciseTime = 40; // 무산소 시간
         int aerobicExerciseTime = 15; // 유산소 시간
 
         return HomeResultDTO.HomeExerciseDTO.builder()
                 .anaerobicExerciseTime(anaerobicExerciseTime)
                 .aerobicExerciseTime(aerobicExerciseTime)
-                .focusedBodyPart(focusedparts)
+                .focusedBodyPart(focusedBodyPart)
                 .build();
     }
 
