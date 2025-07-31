@@ -2,7 +2,7 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
-import Phonesonal.PhoneBE.service.FoodQueryService;
+import Phonesonal.PhoneBE.service.Food.FoodQueryService;
 import Phonesonal.PhoneBE.web.dto.Food.SearchFoodResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

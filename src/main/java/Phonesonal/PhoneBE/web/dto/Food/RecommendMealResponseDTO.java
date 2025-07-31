@@ -1,6 +1,5 @@
-package Phonesonal.PhoneBE.web.dto;
+package Phonesonal.PhoneBE.web.dto.Food;
 
-import Phonesonal.PhoneBE.domain.RecommendMeal;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

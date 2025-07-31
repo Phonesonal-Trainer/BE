@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.repository.Food;
+package Phonesonal.PhoneBE.repository;
 
 import Phonesonal.PhoneBE.domain.Food;
 import org.springframework.data.jpa.repository.JpaRepository;
