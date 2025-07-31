@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
@@ -75,5 +76,10 @@ public class User {
     // Diagnosis와의 1:1 관계
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Diagnosis diagnosis;
+
+    // 유저의 일일 칼로리 정보
+    @ManyToOne
+    @JoinColumn(name = "daily_calorie_id")
+    private DailyCalorie dailyCalorie;
 
 }

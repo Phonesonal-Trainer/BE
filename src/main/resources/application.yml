@@ -1,17 +1,3 @@
-spring:
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
 
   security:
     oauth2:
@@ -37,11 +23,12 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: 3600000
-  refreshTokenValidity: 604800000
+    secret: ${JWT_SECRET}
+    expiration: 3600000
+    refreshTokenValidity: 604800000
 
 gemini:
-  api:
-    key: ${GEMINI_KEY}
+    api:
+      key: ${GEMINI_KEY}
