@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.repository.Food;
+package Phonesonal.PhoneBE.repository;
 
 import Phonesonal.PhoneBE.domain.UserMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;

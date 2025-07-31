@@ -1,8 +1,8 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
-import Phonesonal.PhoneBE.web.dto.UpdateCompleteStatusRequestDTO;
-import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
-import Phonesonal.PhoneBE.repository.Food.RecommendMealRepository;
+import Phonesonal.PhoneBE.web.dto.Food.UpdateCompleteStatusRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Food.CompleteStatusResponseDTO;
+import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

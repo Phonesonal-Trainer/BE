@@ -1,10 +1,10 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.domain.Food;
 import Phonesonal.PhoneBE.domain.UserMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
-import Phonesonal.PhoneBE.repository.Food.UserMealRepository;
+import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import lombok.RequiredArgsConstructor;

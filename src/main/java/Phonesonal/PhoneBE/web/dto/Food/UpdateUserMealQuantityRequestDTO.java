@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.web.dto;
+package Phonesonal.PhoneBE.web.dto.Food;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

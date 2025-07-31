@@ -3,20 +3,18 @@ package Phonesonal.PhoneBE.web.controller;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.RecommendMealService.RecommendMealCommandService;
 import Phonesonal.PhoneBE.service.RecommendMealService.RecommendMealQueryService;
-import Phonesonal.PhoneBE.web.dto.CompleteStatusResponseDTO;
-import Phonesonal.PhoneBE.web.dto.RecommendMealRequestDTO;
-import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
-import Phonesonal.PhoneBE.web.dto.UpdateCompleteStatusRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Food.CompleteStatusResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Food.RecommendMealRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Food.RecommendMealResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Food.UpdateCompleteStatusRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
