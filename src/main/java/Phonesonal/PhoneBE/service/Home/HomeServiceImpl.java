@@ -3,10 +3,11 @@ package Phonesonal.PhoneBE.service.Home;
 import Phonesonal.PhoneBE.domain.*;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
+import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
-import Phonesonal.PhoneBE.repository.Food.RecommendMealRepository;
-import Phonesonal.PhoneBE.repository.Food.UserMealRepository;
+import Phonesonal.PhoneBE.repository.RecommendMealRepository;
+import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Home.HomeFullResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Home.HomeResultDTO;
 import lombok.RequiredArgsConstructor;
@@ -134,7 +135,13 @@ public class HomeServiceImpl implements HomeCommandService {
         }
         return status;
     }
+/*
+    public int getTodayAnaerobicExerciseTimeByDate(Long userId, LocalDate date, ExerciseType type) {
+       int totalAnaerobicTime = userExerciseRepository.findTotalDurationByUserAndDateAndType(userId, date, type.);
 
+        return Optional.of(totalAnaerobicTime).orElse(0);
+    }
+*/
     public HomeResultDTO.HomeMainDTO getHomeData(Long userId) {
         User user = userRepository.getReferenceById(userId);
         // 기존 진단이 있는지 확인
@@ -144,7 +151,6 @@ public class HomeServiceImpl implements HomeCommandService {
         
         LocalDate date = LocalDate.now();
 
-        // 임시 값 (프론트에서 홈화면을 테스트할 수 있게)
         double recommendedCalories = getRecommendedCaloriesByDate(userId, date);//추천 섭취 칼로리
         int recommendedBurnedCalories = getBurnedCaloriesOnDate(userId, date);//추천 소비 칼로리
         double todayConsumedCalories = getTodayConsumedCaloriesByDate(userId, date);// 오늘 섭취한 칼로리
@@ -185,14 +191,14 @@ public class HomeServiceImpl implements HomeCommandService {
                 .currentWeight(currentWeight)
                 .comment(comment)
                 .build();
-            //(userId, targetCalories, percentage, status);
     }
 
     public HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId) {
         User user = userRepository.getReferenceById(userId);
+        LocalDate date = LocalDate.now();
         //더미 데이터
         String focusedBodyPart = "하체"; // 집중 부위
-        int anaerobicExerciseTime = 40; // 무산소 시간
+        int anaerobicExerciseTime =0; // getTodayAnaerobicExerciseTimeByDate(userId, date, ); // 무산소 시간
         int aerobicExerciseTime = 15; // 유산소 시간
 
         return HomeResultDTO.HomeExerciseDTO.builder()

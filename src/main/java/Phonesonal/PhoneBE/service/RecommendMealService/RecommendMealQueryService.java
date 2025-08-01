@@ -1,7 +1,7 @@
 package Phonesonal.PhoneBE.service.RecommendMealService;
 
 import Phonesonal.PhoneBE.domain.enums.MealTime;
-import Phonesonal.PhoneBE.web.dto.RecommendMealResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Food.RecommendMealResponseDTO;
 
 import java.time.LocalDate;
 import java.util.List;

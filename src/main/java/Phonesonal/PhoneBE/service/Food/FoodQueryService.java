@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.web.dto.Food.SearchFoodResponseDTO;
 

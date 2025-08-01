@@ -1,14 +1,13 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.apiPayload.code.util.DateUtil;
 import Phonesonal.PhoneBE.domain.Food;
 import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.UserMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
-import Phonesonal.PhoneBE.domain.enums.MealTime;
-import Phonesonal.PhoneBE.repository.Food.FoodRepository;
+import Phonesonal.PhoneBE.repository.FoodRepository;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
-import Phonesonal.PhoneBE.repository.Food.UserMealRepository;
+import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
@@ -73,7 +72,10 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
                 .foodName(food.getName())
                 .imageUrl(food.getImageUrl())
                 .calorie(food.getCalorie())
-                .defaultServingSize(food.getServingSize())         // 기준값
+                .carb(food.getCarb())
+                .protein(food.getProtein())
+                .fat(food.getFat())
+                .defaultServingSize(food.getServingSize())
                 .displayedServingSize(displayedServingSize)
                 .isCustom(food.getIsCustom())
                 .mealTime(saved.getMealTime())
