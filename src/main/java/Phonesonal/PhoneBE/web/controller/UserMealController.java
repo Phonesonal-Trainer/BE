@@ -11,6 +11,7 @@ import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UpdateUserMealQuantityRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Tag(name = "UserMeal", description = "추가 식단 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user-meals")
