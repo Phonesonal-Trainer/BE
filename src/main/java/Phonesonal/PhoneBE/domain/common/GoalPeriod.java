@@ -37,6 +37,6 @@ public class GoalPeriod extends BaseEntity {
     @Column
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "goal_period", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "goalPeriod")
     private List<UserExercise> userExercises; // 운동 부위 정보
 }

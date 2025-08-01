@@ -75,4 +75,7 @@ public class UserExercise {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_period_id")
     private GoalPeriod goalPeriod; // 목표 기간 정보, null일 경우 목표 기간 없음
+
+    @Column
+    private Integer actualMinutes; // 실제 운동 시간 (분 단위, 유산소 운동용)
 }
