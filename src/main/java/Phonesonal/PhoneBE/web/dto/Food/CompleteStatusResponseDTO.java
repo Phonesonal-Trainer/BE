@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.web.dto;
+package Phonesonal.PhoneBE.web.dto.Food;
 
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import lombok.AllArgsConstructor;

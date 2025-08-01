@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -34,6 +35,6 @@ public class WeightRecord {
     private BigDecimal weight;  // 몸무게
 
     @Column(name = "record_date", nullable = false)
-    private LocalDate recordDate;  // 기록 날짜
+    private LocalDateTime recordDate;  // 기록 날짜(시간까지 포함해야함)
 
 }

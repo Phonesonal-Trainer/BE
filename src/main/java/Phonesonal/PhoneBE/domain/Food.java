@@ -30,9 +30,16 @@ public class Food {
     private String servingSize;
 
     // 영양소
+    @Column
     private Float calorie;
+
+    @Column
     private Float carb;
+
+    @Column
     private Float protein;
+
+    @Column
     private Float fat;
 
     //이모티콘

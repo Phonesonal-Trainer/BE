@@ -1,10 +1,10 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.domain.Food;
 import Phonesonal.PhoneBE.domain.UserMeal;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
-import Phonesonal.PhoneBE.repository.Food.UserMealRepository;
+import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,23 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
     private final GoalPeriodRepository goalPeriodRepository;
     private final UserMealRepository userMealRepository;
 
+    // 초기 설정용 파싱
+    private Float parseServingSizeToQuantity(String servingSize) {
+        if (servingSize == null) return null;
+        try {
+            return Float.parseFloat(servingSize.replaceAll("[^\\d.]", ""));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 비율 계산
+    private Float safeMultiply(Float value, Float ratio) {
+        if (value == null || ratio == null) return null;
+        return value * ratio;
+    }
+
+
     @Override
     public List<UserMealResponseDTO> getUserMeals(Long goalPeriodId, LocalDate date, MealTime mealTime) {
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
@@ -30,9 +47,18 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
 
         return userMeals.stream().map(userMeal -> {
             Food food = userMeal.getFood();
+            Float actualQuantity = userMeal.getQuantity();
+            Float defaultQuantity = parseServingSizeToQuantity(food.getServingSize());
 
-            // 표시용 servingSize 계산: quantity 수정 안했으면 servingSize, 했으면 quantity 값 기반 표현
-            String displayedServingSize = userMeal.getQuantity() + "g";
+            Float ratio = (defaultQuantity != null && defaultQuantity > 0) ? (actualQuantity / defaultQuantity) : 1.0f;
+
+            Float adjustedCalorie = safeMultiply(food.getCalorie(), ratio);
+            Float adjustedCarb = safeMultiply(food.getCarb(), ratio);
+            Float adjustedProtein = safeMultiply(food.getProtein(), ratio);
+            Float adjustedFat = safeMultiply(food.getFat(), ratio);
+
+            // 표시용 servingSize 계산: quantity 수정 안했으면 defaultservingSize, 했으면 quantity 값 기반 표현
+            String displayedServingSize = actualQuantity + "g";
 
             return UserMealResponseDTO.builder()
                     .recordId(userMeal.getId())
@@ -42,8 +68,11 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
                     .isCustom(food.getIsCustom())
                     .mealTime(userMeal.getMealTime())
                     .date(userMeal.getDate())
-                    .quantity(userMeal.getQuantity())
-                    .calorie(food.getCalorie())
+                    .quantity(actualQuantity)
+                    .calorie(adjustedCalorie)
+                    .carb(adjustedCarb)
+                    .protein(adjustedProtein)
+                    .fat(adjustedFat)
                     .defaultServingSize(food.getServingSize())         // 기준값
                     .displayedServingSize(displayedServingSize)        // 보여줄 값
                     .build();
