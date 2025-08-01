@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.service.RecommendMealService;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.apiPayload.code.util.DateUtil;
 import Phonesonal.PhoneBE.domain.RecommendMeal;

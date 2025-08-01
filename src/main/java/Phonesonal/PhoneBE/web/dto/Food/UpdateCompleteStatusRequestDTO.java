@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.web.dto.Food;
 
+import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import lombok.*;
 
@@ -15,5 +16,5 @@ public class UpdateCompleteStatusRequestDTO {
     private Long goalPeriodId;
     private LocalDate date;
     private MealTime mealTime;
-    private String complete;
+    private CompleteStatus complete;
 }

@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.service.RecommendMealService;
+package Phonesonal.PhoneBE.service.Food;
 
 import Phonesonal.PhoneBE.web.dto.Food.UpdateCompleteStatusRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.CompleteStatusResponseDTO;
@@ -14,20 +14,17 @@ public class RecommendMealCommandService {
     private final RecommendMealRepository recommendMealRepository;
 
     public CompleteStatusResponseDTO updateCompleteStatus(UpdateCompleteStatusRequestDTO request, Long userId) {
-        CompleteStatus complete = CompleteStatus.valueOf(request.getComplete().toUpperCase());
-
-        recommendMealRepository.updateCompleteStatus(
-                userId,
-                request.getFoodId(),
+        recommendMealRepository.updateCompleteStatusByGoalPeriod(
                 request.getGoalPeriodId(),
+                request.getFoodId(),
                 request.getDate(),
                 request.getMealTime(),
-                complete
+                request.getComplete()
         );
 
         return CompleteStatusResponseDTO.builder()
                 .foodId(request.getFoodId())
-                .complete(complete)
+                .complete(request.getComplete())
                 .build();
     }
 

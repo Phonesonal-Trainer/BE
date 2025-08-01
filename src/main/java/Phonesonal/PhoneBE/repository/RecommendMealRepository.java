@@ -19,10 +19,9 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE RecommendMeal rm SET rm.complete = :complete " +
-            "WHERE rm.user.id = :userId AND rm.food.foodId = :foodId " +
+            "WHERE rm.goalPeriod.id = :goalPeriodId AND rm.food.foodId = :foodId " +
             "AND rm.date = :date AND rm.mealTime = :mealTime")
-    void updateCompleteStatus(
-            @Param("userId") Long userId,
+    void updateCompleteStatusByGoalPeriod(
             @Param("goalPeriodId") Long goalPeriodId,
             @Param("foodId") Long foodId,
             @Param("date") LocalDate date,
