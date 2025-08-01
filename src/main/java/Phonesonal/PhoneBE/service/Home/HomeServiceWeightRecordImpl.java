@@ -24,11 +24,11 @@ public class HomeServiceWeightRecordImpl {
         Long userId = userDetails.getUser().getId();
         Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
 
+        GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 목표 기간입니다."));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
-                .orElseThrow(() -> new RuntimeException("GoalPeriod not found"));
 
         WeightRecord weightRecord = WeightRecord.builder()
                 .weight(dto.getWeight())
@@ -40,12 +40,14 @@ public class HomeServiceWeightRecordImpl {
         weightRecordRepository.save(weightRecord);
     }
 
-    public WeightRecordResponseDTO getLatestWeight(WeightRecordResponseDTO dto) {
-        WeightRecord getWeightRecord = weightRecordRepository.findLatestByUserId(dto.getUserId())
+    public WeightRecordResponseDTO getLatestWeight(CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+
+        WeightRecord getWeightRecord = weightRecordRepository.findLatestByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("몸무게 기록이 없습니다."));
 
         return WeightRecordResponseDTO.builder()
-                .userId(getWeightRecord.getUser().getId())
+                .userId(userId)
                 .weight(getWeightRecord.getWeight())
                 .recordDate(getWeightRecord.getRecordDate())
                 .build();

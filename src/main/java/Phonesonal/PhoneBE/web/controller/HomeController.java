@@ -41,16 +41,10 @@ public class HomeController {
 
     @GetMapping("/{userId}/main/get-weight-wecord")
     @Operation(summary = "홈화면 현재 몸무게 확인 API", description = "홈화면 몸무게 기록")
-    public ApiResponse<WeightRecordResponseDTO> getWeight(@PathVariable Long userId) {
+    public ApiResponse<WeightRecordResponseDTO> getWeight(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        WeightRecord weightRecord = weightRecordRepository.findLatestByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("몸무게 기록이 없습니다."));
+        WeightRecordResponseDTO getweightRecord = homeServiceWeightRecord.getLatestWeight(userDetails);
 
-        WeightRecordResponseDTO getweightRecord = WeightRecordResponseDTO.builder()
-                .userId(weightRecord.getUser().getId())
-                .weight(weightRecord.getWeight())
-                .recordDate(weightRecord.getRecordDate())
-                .build();
         return ApiResponse.onSuccess(getweightRecord);
     }
 
