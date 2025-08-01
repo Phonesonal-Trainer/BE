@@ -45,6 +45,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                             .quantity(meal.getQuantity())
                             .complete(meal.getComplete().name())
                             .weekNumber(weekNumber)
+                            .imageUrl(meal.getFood().getImageUrl())
                             .build();
                 })
                 .collect(Collectors.toList());
