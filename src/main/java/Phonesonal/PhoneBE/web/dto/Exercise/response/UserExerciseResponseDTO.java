@@ -15,6 +15,7 @@ public class UserExerciseResponseDTO {
     private String date; // 운동 날짜 (YYYY-MM-DD 형식)
     private String state; // 운동 상태
     private String exerciseType; // 운동 타입 (anaerobic, aerobic, etc)
+    private Integer actualMinutes; // 실제 운동 시간 (분 단위)
 
     // 계획된 운동용 필드 (recordType이 "PLANNED"일 때만 값 존재)
     private Long exerciseId; // 운동 ID

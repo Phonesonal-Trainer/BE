@@ -3,7 +3,7 @@ package Phonesonal.PhoneBE.service;
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;
 import Phonesonal.PhoneBE.domain.User;
-import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
+import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.enums.exercise.State;
@@ -15,11 +15,9 @@ import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +28,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final BodyPartRepository bodyPartRepository;
-    private final DailyCalorieRepository dailyCalorieRepository;
+    private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
 
     // exerciseId로 운동을 찾는 메서드
@@ -114,6 +112,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .state(ue.getState().name())
                     .exerciseType(ue.getCustomExerciseType() != null ? ue.getCustomExerciseType().name() : "etc")
                     .caloriesBurned(ue.getCaloriesBurned())
+                    .actualMinutes(ue.getActualMinutes())
                     .build();
         } else {
             // 일반 계획된 운동인 경우
@@ -128,6 +127,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .count(ue.getCount())
                     .weight(ue.getWeight())
                     .sets(ue.getSetCount())
+                    .actualMinutes(ue.getActualMinutes())
                     .build();
         }
     }
@@ -180,6 +180,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .exerciseDate(LocalDate.now())
                 .state(State.completed)
                 .bookmark(false)
+                .actualMinutes(15) // 커스텀 운동은 기본적으로 15분으로 설정
                 .build();
 
         UserExercise savedExercise = userExerciseRepository.save(userExercise);
@@ -246,40 +247,96 @@ public class ExerciseServiceImpl implements ExerciseService {
             throw new GeneralException(ErrorStatus.USER_EXERCISE_NOT_STARTED);
         }
 
-        // 5. 운동 상태를 진행 중으로 변경
+        // 5. 운동 시간 계산 및 상태 변경
+        Integer actualMinutes = calculateExerciseMinutes(userExercise);
+        userExercise.setActualMinutes(actualMinutes);
         userExercise.setState(State.completed);
 
         UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
 
-        // 6. 칼로리 계산 및 업데이트
-        updateDailyCalories(userExercise);
+        // 6. 일일 운동 데이터 업데이트
+        updateDailyExerciseRecord(savedUserExercise);
 
         return convertToUserExerciseResponseDTO(savedUserExercise);
     }
 
-    // 칼로리 계산 및 업데이트 메서드
-    private void updateDailyCalories(UserExercise userExercise) {
-        // 총 소모 칼로리 계산: 1회 칼로리 × 횟수 × 세트 수
-        Exercise exercise = userExercise.getExercise();
-        Integer totalCalories = exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+    // 운동 시간 계산 메서드
+    private Integer calculateExerciseMinutes(UserExercise userExercise) {
+        if (userExercise.isCustomExercise()) {
+            // 커스텀 운동은 기본 시간 적용 (30분)
+            return 30;
+        } else {
+            Exercise exercise = userExercise.getExercise();
+            // 1회당 초수 × 횟수 × 세트 수 = 총 초수 → 분으로 변환
+            int totalSeconds = exercise.getSecondsPerRep() * userExercise.getCount() * userExercise.getSetCount();
+            return totalSeconds / 60; // 초를 분으로 변환 (소수점 버림)
+        }
+    }
 
-        // 해당 날짜의 DailyCalorie 조회 또는 생성
+
+
+    // 일일 운동 데이터 업데이트 메서드
+    private void updateDailyExerciseRecord(UserExercise userExercise) {
         User user = userExercise.getUser();
         LocalDate exerciseDate = userExercise.getExerciseDate();
 
-        DailyCalorie dailyCalorie = dailyCalorieRepository.findByUserAndDate(user, exerciseDate)
-                .orElse(DailyCalorie.builder()
+        // 해당 날짜의 DailyExerciseRecord 조회 또는 생성
+        DailyExerciseRecord dailyRecord = dailyExerciseRecordRepository.findByUserAndDate(user, exerciseDate)
+                .orElse(DailyExerciseRecord.builder()
                         .user(user)
                         .date(exerciseDate)
                         .totalCalories(0)
+                        .anaerobicMinutes(0)
+                        .aerobicMinutes(0)
                         .createdAt(LocalDateTime.now())
                         .build());
 
-        // 칼로리 누적
-        dailyCalorie.setTotalCalories(dailyCalorie.getTotalCalories() + totalCalories);
-        dailyCalorie.setUpdatedAt(LocalDateTime.now());
+        // 칼로리 계산 및 누적
+        Integer totalCalories = calculateCalories(userExercise);
+        dailyRecord.setTotalCalories(dailyRecord.getTotalCalories() + totalCalories);
 
-        dailyCalorieRepository.save(dailyCalorie);
+        // 운동 시간 누적 (분 단위)
+        Integer exerciseMinutes = userExercise.getActualMinutes();
+        if (exerciseMinutes != null && exerciseMinutes > 0) {
+            if (isAnaerobicExercise(userExercise)) {
+                dailyRecord.setAnaerobicMinutes(dailyRecord.getAnaerobicMinutes() + exerciseMinutes);
+            } else if (isAerobicExercise(userExercise)) {
+                dailyRecord.setAerobicMinutes(dailyRecord.getAerobicMinutes() + exerciseMinutes);
+            }
+        }
+
+        dailyRecord.setUpdatedAt(LocalDateTime.now());
+        dailyExerciseRecordRepository.save(dailyRecord);
+    }
+
+    // 칼로리 계산 메서드
+    private Integer calculateCalories(UserExercise userExercise) {
+        if (userExercise.isCustomExercise()) {
+            // 커스텀 운동은 사용자가 입력한 칼로리 사용
+            return userExercise.getCaloriesBurned() != null ? userExercise.getCaloriesBurned() : 0;
+        } else {
+            Exercise exercise = userExercise.getExercise();
+            // 1회 칼로리 × 횟수 × 세트 수
+            return exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+        }
+    }
+
+    // 무산소 운동인지 확인
+    private boolean isAnaerobicExercise(UserExercise userExercise) {
+        if (userExercise.isCustomExercise()) {
+            return userExercise.getCustomExerciseType() == UserExercise.CustomExerciseType.anaerobic;
+        } else {
+            return userExercise.getExercise().getType() == ExerciseType.anaerobic;
+        }
+    }
+
+    // 유산소 운동인지 확인
+    private boolean isAerobicExercise(UserExercise userExercise) {
+        if (userExercise.isCustomExercise()) {
+            return userExercise.getCustomExerciseType() == UserExercise.CustomExerciseType.aerobic;
+        } else {
+            return userExercise.getExercise().getType() == ExerciseType.aerobic;
+        }
     }
 
     // 세트 수 업데이트 -> 피드백 기능 구현 후 추가 구현 예정

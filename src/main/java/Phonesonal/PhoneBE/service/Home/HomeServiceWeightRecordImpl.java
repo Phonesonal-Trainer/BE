@@ -1,6 +1,5 @@
 package Phonesonal.PhoneBE.service.Home;
 
-import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.WeightRecord;
 import Phonesonal.PhoneBE.repository.UserRepository;

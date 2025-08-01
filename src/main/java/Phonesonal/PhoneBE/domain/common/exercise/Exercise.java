@@ -53,4 +53,7 @@ public class Exercise {
     @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY)
     private List<ExerciseBodyPart> bodyParts; // 운동 부위 정보
 
+    @Column
+    @Builder.Default
+    private Integer secondsPerRep = 5; // 무산소 운동 시간 (초 단위)
 }

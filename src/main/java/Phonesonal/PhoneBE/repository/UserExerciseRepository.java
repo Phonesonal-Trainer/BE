@@ -29,9 +29,4 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     @Query("SELECT ue FROM UserExercise ue JOIN FETCH ue.exercise WHERE ue.user.id = :userId AND ue.exerciseDate = :exerciseDate")
     List<UserExercise> findWithExerciseByUserIdAndDate(@Param("userId") Long userId, @Param("exerciseDate") LocalDate exerciseDate);
 
-    /*
-    //대강 이런 느낌으로 구현할 것 합치는 것을 서비단에서 사용하지 않은 이유는 데이터가 많아지면 엔티티 전체를 가져오기에 db단에서 처리하는 것이 메모리 사용측면에서 효율 적임
-    @Query("SELECT SUM(ue.count * ue.durationPerCount) FROM UserExercise ue WHERE ue.user.id = :userId AND ue.exerciseDate = :date AND ue.CustomExerciseType = :type")
-    Integer findTotalDurationByUserAndDateAndType(@Param("userId") Long userId, @Param("date") LocalDate date, @Param("type") ExerciseType type);
-*/
 }

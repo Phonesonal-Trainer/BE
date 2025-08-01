@@ -1,9 +1,8 @@
 package Phonesonal.PhoneBE.service.Home;
 
 import Phonesonal.PhoneBE.domain.*;
-import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
+import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
-import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
@@ -29,9 +28,10 @@ public class HomeServiceImpl implements HomeCommandService {
     private final RecommendMealRepository recommendMealRepository;
     private final UserMealRepository userMealRepository;
     private final DiagnosisRepository diagnosisRepository;
-    private final DailyCalorieRepository dailyCalorieRepository;
+    private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final WeightRecordRepository weightRecordRepository;
     private final UserExerciseRepository userExerciseRepository;
+    private final DiagnosisRepository diagnosesRepository;
 
     @Transactional(readOnly = true)
     public int getBurnedCaloriesOnDate(Long user, LocalDate date) {
@@ -49,17 +49,50 @@ public class HomeServiceImpl implements HomeCommandService {
                 })
                 .sum();
     }
+    //추천 칼로리
     public double getRecommendedCaloriesByDate(Long userId,LocalDate date) {
-        List<RecommendMeal> meals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
+        List<RecommendMeal> recommandedMeals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
 
-        double totalCalories = meals.stream()
+        double totalCalories = recommandedMeals.stream()
                 .mapToDouble(recommendMeal -> recommendMeal.getFood().getCalorie() != null ? recommendMeal.getFood().getCalorie() : 0)
                 .sum();
 
         return totalCalories;
     }
 
+    //추천 단백질 합계
+    public double getRecommendedProteinByDate(Long userId,LocalDate date) {
+        List<RecommendMeal> recommandedMeals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
 
+        double totalCalories = recommandedMeals.stream()
+                .mapToDouble(recommendMeal -> recommendMeal.getFood().getProtein() != null ? recommendMeal.getFood().getProtein() : 0)
+                .sum();
+
+        return totalCalories;
+    }
+
+    //추천 탄수화물 합계
+    public double getRecommendedCarbByDate(Long userId,LocalDate date) {
+        List<RecommendMeal> recommandedMeals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
+
+        double totalCalories = recommandedMeals.stream()
+                .mapToDouble(recommendMeal -> recommendMeal.getFood().getCarb() != null ? recommendMeal.getFood().getCarb() : 0)
+                .sum();
+
+        return totalCalories;
+    }
+    //추천 지방 합계
+    public double getRecommendedFatByDate(Long userId,LocalDate date) {
+        List<RecommendMeal> recommandedMeals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date);
+
+        double totalCalories = recommandedMeals.stream()
+                .mapToDouble(recommendMeal -> recommendMeal.getFood().getFat() != null ? recommendMeal.getFood().getFat() : 0)
+                .sum();
+
+        return totalCalories;
+    }
+
+    //오늘 섭취한 칼로리 총량
     public double getTodayConsumedCaloriesByDate(Long userId,LocalDate date) {
         List<UserMeal> meals = userMealRepository.findWithFoodByUserIdAndDate(userId,date);
 
@@ -69,6 +102,10 @@ public class HomeServiceImpl implements HomeCommandService {
 
         return totalCalories;
     }
+
+
+    /*
+    사용자가 오늘 섭취한 탄,단,지 각 총량
 
     public double getTodayConsumedProteinByDate(Long userId,LocalDate date) {
         List<UserMeal> meals = userMealRepository.findWithFoodByUserIdAndDate(userId,date);
@@ -100,14 +137,18 @@ public class HomeServiceImpl implements HomeCommandService {
         return totalFat;
     }
 
+
+    */
+    //오늘 소비한 총 칼로리
     public int getTodayCaloriesBurnedByUser(Long userId, LocalDate date) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return dailyCalorieRepository.findByUserAndDate(user, date)
-                .map(DailyCalorie::getTotalCalories)
+        return dailyExerciseRecordRepository.findByUserAndDate(user, date)
+                .map(DailyExerciseRecord::getTotalCalories)
                 .orElse(0);
     }
 
+    //식단 플랜 퍼센테이지
     public String HomeMealPercentageStatus(int percentage){
 
         String status;
@@ -123,6 +164,7 @@ public class HomeServiceImpl implements HomeCommandService {
         return status;
     }
 
+    //운동플랜 퍼센테이지
     public String HomeExercisePercentageStatus(int percentage){
 
         String status;
@@ -135,13 +177,33 @@ public class HomeServiceImpl implements HomeCommandService {
         }
         return status;
     }
-/*
-    public int getTodayAnaerobicExerciseTimeByDate(Long userId, LocalDate date, ExerciseType type) {
-       int totalAnaerobicTime = userExerciseRepository.findTotalDurationByUserAndDateAndType(userId, date, type.);
 
-        return Optional.of(totalAnaerobicTime).orElse(0);
+    //추천 무산소 시간
+    public int getTodayAnaerobicExerciseTimeByDate(Long userId) {
+        int totalAnaerbic = 0;
+        if(diagnosesRepository.existsByUserId(userId)){
+            Optional<Diagnosis> diagnosis = diagnosesRepository.findByUserId(userId);
+
+            totalAnaerbic = (diagnosis.get().getStrengthTrainingTime())/(diagnosis.get().getWorkoutFrequency());
+            return totalAnaerbic;
+        }
+        return totalAnaerbic;
     }
-*/
+
+    //추천 유산소 운동 시간
+    public int getTodayAerobicExerciseTimeByDate(Long userId){
+        int totalAerobicTime = 0;
+        if(diagnosesRepository.existsByUserId(userId)){
+
+            Optional<Diagnosis> diagnosis = diagnosesRepository.findByUserId(userId);
+            //추천 유산소 시간
+            totalAerobicTime = (diagnosis.get().getCardioMinutesPerWeek())/(diagnosis.get().getCardioDaysPerWeek());
+            return totalAerobicTime;
+        }
+        return totalAerobicTime;
+    }
+
+
     public HomeResultDTO.HomeMainDTO getHomeData(Long userId) {
         User user = userRepository.getReferenceById(userId);
         // 기존 진단이 있는지 확인
@@ -194,12 +256,9 @@ public class HomeServiceImpl implements HomeCommandService {
     }
 
     public HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId) {
-        User user = userRepository.getReferenceById(userId);
-        LocalDate date = LocalDate.now();
-        //더미 데이터
-        String focusedBodyPart = "하체"; // 집중 부위
-        int anaerobicExerciseTime =0; // getTodayAnaerobicExerciseTimeByDate(userId, date, ); // 무산소 시간
-        int aerobicExerciseTime = 15; // 유산소 시간
+        String focusedBodyPart = "하체"; // 더미 데이터 집중 부위
+        int anaerobicExerciseTime =getTodayAnaerobicExerciseTimeByDate(userId); // 무산소 시간
+        int aerobicExerciseTime = getTodayAerobicExerciseTimeByDate(userId); // 유산소 시간
 
         return HomeResultDTO.HomeExerciseDTO.builder()
                 .anaerobicExerciseTime(anaerobicExerciseTime)
@@ -209,15 +268,13 @@ public class HomeServiceImpl implements HomeCommandService {
     }
 
     public HomeResultDTO.HomeMealPlanDTO getHomeMealPlan(Long userId) {
-        User user = userRepository.getReferenceById(userId);
         LocalDate date = LocalDate.now();
 
         double calorie = getTodayConsumedCaloriesByDate(userId, date);
-        double carb = getTodayConsumedCarbByDate(userId, date);
-        double protein = getTodayConsumedProteinByDate(userId,date);
-        double fat = getTodayConsumedFatByDate(userId,date);
+        double carb = getRecommendedCarbByDate(userId, date);
+        double protein = getRecommendedProteinByDate(userId,date);
+        double fat = getRecommendedFatByDate(userId,date);
 
-        //percentage = mealPercentageCaluator() 식단 퍼센테이지 계산 클래스 구현 필요
         return HomeResultDTO.HomeMealPlanDTO.builder()
                 .calorie(calorie)
                 .carb(carb)
