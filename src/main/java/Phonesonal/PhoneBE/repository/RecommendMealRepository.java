@@ -29,4 +29,9 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
             @Param("mealTime") MealTime mealTime,
             @Param("complete") CompleteStatus complete
     );
+
+    //홈화면 목표 칼로리를 위한 데이터
+    @Query("SELECT rm FROM RecommendMeal rm JOIN FETCH rm.food WHERE rm.user.id = :userId AND rm.date = :date")
+    List<RecommendMeal> findWithFoodByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
+
 }

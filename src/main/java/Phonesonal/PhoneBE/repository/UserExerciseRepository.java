@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.repository;
 
+import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,9 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     List<UserExercise> findByUserIdAndExerciseId(@Param("userId") Long userId, @Param("exerciseId") Long exerciseId);
 
     List<UserExercise> findByUserIdAndExerciseDate(Long userId, LocalDate exerciseDate);
+
+    //홈화면 조회시 필요한 추천 운동에 대한 칼로리소비 데이터 끌어오기
+    @Query("SELECT ue FROM UserExercise ue JOIN FETCH ue.exercise WHERE ue.user.id = :userId AND ue.exerciseDate = :exerciseDate")
+    List<UserExercise> findWithExerciseByUserIdAndDate(@Param("userId") Long userId, @Param("exerciseDate") LocalDate exerciseDate);
+
 }

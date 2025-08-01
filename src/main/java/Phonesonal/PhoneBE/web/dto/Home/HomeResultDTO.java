@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Builder
     @Getter
@@ -17,12 +17,16 @@ import java.util.Date;
         @AllArgsConstructor
         public static class HomeMainDTO{
             private Long userId;
-            private int targetCalories;
-            private int percentage;
-            private int targetWeight;
-            private int currentWeight;
-            private String status;
+            private double targetCalories;
+            private double todayCalories;
+            private int caloriePercentage;
+            private int exercisePercentage;
+            private BigDecimal targetWeight;
+            private BigDecimal currentWeight;
+            private String caloriestatus;
+            private String exercisestatus;
             private String comment;
+            private int presentWeek;
             private LocalDate date;
         }
 
@@ -41,9 +45,16 @@ import java.util.Date;
         @Getter
         @AllArgsConstructor
         public static class HomeMealPlanDTO{
-            private Float calorie;
-            private Float carb;
-            private Float protein;
-            private Float fat;
+            private double calorie;
+            private double carb;
+            private double protein;
+            private double fat;
+        }
+
+        @Builder
+        @Getter
+        @AllArgsConstructor
+        public static class HomeUserWeightDTO{
+            private int userWeight;
         }
     }
