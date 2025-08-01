@@ -29,15 +29,15 @@ public class HomeController {
         return ApiResponse.onSuccess(homeResponse);
     }
 
-    @PostMapping("/{userId}/main/postWeightRecord")
+    @PostMapping("/{userId}/main/post-weight-record")
     @Operation(summary = "홈화면 몸무게 기록 API", description = "홈화면 몸무게 기록")
     public ApiResponse<Long> saveWeight(@RequestBody WeightRecordRequestDTO dto) {
         homeServiceWeightRecord.saveWeightRecord(dto);
         return ApiResponse.onSuccess(dto.getUserId());
     }
 
-    @GetMapping("/{userId}/main/getWeightRecord")
-    @Operation(summary = "홈화면 몸무게 기록 API", description = "홈화면 몸무게 기록")
+    @GetMapping("/{userId}/main/get-weight-wecord")
+    @Operation(summary = "홈화면 현재 몸무게 확인 API", description = "홈화면 몸무게 기록")
     public ApiResponse<WeightRecordResponseDTO> getWeight(@PathVariable Long userId) {
 
         WeightRecord weightRecord = weightRecordRepository.findLatestByUserId(userId)
