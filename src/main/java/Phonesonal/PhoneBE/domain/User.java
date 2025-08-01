@@ -1,6 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
-import Phonesonal.PhoneBE.domain.common.exercise.DailyCalorie;
+import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
@@ -80,6 +80,6 @@ public class User {
     // 유저의 일일 칼로리 정보
     @ManyToOne
     @JoinColumn(name = "daily_calorie_id")
-    private DailyCalorie dailyCalorie;
+    private DailyExerciseRecord dailyExerciseRecord;
 
 }

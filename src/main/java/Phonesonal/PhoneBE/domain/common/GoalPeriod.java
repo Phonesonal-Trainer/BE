@@ -3,12 +3,15 @@ package Phonesonal.PhoneBE.domain.common;
 import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.enums.ExerciseFeedback;
 import Phonesonal.PhoneBE.domain.enums.FoodFeedback;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
+import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +36,7 @@ public class GoalPeriod extends BaseEntity {
 
     @Column
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "goalPeriod")
+    private List<UserExercise> userExercises; // 운동 부위 정보
 }
