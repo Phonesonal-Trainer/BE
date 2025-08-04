@@ -79,4 +79,15 @@ public class UserMealController {
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "수정 완료"));
     }
 
+    @Operation(summary = "추가 식단 기록 삭제")
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<ApiResponse<String>> deleteUserMeal(
+            @PathVariable Long recordId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userMealCommandService.deleteUserMeal(recordId, userDetails.getUser().getId());
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "삭제 완료"));
+    }
+
+
 }

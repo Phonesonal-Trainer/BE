@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+// 추가 식단 관련
 public class UserMealCommandServiceImpl implements UserMealCommandService {
 
     private final UserMealRepository userMealRepository;
@@ -133,6 +134,17 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
         }
 
         userMeal.setQuantity(quantity);
+    }
+
+    public void deleteUserMeal(Long recordId, Long userId) {
+        UserMeal userMeal = userMealRepository.findById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식단 기록입니다."));
+
+        if (!userMeal.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("해당 식단 기록에 대한 삭제 권한이 없습니다.");
+        }
+
+        userMealRepository.delete(userMeal);
     }
 
 }

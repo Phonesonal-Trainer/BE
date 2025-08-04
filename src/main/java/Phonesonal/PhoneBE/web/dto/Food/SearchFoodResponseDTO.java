@@ -15,4 +15,5 @@ public class SearchFoodResponseDTO {
     private Float protein;
     private Float fat;
     private String imageUrl;
+    private boolean isFavorite; // 즐겨찾기 여부
 }

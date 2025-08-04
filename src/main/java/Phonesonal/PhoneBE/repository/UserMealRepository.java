@@ -13,9 +13,12 @@ import java.util.List;
 
 @Repository
 public interface UserMealRepository extends JpaRepository<UserMeal, Long> {
+    // 특정 날짜, 식사 시간 별 조회 (추가 식단)
     List<UserMeal> findByGoalPeriodAndDateAndMealTime(GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
 
     //홈화면 오늘 섭취 칼로리를 위한 데이터
     @Query("SELECT um FROM UserMeal um JOIN FETCH um.food WHERE um.user.id = :userId AND um.date = :date")
     List<UserMeal> findWithFoodByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
+
+    MealTime mealTime(MealTime mealTime);
 }
