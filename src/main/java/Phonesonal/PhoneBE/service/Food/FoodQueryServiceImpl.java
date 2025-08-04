@@ -22,7 +22,7 @@ public class FoodQueryServiceImpl implements FoodQueryService {
         List<Food> foods = foodRepository.findByNameContainingAndIsCustomFalse(keyword);
 
         return foods.stream().map(food -> {
-            boolean isFavorite = favoriteFoodRepository.existsByUserIdAndFoodId(userId, food.getFoodId());
+            boolean isFavorite = favoriteFoodRepository.existsByUserIdAndFood_FoodId(userId, food.getFoodId());
 
             return SearchFoodResponseDTO.builder()
                     .foodId(food.getFoodId())

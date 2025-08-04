@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class NutritionSummaryResponse {
+public class NutritionSummaryResponseDTO {
     private LocalDate date;
     private Map<MealTime, NutritionData> summary;
 }

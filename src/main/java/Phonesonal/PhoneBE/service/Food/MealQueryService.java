@@ -9,7 +9,7 @@ import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Food.NutritionData;
-import Phonesonal.PhoneBE.web.dto.Food.NutritionSummaryResponse;
+import Phonesonal.PhoneBE.web.dto.Food.NutritionSummaryResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +30,7 @@ public class MealQueryService {
     private final RecommendMealRepository recommendMealRepository;
     private final GoalPeriodRepository goalPeriodRepository;
 
-    public NutritionSummaryResponse getNutritionSummary(Long userId, Long goalPeriodId, LocalDate date) {
+    public NutritionSummaryResponseDTO getNutritionSummary(Long userId, Long goalPeriodId, LocalDate date) {
         // GoalPeriod 확인
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid goalPeriodId"));
@@ -54,7 +54,7 @@ public class MealQueryService {
             }
         }
 
-        return new NutritionSummaryResponse(date, summary);
+        return new NutritionSummaryResponseDTO(date, summary);
     }
 }
 
