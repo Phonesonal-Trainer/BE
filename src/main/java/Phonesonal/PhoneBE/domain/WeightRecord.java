@@ -2,8 +2,10 @@ package Phonesonal.PhoneBE.domain;
 
 
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
+import Phonesonal.PhoneBE.security.CustomUserDetails;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,12 +26,10 @@ public class WeightRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-/*
-    목표기간과 회원 몸무게 변경사항 컨펌 필요
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_period_id")
     private GoalPeriod goalPeriod;
-*/
 
     @Column(nullable = false)
     private BigDecimal weight;  // 몸무게
