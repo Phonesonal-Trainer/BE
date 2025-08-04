@@ -20,7 +20,7 @@ public class HomeServiceWeightRecordImpl {
     private final GoalPeriodRepository goalPeriodRepository;
 
 
-    public void saveWeightRecord(CustomUserDetails userDetails, WeightRecordRequestDTO dto) {
+    public WeightRecord saveWeightRecord(CustomUserDetails userDetails, WeightRecordRequestDTO dto) {
         Long userId = userDetails.getUser().getId();
         Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
 
@@ -37,7 +37,7 @@ public class HomeServiceWeightRecordImpl {
                 .goalPeriod(goalPeriod)
                 .build();
 
-        weightRecordRepository.save(weightRecord);
+        return weightRecordRepository.save(weightRecord);
     }
 
     public WeightRecordResponseDTO getLatestWeight(CustomUserDetails userDetails) {
