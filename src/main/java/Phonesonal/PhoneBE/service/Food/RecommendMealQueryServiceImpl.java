@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+// 식단 플랜 관련
 public class RecommendMealQueryServiceImpl implements RecommendMealQueryService {
 
     private final RecommendMealRepository recommendMealRepository;
@@ -27,11 +28,11 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
             throw new IllegalArgumentException("date 파라미터는 반드시 필요합니다.");
         }
 
-        // 1. goalPeriodId 기준으로 GoalPeriod 조회
+        // goalPeriodId 기준으로 GoalPeriod 조회
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 GoalPeriod가 없습니다."));
 
-        // 2. 해당 GoalPeriod, 날짜, mealTime을 기준으로 RecommendMeal 조회
+        // 해당 GoalPeriod, 날짜, mealTime을 기준으로 RecommendMeal 조회
         List<RecommendMeal> meals = recommendMealRepository.findByGoalPeriodAndDateAndMealTime(goalPeriod, date, mealTime);
 
         return meals.stream()

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+// 추가 식단 관련
 public class UserMealCommandServiceImpl implements UserMealCommandService {
 
     private final UserMealRepository userMealRepository;

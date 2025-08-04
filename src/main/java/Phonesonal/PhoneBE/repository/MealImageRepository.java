@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.Optional;
 
-/* public interface MealImageRepository extends JpaRepository<MealImage, Long> {
+public interface MealImageRepository extends JpaRepository<MealImage, Long> {
+    /*
     Optional<MealImage> findByUserAndGoalPeriodAndDateAndMealTime(User user, GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
+
+
+     */
 }
- */

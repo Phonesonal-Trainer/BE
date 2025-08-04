@@ -14,8 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Long> {
+
+    // 특정 날짜, mealTime 별 (식단 플랜)
     List<RecommendMeal> findByGoalPeriodAndDateAndMealTime(GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
 
+    // completeStatus 수정용
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE RecommendMeal rm SET rm.complete = :complete " +
@@ -27,6 +30,11 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
             @Param("date") LocalDate date,
             @Param("mealTime") MealTime mealTime,
             @Param("complete") CompleteStatus complete
+    );
+
+    // 특정 날짜, 식사 시간별 조회 (식단 플랜에서 complete 상태만)
+    List<RecommendMeal> findByGoalPeriodAndDateAndMealTimeAndComplete(
+            GoalPeriod goalPeriod, LocalDate date, MealTime mealTime, CompleteStatus complete
     );
 
     //홈화면 목표 칼로리를 위한 데이터

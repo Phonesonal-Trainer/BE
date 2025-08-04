@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+// 식단 플랜 관련
 public class RecommendMealCommandService {
 
     private final RecommendMealRepository recommendMealRepository;
