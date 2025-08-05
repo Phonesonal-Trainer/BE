@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -203,6 +204,22 @@ public class HomeServiceImpl implements HomeCommandService {
         return totalAerobicTime;
     }
 
+    //요일별 코멘트 메소드
+    public String todayComment(LocalDate date){
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+        String comment = switch (dayOfWeek) {
+            case MONDAY -> "벌써 월요일이네요! 이번 주도 힘차게 달려볼까요?🏃";
+            case TUESDAY -> "회원님! 오늘도 목표에 한 걸음 더 다가가봅시다🔥";
+            case WEDNESDAY -> "오늘 하루도 파이팅! 폰스널 트레이너는 언제나 회원님을 응원합니다🍀";
+            case THURSDAY -> "회원님! 오늘도 폰스널 트레이너와 함께 달려볼까요?🏃";
+            case FRIDAY -> "불금엔 역시 운동이죠! 오늘도 의지를 불태워봅시다🔥";
+            case SATURDAY -> "주말에도 방심은 금물! 운동도 식단도 잊지 말기로 약속해요🤙";
+            case SUNDAY -> "벌써 이번 주도 끝을 향해 가네요! 마지막까지 힘내봅시다💪";
+        };
+        return comment;
+    }
+
 
     public HomeResultDTO.HomeMainDTO getHomeData(Long userId) {
         User user = userRepository.getReferenceById(userId);
@@ -236,7 +253,7 @@ public class HomeServiceImpl implements HomeCommandService {
         String exerciseStatus = HomeExercisePercentageStatus(exercisePercentage);
         String caloriestatus = HomeMealPercentageStatus(caloriePercentage);
         int presentWeek = calculateWeek(user.getCreated_at().toLocalDate(), date);//유저 생성시간 기준으로 구현
-        String comment = "테스트 코멘트 입니다.";
+        String comment = todayComment(date);
 
 
         return HomeResultDTO.HomeMainDTO.builder()

@@ -29,8 +29,8 @@ public class HomeController {
 
     @GetMapping("/{userId}/main")
     @Operation(summary = "홈화면 조회 API", description = "홈화면")
-    public ApiResponse<HomeFullResponseDTO> homeFullResponse(@PathVariable Long userId) {
-        HomeFullResponseDTO homeResponse = homeService.getHomeFullResponse(userId);
+    public ApiResponse<HomeFullResponseDTO> homeFullResponse(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        HomeFullResponseDTO homeResponse = homeService.getHomeFullResponse(userDetails.getUser().getId());
         return ApiResponse.onSuccess(homeResponse);
     }
 
