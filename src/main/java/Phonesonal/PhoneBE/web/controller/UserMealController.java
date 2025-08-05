@@ -61,10 +61,12 @@ public class UserMealController {
     @Operation(summary = "추가 식단 전체 조회 (직접 입력 + 기존 음식 기반)")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserMealResponseDTO>>> getUserMeals(
-            @RequestParam Long goalPeriodId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam MealTime mealTime
+            @RequestParam MealTime mealTime,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+
         List<UserMealResponseDTO> result = userMealQueryService.getUserMeals(goalPeriodId, date, mealTime);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }

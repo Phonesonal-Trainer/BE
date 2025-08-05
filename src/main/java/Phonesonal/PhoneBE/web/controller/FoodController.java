@@ -53,9 +53,11 @@ public class FoodController {
     @Operation(summary = "하루 식단의 영양소 총합 조회 (식사별 조회)")
     @GetMapping("/nutrition-summary")
     public ResponseEntity<NutritionSummaryResponseDTO> getNutritionSummary(
-            @RequestParam Long userId,
-            @RequestParam Long goalPeriodId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        Long userId = userDetails.getUser().getId();
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
 
         NutritionSummaryResponseDTO response = mealQueryService.getNutritionSummary(userId, goalPeriodId, date);
         return ResponseEntity.ok(response);

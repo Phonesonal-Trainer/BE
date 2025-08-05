@@ -56,7 +56,10 @@ public class MealPlanController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        CompleteStatusResponseDTO result = recommendMealCommandService.updateCompleteStatus(request, userId);
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        CompleteStatusResponseDTO result =
+                recommendMealCommandService.updateCompleteStatus(request, userId, goalPeriodId); 
+
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 }
