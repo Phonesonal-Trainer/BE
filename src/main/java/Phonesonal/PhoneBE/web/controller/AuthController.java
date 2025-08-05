@@ -69,7 +69,7 @@ public class AuthController {
             return ApiResponse.onSuccess(response);
         } else {
             // 임시 토큰 생성 (짧은 만료시간 설정)
-            String tempToken = jwtTokenProvider.createTempToken(kakaoEmail, kakaoUserInfo);
+            String tempToken = jwtTokenProvider.createTempToken(kakaoEmail, kakaoUserInfo, SocialType.KAKAO);
             LoginResultDTO response = LoginResultDTO.builder()
                     .tempToken(tempToken)
                     .isNewUser(true)
@@ -93,20 +93,32 @@ public class AuthController {
             @RequestParam(required = false) BigDecimal muscleMass
     ) {
         try {
-            // 임시 토큰에서 카카오 정보 추출
-            Map<String, Object> kakaoUserInfo = jwtTokenProvider.getKakaoInfoFromTempToken(tempToken);
-            String kakaoName = kakaoUserInfo.get("nickname").toString();
-            String kakaoEmail = kakaoUserInfo.get("email").toString();
+            // 임시 토큰에서 사용자 정보 추출
+            Map<String, Object> tokenResult = jwtTokenProvider.getUserInfoFromTempToken(tempToken);
+            Map<String, Object> userInfo = (Map<String, Object>) tokenResult.get("userInfo");
+            SocialType socialType = (SocialType) tokenResult.get("socialType");
+
+            String userName;
+            String userEmail;
+
+            if (socialType == SocialType.GOOGLE) {
+                userName = (String) userInfo.get("name");  // 구글은 "name"
+                userEmail = (String) userInfo.get("email");
+            } else {
+                // 카카오 처리 (기존 로직)
+                userName = (String) userInfo.get("nickname");
+                userEmail = (String) userInfo.get("email");
+            }
 
             // 이미 가입된 유저인지 재확인
-            if (userRepository.findByEmail(kakaoEmail).isPresent()) {
+            if (userRepository.findByEmail(userEmail).isPresent()) {
                 return ApiResponse.onFailure("USER_ALREADY_EXISTS", "이미 가입된 사용자입니다", null);
             }
 
             // 새 유저 생성
             User newUser = User.builder()
-                    .name(kakaoName)
-                    .email(kakaoEmail)
+                    .name(userName)
+                    .email(userEmail)
                     .nickname(nickname)
                     .age(age)
                     .gender(gender)
@@ -116,15 +128,15 @@ public class AuthController {
                     .weight(weight) // BigDecimal -> int 변환
                     .bodyFatRate(bodyFatRate) // BigDecimal -> Double 변환
                     .muscleMass(muscleMass) // BigDecimal -> Double 변환
-                    .socialType(SocialType.KAKAO)
+                    .socialType(socialType)
                     .created_at(LocalDateTime.now())
                     .build();
 
             userRepository.save(newUser);
 
             // 정식 JWT 토큰 발급
-            String jwtAccessToken = jwtTokenProvider.createToken(kakaoEmail);
-            String jwtRefreshToken = jwtTokenProvider.createRefreshToken(kakaoEmail);
+            String jwtAccessToken = jwtTokenProvider.createToken(userEmail);
+            String jwtRefreshToken = jwtTokenProvider.createRefreshToken(userEmail);
 
             LoginResultDTO response = LoginResultDTO.builder()
                     .accessToken(jwtAccessToken)

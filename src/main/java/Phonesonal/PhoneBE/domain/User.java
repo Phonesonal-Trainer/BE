@@ -50,12 +50,6 @@ public class User {
     //골격근량 (kg)
     private BigDecimal muscleMass;
 
-    //체지방률 (%)
-    private double bodyFatPercentage;
-
-    //골격근량 (kg)
-    private double skeletalMuscleWeight;
-
     //나이
     private int age;
 
