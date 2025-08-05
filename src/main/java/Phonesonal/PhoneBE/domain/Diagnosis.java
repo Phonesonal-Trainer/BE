@@ -27,7 +27,7 @@ public class Diagnosis {
     private BigDecimal targetBMI;
 
     @Column(name = "muscle_mass")
-    private String targetMuscleMass; //목표 골격근량 변동
+    private BigDecimal targetMuscleMass; //목표 골격근량 변동
 
     @Column(name = "body_fat_rate")
     private BigDecimal targetBodyFatRate; // 목표 체지방률 (%) - 선택사항
