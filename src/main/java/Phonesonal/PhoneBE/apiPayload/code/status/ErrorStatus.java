@@ -32,6 +32,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 목표 관리 에러
     INVALID_GOAL_PERIOD(HttpStatus.BAD_REQUEST, "GOAL4002","해당 목표 기간이 존재하지 않습니다."),
+    INVALID_WEEK(HttpStatus.BAD_REQUEST, "GOAL4003","범위에 해당하지 않는 주차입니다."),
 
     //운동 관련 에러
     EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4041", "운동을 찾을 수 없습니다."),

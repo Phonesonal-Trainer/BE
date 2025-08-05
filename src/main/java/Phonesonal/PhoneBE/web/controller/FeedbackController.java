@@ -24,7 +24,6 @@ import java.time.LocalDate;
 public class FeedbackController {
 
     private final FeedbackCommandService feedbackCommandService;
-    private final GoalPeriodRepository goalPeriodRepository;
 
     @PostMapping("/post")
     public ApiResponse<FeedbackResponseDTO.CreateResultDTO> create(
@@ -51,10 +50,9 @@ public class FeedbackController {
     @GetMapping("/get")
     public ApiResponse<FeedbackResponseDTO.GetResultDTO> getFeedback(
             @RequestParam Integer week,
-            @RequestParam Long goalPeriodId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-
+        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
         Long userId = userDetails.getUser().getId();
         Feedback feedback = feedbackCommandService.getFeedbackByUserAndWeek(userId, goalPeriodId, week);
         return ApiResponse.onSuccess(FeedbackConverter.toGetResultDTO(feedback));

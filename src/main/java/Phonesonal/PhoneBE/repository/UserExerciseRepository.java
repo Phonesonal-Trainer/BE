@@ -1,5 +1,7 @@
 package Phonesonal.PhoneBE.repository;
 
+import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +20,10 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
 
     // 사용자의 북마크된 운동 목록 조회
     List<UserExercise> findByUserIdAndBookmarkTrue(Long userId);
+
+    List<UserExercise> findByUserIdAndGoalPeriodIdAndExerciseDateBetween(
+            Long userId, Long goalPeriodId, LocalDate start, LocalDate end
+    );
 
     // 특정 사용자의 특정 운동 조회
     @Query("SELECT ue FROM UserExercise ue WHERE ue.user.id = :userId AND ue.exercise.id = :exerciseId")
