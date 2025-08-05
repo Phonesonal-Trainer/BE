@@ -2,6 +2,7 @@ package Phonesonal.PhoneBE.config;
 
 import Phonesonal.PhoneBE.security.CustomOAuth2UserService;
 import Phonesonal.PhoneBE.security.JwtAuthenticationFilter;
+import Phonesonal.PhoneBE.security.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,10 +16,14 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          OAuth2SuccessHandler oAuth2SuccessHandler) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
     }
 
     @Bean
@@ -40,14 +45,14 @@ public class SecurityConfig {
                                 "/report/**",
                                 "/exercise/**",
                                 "/fitness/**"
-                                ).permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/dashboard", true)
+                        .successHandler(oAuth2SuccessHandler)  // 변경
                         .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout
