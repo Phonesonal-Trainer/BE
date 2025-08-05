@@ -17,6 +17,12 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
 
     // 특정 날짜, mealTime 별 (식단 플랜)
     List<RecommendMeal> findByGoalPeriodAndDateAndMealTime(GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
+    List<RecommendMeal> findByUserIdAndGoalPeriodIdAndDateBetweenAndComplete(
+            Long userId, Long goalPeriodId, LocalDate weekStart, LocalDate weekEnd, CompleteStatus completeStatus
+    );
+    List<RecommendMeal> findByUserIdAndGoalPeriodIdAndDateBetween(
+            Long userId, Long goalPeriodId, LocalDate weekStart, LocalDate weekEnd
+    );
 
     // completeStatus 수정용
     @Modifying(clearAutomatically = true)

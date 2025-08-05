@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
     Optional<Feedback> findByUserIdAndGoalPeriod_IdAndWeek(Long userId, Long goalPeriodId, Integer week);
-
+    boolean existsByUserIdAndGoalPeriod_IdAndWeek(Long userId, Long goalPeriodId, int week);
 
 
 }
