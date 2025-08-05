@@ -76,7 +76,7 @@ public class GeminiService {
                 deadline,
                 generateAdditionalContext(bodyFatRate, muscleMass),
                 bodyFatRate != null ? "[목표 체지방률 숫자값]" : "null",
-                muscleMass != null ? "\"[골격근량 변동사항 텍스트(증가, 소폭 증가, 감소, 소폭 감소, 유지)]\"" : "null"
+                muscleMass != null ? "\"[목표 골격근량 숫자값]\"" : "null"
         );
 
 

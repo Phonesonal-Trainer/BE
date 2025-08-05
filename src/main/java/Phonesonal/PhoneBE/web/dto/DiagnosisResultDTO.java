@@ -14,7 +14,7 @@ public class DiagnosisResultDTO {
     private BigDecimal targetWeight; // 목표 몸무게 (kg)
     private BigDecimal BMI;          // 기존 BMI
     private BigDecimal targetBMI;    // 목표 BMI
-    private String targetMuscleMass; // 목표 골격근량 변동
+    private BigDecimal targetMuscleMass; // 목표 골격근량 변동
     private BigDecimal bodyFatRate;  // 기존 체지방률
     private BigDecimal targetBodyFatRate; // 목표 체지방률 (%) - 선택사항
     private String recommendedNutrition; //권장 주 영양소 성향
