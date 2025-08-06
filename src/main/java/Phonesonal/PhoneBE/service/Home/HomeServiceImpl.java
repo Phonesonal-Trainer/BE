@@ -34,6 +34,7 @@ public class HomeServiceImpl implements HomeCommandService {
     private final UserExerciseRepository userExerciseRepository;
     private final DiagnosisRepository diagnosesRepository;
 
+    //추천 운동 소모 칼로리
     @Transactional(readOnly = true)
     public int getBurnedCaloriesOnDate(Long user, LocalDate date) {
         List<UserExercise> exercises = userExerciseRepository.findWithExerciseByUserIdAndDate(user, date);

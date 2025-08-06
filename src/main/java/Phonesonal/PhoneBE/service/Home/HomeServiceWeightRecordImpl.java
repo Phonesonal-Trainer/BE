@@ -52,4 +52,5 @@ public class HomeServiceWeightRecordImpl {
                 .recordDate(getWeightRecord.getRecordDate())
                 .build();
     }
+
 }
