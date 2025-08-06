@@ -3,6 +3,7 @@ package Phonesonal.PhoneBE.service;
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.WeeklyStamp;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
@@ -16,6 +17,7 @@ import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +31,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final UserExerciseRepository userExerciseRepository;
     private final BodyPartRepository bodyPartRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
+    private final WeeklyStampRepository weeklyStampRepository;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
 
     // exerciseId로 운동을 찾는 메서드
@@ -257,7 +260,48 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 6. 일일 운동 데이터 업데이트
         updateDailyExerciseRecord(savedUserExercise);
 
+        // 7. 스탬프 체크 및 부여
+        checkAndUpdateStamp(savedUserExercise.getUser().getId(), savedUserExercise.getExerciseDate());
+
         return convertToUserExerciseResponseDTO(savedUserExercise);
+    }
+
+    // 스탬프 체크 및 업데이트 메서드
+    private void checkAndUpdateStamp(Long userId, LocalDate exerciseDate) {
+        // 해당 날짜의 전체 운동 목록 조회
+        List<UserExercise> todayExercises = userExerciseRepository.findByUserIdAndExerciseDate(userId, exerciseDate);
+
+        // 완료된 운동 개수 계산
+        long completedCount = todayExercises.stream()
+                .filter(exercise -> exercise.getState() == State.completed)
+                .count();
+
+        // 오늘 운동의 총 개수
+        int totalCount = todayExercises.size();
+
+        // 달성률 계산 휴일의 경우 추후 고려
+        if (totalCount > 0 && (completedCount + 100.0 / totalCount) >= 80){
+            // 월요일로 주차 계산
+            LocalDate weekStartDate = exerciseDate.with(DayOfWeek.MONDAY); // 예시로 월의 첫날로 설정
+
+            //WeeklyStamp 조회 또는 생성
+            WeeklyStamp weeklyStamp = weeklyStampRepository
+                    .findByUserIdAndWeekStartDate(userId, weekStartDate)
+                    .orElseGet(() -> {
+                        User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+                        return WeeklyStamp.builder()
+                                .user(user)
+                                .weekStartDate(weekStartDate)
+                                .build();
+                    });
+
+            // 해당 요일 스탬프 업데이트
+            weeklyStamp.updateStamp(exerciseDate);
+
+            // 저장
+            weeklyStampRepository.save(weeklyStamp);
+        }
     }
 
     // 운동 시간 계산 메서드
