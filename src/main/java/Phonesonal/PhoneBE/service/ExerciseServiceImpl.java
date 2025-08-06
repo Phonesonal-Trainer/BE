@@ -78,15 +78,25 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseDetailResponseDTO convertToExerciseDetailResponseDTO(Exercise exercise) {
+        // 운동 설명을 DTO로 변환
+        List<ExerciseDetailResponseDTO.ExerciseDescriptionDTO> descriptionDTOs =
+                exercise.getDescriptions().stream()
+                        .map(desc -> ExerciseDetailResponseDTO.ExerciseDescriptionDTO.builder()
+                                .step(desc.getStep())
+                                .main(desc.getMain())
+                                .sub(desc.getSub())
+                                .build())
+                        .collect(Collectors.toList());
+
         return ExerciseDetailResponseDTO.builder()
                 .exerciseId(exercise.getId())
                 .name(exercise.getName())
-                .description(exercise.getDescriptions())
                 .imageUrl(exercise.getImageUrl())
                 .youtubeUrl(exercise.getYoutubeUrl())
                 .bodyPart(exercise.getBodyParts().stream()
                         .map(ebp -> ebp.getBodyPart())
                         .collect(Collectors.toList()))
+                .descriptions(descriptionDTOs)
                 .build();
     }
 
