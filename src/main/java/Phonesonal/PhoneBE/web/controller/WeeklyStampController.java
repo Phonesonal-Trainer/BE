@@ -21,18 +21,18 @@ public class WeeklyStampController {
 
     private final WeeklyStampService weeklyStampService;
 
-    @Operation(
-            summary = "오늘 운동 완료 처리",
-            description = "사용자가 오늘의 모든 운동을 완료했다고 선언할 때 호출. 모든 운동이 완료되어야 스탬프 획득"
-    )
-    @PostMapping("/complete-today")
-    public ApiResponse<String> completeTodayExercise(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        Long userId = userDetails.getUser().getId();
-        weeklyStampService.completeTodayExercise(userId);
-        return ApiResponse.onSuccess("오늘의 스탬프를 획득했습니다!");
-    }
+//    @Operation(
+//            summary = "오늘 운동 완료 처리",
+//            description = "사용자가 오늘의 모든 운동을 완료했다고 선언할 때 호출. 모든 운동이 완료되어야 스탬프 획득"
+//    )
+//    @PostMapping("/complete-today")
+//    public ApiResponse<String> completeTodayExercise(
+//            @AuthenticationPrincipal CustomUserDetails userDetails
+//    ) {
+//        Long userId = userDetails.getUser().getId();
+//        weeklyStampService.completeTodayExercise(userId);
+//        return ApiResponse.onSuccess("오늘의 스탬프를 획득했습니다!");
+//    }
 
     @Operation(
             summary = "주간 스탬프 조회",
