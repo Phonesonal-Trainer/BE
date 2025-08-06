@@ -81,7 +81,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return ExerciseDetailResponseDTO.builder()
                 .exerciseId(exercise.getId())
                 .name(exercise.getName())
-                .description(exercise.getDescription())
+                .description(exercise.getDescriptions())
                 .imageUrl(exercise.getImageUrl())
                 .youtubeUrl(exercise.getYoutubeUrl())
                 .bodyPart(exercise.getBodyParts().stream()
