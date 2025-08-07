@@ -14,6 +14,7 @@ public class ExerciseDetailResponseDTO {
     private String name; // 운동 이름
     private String imageUrl; // 운동 이미지 URL
     private String youtubeUrl; // 유튜브 URL
+    private String caution; // 주의사항
     private List<BodyPart> bodyPart; // 운동 부위
     private List<ExerciseDescriptionDTO> descriptions;
 
