@@ -42,9 +42,6 @@ public class Exercise {
     private Integer defaultSet; // 기본 세트 수
 
     @Column(columnDefinition = "TEXT")
-    private String description; //운동 설명
-
-    @Column(columnDefinition = "TEXT")
     private String caution; // 운동 주의사항
 
     @Column
@@ -56,4 +53,8 @@ public class Exercise {
     @Column
     @Builder.Default
     private Integer secondsPerRep = 5; // 무산소 운동 시간 (초 단위)
+
+    @OneToMany(mappedBy = "exercise", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OrderBy("step ASC") // step 순서대로 정렬
+    private List<ExerciseDescription> descriptions; // 운동 설명 목록
 }

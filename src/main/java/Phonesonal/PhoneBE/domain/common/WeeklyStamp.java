@@ -66,6 +66,19 @@ public class WeeklyStamp extends BaseEntity {
         }
     }
 
+    // 스탬프 상태 업데이트
+    public void updateStamp(LocalDate date){
+        switch (date.getDayOfWeek()) {
+            case MONDAY -> this.mondayStamp = true;
+            case TUESDAY -> this.tuesdayStamp = true;
+            case WEDNESDAY -> this.wednesdayStamp = true;
+            case THURSDAY -> this.thursdayStamp = true;
+            case FRIDAY -> this.fridayStamp = true;
+            case SATURDAY -> this.saturdayStamp = true;
+            case SUNDAY -> this.sundayStamp = true;
+        }
+    }
+
     // 특정 요일의 스탬프 상태 조회
     public boolean getDayStamp(java.time.DayOfWeek dayOfWeek) {
         return switch (dayOfWeek) {
