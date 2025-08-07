@@ -6,7 +6,9 @@ import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.*;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
+import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
@@ -34,6 +36,7 @@ public class ReportQueryServiceImpl implements ReportQueryService {
     private final WeightRecordRepository weightRecordRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final UserExerciseRepository userExerciseRepository;
+    private final ExerciseSetRepository exerciseSetRepository;
 
     private Number convertFloat(float value) {
         return value % 1.0 == 0 ? (int) value : value;
@@ -104,13 +107,22 @@ public class ReportQueryServiceImpl implements ReportQueryService {
                 .findByUserIdAndGoalPeriodIdAndExerciseDateBetween(userId, goalPeriodId, startDate, endDate);
 
         int totalTarget = 0;
-        for (UserExercise ue : weeklyExercises) {
-            Integer count = ue.getCount();
-            Integer set = ue.getSetCount();
-            Integer kcal = ue.getExercise() != null ? ue.getExercise().getKcal() : null;
+        for (UserExercise ue : weeklyExercises){
+            if(!ue.isCustomExercise()){
+                //세트별 목표 칼로리 계산
+                List<ExerciseSet> sets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(ue);
+                Exercise exercise = ue.getExercise();
 
-            if (count != null && set != null && kcal != null) {
-                totalTarget += count * set * kcal;
+                if(exercise != null && exercise.getKcal() != null){
+                    for (ExerciseSet set : sets){
+                        if(set.getReps() != null){
+                            totalTarget += set.getReps() * exercise.getKcal();
+                        }
+                    }
+                }
+            } else {
+                // 커스텀 운동
+                totalTarget += ue.getCaloriesBurned() != null ? ue.getCaloriesBurned() : 0;
             }
         }
 
