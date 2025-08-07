@@ -8,6 +8,7 @@ import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.enums.exercise.State;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final BodyPartRepository bodyPartRepository;
+    private final ExerciseSetRepository exerciseSetRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final WeeklyStampRepository weeklyStampRepository;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
@@ -130,6 +133,17 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .build();
         } else {
             // 일반 계획된 운동인 경우
+            List<ExerciseSet> sets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(ue);
+            List<UserExerciseResponseDTO.ExerciseSetDTO> setDTOS = sets.stream()
+                    .map(set -> UserExerciseResponseDTO.ExerciseSetDTO.builder()
+                            .setId(set.getId())
+                            .setNumber(set.getSetNumber())
+                            .count(set.getReps())
+                            .weight(set.getWeight())
+                            .completed(set.getCompleted())
+                            .build())
+                    .collect(Collectors.toList());
+
             return UserExerciseResponseDTO.builder()
                     .userExerciseId(ue.getId())
                     .recordType("PLANNED")
@@ -138,9 +152,9 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .date(ue.getExerciseDate().toString())
                     .state(ue.getState().name())
                     .exerciseType(ue.getExercise().getType() != null ? ue.getExercise().getType().name() : "etc")
-                    .count(ue.getCount())
-                    .weight(ue.getWeight())
-                    .sets(ue.getSetCount())
+//                    .count(ue.getCount())
+//                    .weight(ue.getWeight())
+//                    .sets(ue.getSetCount())
                     .actualMinutes(ue.getActualMinutes())
                     .build();
         }
@@ -159,9 +173,6 @@ public class ExerciseServiceImpl implements ExerciseService {
         UserExercise userExercise = UserExercise.builder()
                 .user(user)
                 .exercise(exercise)
-                .count(exercise.getDefaultCount()) // 초기 횟수
-                .weight(exercise.getDefaultWeight()) // 초기 중량
-                .setCount(exercise.getDefaultSet()) // 초기 세트 수
                 .state(State.pending) // 초기 상태: 진행 대기 중
                 .exerciseDate(LocalDate.now()) // 오늘 날짜로 설정
                 .bookmark(false) // 북마크 기본값 false
@@ -169,6 +180,18 @@ public class ExerciseServiceImpl implements ExerciseService {
 
         // 4. UserExercise 저장
         UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+        // 5. 기본 세트들 생성
+        List<ExerciseSet> exerciseSets = new ArrayList<>();
+        for (int i = 1; i <= exercise.getDefaultSet(); i++){
+            ExerciseSet set = ExerciseSet.builder()
+                    .userExercise(savedUserExercise)
+                    .setNumber(i) // 세트 번호
+                    .weight(exercise.getDefaultWeight()) // 기본 중량
+                    .reps(exercise.getDefaultCount()) // 기본 횟수
+                    .completed(false) // 초기 상태: 완료되지 않음
+                    .build();
+        }
 
         // 5. UserExerciseResponseDTO로 변환하여 반환
         return convertToUserExerciseResponseDTO(savedUserExercise);
@@ -322,9 +345,27 @@ public class ExerciseServiceImpl implements ExerciseService {
             return 30;
         } else {
             Exercise exercise = userExercise.getExercise();
-            // 1회당 초수 × 횟수 × 세트 수 = 총 초수 → 분으로 변환
-            int totalSeconds = exercise.getSecondsPerRep() * userExercise.getCount() * userExercise.getSetCount();
-            return totalSeconds / 60; // 초를 분으로 변환 (소수점 버림)
+
+            // 세트별 시간 계산
+            List<ExerciseSet> completedSets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(userExercise)
+                    .stream()
+                    .filter(ExerciseSet::getCompleted)
+                    .collect(Collectors.toList());
+
+            if (completedSets.isEmpty()) {
+                return 0;
+            }
+
+            // 1회당 초수
+            int totalSeconds = completedSets.stream()
+                    .mapToInt(set -> {
+                        int reps = set.getReps() != null ? set.getReps() : 0;
+                        int secondsPerRep = exercise.getSecondsPerRep() != null ? exercise.getSecondsPerRep() : 3; // 기본값 1초
+                        return reps * secondsPerRep;
+                    })
+                    .sum();
+
+            return totalSeconds / 60;
         }
     }
 
@@ -371,8 +412,20 @@ public class ExerciseServiceImpl implements ExerciseService {
             return userExercise.getCaloriesBurned() != null ? userExercise.getCaloriesBurned() : 0;
         } else {
             Exercise exercise = userExercise.getExercise();
-            // 1회 칼로리 × 횟수 × 세트 수
-            return exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+            // 세트 리스트
+            List<ExerciseSet> completedSets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(userExercise)
+                    .stream()
+                    .filter(ExerciseSet::getCompleted)
+                    .collect(Collectors.toList());
+
+            //세트 총합
+            return completedSets.stream()
+                    .mapToInt(set -> {
+                        int reps = set.getReps() != null ? set.getReps() : 0;
+                        int kcalPerRep = exercise.getKcal() != null ? exercise.getKcal() : 0;
+                        return reps * kcalPerRep;
+                    })
+                    .sum();
         }
     }
 
@@ -394,53 +447,53 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
     }
 
-    // 세트 수 업데이트 -> 피드백 기능 구현 후 추가 구현 예정
-    @Override
-    public UserExerciseResponseDTO updateSetCount(Long userId, Long userExerciseId, Integer setCount){
-        // 1. UserExercise 조회
-        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
-
-        // 2. 해당 운동이 요청한 사용자의 것인지 확인
-        if(!userExercise.getUser().getId().equals(userId)) {
-            throw new GeneralException(ErrorStatus._FORBIDDEN);
-        }
-
-        // 3. 운동 상태가 완료된 경우 예외 처리
-        if (userExercise.getState() == State.completed) {
-            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
-        }
-
-        // 4. 세트 수 업데이트
-        userExercise.setSetCount(setCount);
-
-        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
-
-        return convertToUserExerciseResponseDTO(savedUserExercise);
-    }
-
-    // 횟수 업데이트 메서드 -> 피드백 기능 구현 후 추가 구현 예정
-    @Override
-    public UserExerciseResponseDTO updateCountPerSet(Long userId, Long userExerciseId, Integer countPerSet) {
-        // 1. UserExercise 조회
-        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
-
-        // 2. 해당 운동이 요청한 사용자의 것인지 확인
-        if(!userExercise.getUser().getId().equals(userId)) {
-            throw new GeneralException(ErrorStatus._FORBIDDEN);
-        }
-
-        // 3. 운동 상태가 완료된 경우 예외 처리
-        if (userExercise.getState() == State.completed) {
-            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
-        }
-
-        // 4. 횟수 업데이트
-        userExercise.setCount(countPerSet);
-
-        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
-
-        return convertToUserExerciseResponseDTO(savedUserExercise);
-    }
+//    // 세트 수 업데이트 -> 피드백 기능 구현 후 추가 구현 예정
+//    @Override
+//    public UserExerciseResponseDTO updateSetCount(Long userId, Long userExerciseId, Integer setCount){
+//        // 1. UserExercise 조회
+//        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+//                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+//
+//        // 2. 해당 운동이 요청한 사용자의 것인지 확인
+//        if(!userExercise.getUser().getId().equals(userId)) {
+//            throw new GeneralException(ErrorStatus._FORBIDDEN);
+//        }
+//
+//        // 3. 운동 상태가 완료된 경우 예외 처리
+//        if (userExercise.getState() == State.completed) {
+//            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
+//        }
+//
+//        // 4. 세트 수 업데이트
+//        userExercise.setSetCount(setCount);
+//
+//        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+//
+//        return convertToUserExerciseResponseDTO(savedUserExercise);
+//    }
+//
+//    // 횟수 업데이트 메서드 -> 피드백 기능 구현 후 추가 구현 예정
+//    @Override
+//    public UserExerciseResponseDTO updateCountPerSet(Long userId, Long userExerciseId, Integer countPerSet) {
+//        // 1. UserExercise 조회
+//        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+//                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+//
+//        // 2. 해당 운동이 요청한 사용자의 것인지 확인
+//        if(!userExercise.getUser().getId().equals(userId)) {
+//            throw new GeneralException(ErrorStatus._FORBIDDEN);
+//        }
+//
+//        // 3. 운동 상태가 완료된 경우 예외 처리
+//        if (userExercise.getState() == State.completed) {
+//            throw new GeneralException(ErrorStatus.USER_EXERCISE_ALREADY_COMPLETED);
+//        }
+//
+//        // 4. 횟수 업데이트
+//        userExercise.setCount(countPerSet);
+//
+//        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+//
+//        return convertToUserExerciseResponseDTO(savedUserExercise);
+//    }
 }
