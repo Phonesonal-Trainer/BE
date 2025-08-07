@@ -93,6 +93,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .name(exercise.getName())
                 .imageUrl(exercise.getImageUrl())
                 .youtubeUrl(exercise.getYoutubeUrl())
+                .caution(exercise.getCaution())
                 .bodyPart(exercise.getBodyParts().stream()
                         .map(ebp -> ebp.getBodyPart())
                         .collect(Collectors.toList()))
