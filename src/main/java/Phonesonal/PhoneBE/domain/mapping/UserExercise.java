@@ -21,11 +21,14 @@ public class UserExercise {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private Integer count; // 유저 설정 운동 횟수
-
-    @Column
-    private Integer weight; // 유저 설정 운동 중량
+//    @Column
+//    private Integer count; // 유저 설정 운동 횟수
+//
+//    @Column
+//    private Integer weight; // 유저 설정 운동 중량
+//
+//    @Column
+//    private Integer setCount; // 유저 설정 운동 세트 수
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

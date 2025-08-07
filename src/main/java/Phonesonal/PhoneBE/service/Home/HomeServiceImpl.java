@@ -3,6 +3,7 @@ package Phonesonal.PhoneBE.service.Home;
 import Phonesonal.PhoneBE.domain.*;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
@@ -18,6 +19,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static Phonesonal.PhoneBE.apiPayload.code.util.DateUtil.calculateWeek;
 
@@ -32,6 +34,7 @@ public class HomeServiceImpl {
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final DiagnosisRepository diagnosesRepository;
+    private final ExerciseSetRepository exerciseSetRepository;
 
     //추천 운동 소모 칼로리
     @Transactional(readOnly = true)
@@ -42,9 +45,15 @@ public class HomeServiceImpl {
                 .filter(userExercise -> userExercise.getExercise() != null && !userExercise.getExercise().getId().equals(999999L)) // 커스텀 운동 제외
                 .mapToInt(userExercise -> {
                     Exercise exercise = userExercise.getExercise();
-                    if (exercise != null && exercise.getKcal() != null
-                            && userExercise.getCount() != null && userExercise.getSetCount() != null) {
-                        return exercise.getKcal() * userExercise.getCount() * userExercise.getSetCount();
+                    if(exercise != null && exercise.getKcal() != null){
+                        List<ExerciseSet> completedSets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(userExercise)
+                                .stream()
+                                .filter(ExerciseSet::getCompleted)
+                                .collect(Collectors.toList());
+
+                        return completedSets.stream()
+                                .mapToInt(set -> exercise.getKcal() * (set.getReps() != null ? set.getReps() : 0))
+                                .sum();
                     }
                     return 0;
                 })
