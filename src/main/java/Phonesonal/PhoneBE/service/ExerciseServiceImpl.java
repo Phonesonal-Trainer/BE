@@ -290,7 +290,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         int totalCount = todayExercises.size();
 
         // 달성률 계산 휴일의 경우 추후 고려
-        if (totalCount > 0 && (completedCount + 100.0 / totalCount) >= 80){
+        if (totalCount > 0 && (completedCount * 100.0 / totalCount) >= 80){
             // 월요일로 주차 계산
             LocalDate weekStartDate = exerciseDate.with(DayOfWeek.MONDAY); // 예시로 월의 첫날로 설정
 
