@@ -19,12 +19,7 @@ import java.time.LocalDate;
             private Long userId;
             private double targetCalories;
             private double todayCalories;
-            private int caloriePercentage;
-            private int exercisePercentage;
             private BigDecimal targetWeight;
-            private BigDecimal currentWeight;
-            private String caloriestatus;
-            private String exercisestatus;
             private String comment;
             private int presentWeek;
             private LocalDate date;
@@ -34,9 +29,13 @@ import java.time.LocalDate;
         @Getter
         @AllArgsConstructor
         public static class HomeExerciseDTO{
+            private int todayBurnedCalories;
+            private int todayRecommanedBurnedCalories;
             private int anaerobicExerciseTime;
             private int aerobicExerciseTime;
+            private int exercisePercentage;
             private String focusedBodyPart;
+            private String exerciseStatus;
 
 
         }
@@ -45,16 +44,20 @@ import java.time.LocalDate;
         @Getter
         @AllArgsConstructor
         public static class HomeMealPlanDTO{
-            private double calorie;
+            private double todayRecommendedCalories;
+            private double todayConsumedCalorie;
             private double carb;
             private double protein;
             private double fat;
+            private int caloriePercentage;
+            private String calorieStatus;
         }
-
+/*
         @Builder
         @Getter
         @AllArgsConstructor
         public static class HomeUserWeightDTO{
             private int userWeight;
         }
+        */
     }

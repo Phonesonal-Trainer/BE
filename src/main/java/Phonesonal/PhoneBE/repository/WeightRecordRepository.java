@@ -14,6 +14,8 @@ public interface WeightRecordRepository extends JpaRepository<WeightRecord, Long
     @Query(value = "SELECT * FROM weight_record WHERE user_id = :userId ORDER BY record_date DESC LIMIT 1", nativeQuery = true)
     Optional<WeightRecord> findLatestByUserId(@Param("userId") Long userId);
 
+
+
     List<WeightRecord> findByUserIdAndGoalPeriodIdAndRecordDateBetween(
             Long userId,
             Long goalPeriodId,
