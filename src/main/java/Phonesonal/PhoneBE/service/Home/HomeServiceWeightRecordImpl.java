@@ -22,7 +22,7 @@ public class HomeServiceWeightRecordImpl {
 
     public WeightRecord saveWeightRecord(CustomUserDetails userDetails, WeightRecordRequestDTO dto) {
         Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 목표 기간입니다."));
