@@ -71,6 +71,7 @@ public class KakaoService {
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("email", kakaoAccount.get("email"));
             userInfo.put("nickname", profile.get("nickname"));
+            userInfo.put("profileImage", profile.get("profile_image_url"));
 
             return userInfo;
         } catch (Exception e) {

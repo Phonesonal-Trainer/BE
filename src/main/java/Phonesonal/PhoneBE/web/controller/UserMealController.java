@@ -36,7 +36,7 @@ public class UserMealController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         UserMealResponseDTO result = userMealCommandService.addUserMealFromFood(requestDTO, goalPeriodId);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
@@ -49,7 +49,7 @@ public class UserMealController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         userMealCommandService.addUserMealCustom(requestDTO, userId, goalPeriodId);
 
@@ -65,7 +65,7 @@ public class UserMealController {
             @RequestParam MealTime mealTime,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         List<UserMealResponseDTO> result = userMealQueryService.getUserMeals(goalPeriodId, date, mealTime);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));

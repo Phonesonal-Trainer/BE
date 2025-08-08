@@ -31,7 +31,7 @@ public class FeedbackController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         Feedback feedback = feedbackCommandService.createFeedback(userId, goalPeriodId, request);
         return ApiResponse.onSuccess(FeedbackConverter.toCreateResultDTO(feedback));
@@ -52,7 +52,7 @@ public class FeedbackController {
             @RequestParam Integer week,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
         Long userId = userDetails.getUser().getId();
         Feedback feedback = feedbackCommandService.getFeedbackByUserAndWeek(userId, goalPeriodId, week);
         return ApiResponse.onSuccess(FeedbackConverter.toGetResultDTO(feedback));

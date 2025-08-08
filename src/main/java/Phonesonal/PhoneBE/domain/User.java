@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.Purpose;
@@ -56,6 +57,9 @@ public class User {
     //목표기간
     private int deadline;
 
+    //프로필이미지url
+    private String profileImageUrl;
+
     //사용목적
     @Enumerated(EnumType.STRING)
     private Purpose purpose;
@@ -64,9 +68,10 @@ public class User {
     private LocalDateTime created_at;
 
     //목표기간
-    @Column(name = "current_goal_period_id")
-    private Long currentGoalPeriodId;
-  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_period_id")
+    private GoalPeriod goalPeriod;
+
     // Diagnosis와의 1:1 관계
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Diagnosis diagnosis;

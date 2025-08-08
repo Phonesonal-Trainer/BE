@@ -26,7 +26,7 @@ public class photoUploadTestService {
 
     public MealImage createPhoto(CustomUserDetails userDetails, MultipartFile bodyPicture) {
 
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
         Long userId = userDetails.getUser().getId();
 
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)

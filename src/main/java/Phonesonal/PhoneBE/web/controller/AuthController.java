@@ -2,9 +2,11 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
+import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
 import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.security.JwtTokenProvider;
@@ -15,15 +17,16 @@ import Phonesonal.PhoneBE.web.dto.InfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.net.URI;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +40,7 @@ public class AuthController {
     private final KakaoService kakaoService;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final GoalPeriodRepository goalPeriodRepository;
 
     @GetMapping("/kakao/login")
     public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
@@ -100,14 +104,17 @@ public class AuthController {
 
             String userName;
             String userEmail;
+            String profileImageUrl;
 
             if (socialType == SocialType.GOOGLE) {
                 userName = (String) userInfo.get("name");  // 구글은 "name"
                 userEmail = (String) userInfo.get("email");
+                profileImageUrl = (String) userInfo.get("picture");
             } else {
                 // 카카오 처리 (기존 로직)
                 userName = (String) userInfo.get("nickname");
                 userEmail = (String) userInfo.get("email");
+                profileImageUrl = (String) userInfo.get("profileImage");
             }
 
             // 이미 가입된 유저인지 재확인
@@ -124,6 +131,7 @@ public class AuthController {
                     .gender(gender)
                     .purpose(purpose)
                     .deadline(deadline)
+                    .profileImageUrl(profileImageUrl)
                     .height(height) // BigDecimal -> int 변환
                     .weight(weight) // BigDecimal -> int 변환
                     .bodyFatRate(bodyFatRate) // BigDecimal -> Double 변환
@@ -132,7 +140,22 @@ public class AuthController {
                     .created_at(LocalDateTime.now())
                     .build();
 
-            userRepository.save(newUser);
+            User savedUser = userRepository.save(newUser);
+            LocalDate startDate = LocalDate.now();
+            LocalDate targetDate = startDate.plusMonths(deadline);
+
+            LocalDate endDate = targetDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+            GoalPeriod goalPeriod = GoalPeriod.builder()
+                    .user(savedUser)
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .build();
+
+            GoalPeriod savedGoaldPeriod = goalPeriodRepository.save(goalPeriod);
+
+            savedUser.setGoalPeriod(savedGoaldPeriod);
+            userRepository.save(savedUser);
 
             // 정식 JWT 토큰 발급
             String jwtAccessToken = jwtTokenProvider.createToken(userEmail);
