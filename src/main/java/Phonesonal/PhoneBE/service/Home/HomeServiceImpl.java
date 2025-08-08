@@ -55,7 +55,7 @@ public class HomeServiceImpl {
                                 .mapToInt(set -> exercise.getKcal() * (set.getReps() != null ? set.getReps() : 0))
                                 .sum();
                     }
-                    return 0;
+                    return 1;
                 })
                 .sum();
     }
@@ -270,7 +270,8 @@ public class HomeServiceImpl {
         int aerobicExerciseTime = getTodayAerobicExerciseTimeByDate(userId); // 유산소 시간
         int todayBurnedCalories = getTodayCaloriesBurnedByUser(userId, LocalDate.now());//오늘 칼로리 소비량
         int todayRecommanedBurnedCalories = getBurnedCaloriesOnDate(userId, LocalDate.now(),goalPeriodId);//추천 칼로리 소비량
-        int exercisePercentage = (todayBurnedCalories/todayRecommanedBurnedCalories);//현재 byzero 문제 발생
+        int exercisePercentage = todayRecommanedBurnedCalories == 0 ? 0 :
+                (todayBurnedCalories * 100) / todayRecommanedBurnedCalories;//현재 byzero 문제 발생
         String exerciseStatus = HomeExercisePercentageStatus(exercisePercentage);
 
         return HomeResultDTO.HomeExerciseDTO.builder()
@@ -292,7 +293,7 @@ public class HomeServiceImpl {
         double carb = getRecommendedCarbByDate(userId, date, goalPeriodId);//추천된 탄수화물 그램수
         double protein = getRecommendedProteinByDate(userId,date, goalPeriodId);//오늘 추천된 단백질 그램수
         double fat = getRecommendedFatByDate(userId,date, goalPeriodId);//오늘 추천된 지방 그램수
-        int caloriePercentage = (int)(calorie/recommendedCalories);
+        int caloriePercentage = (int)(calorie/recommendedCalories)*100;
         String calorieStatus = HomeMealPercentageStatus(caloriePercentage);
 
 
