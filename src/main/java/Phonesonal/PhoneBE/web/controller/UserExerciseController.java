@@ -81,6 +81,28 @@ public class UserExerciseController {
         return ApiResponse.onSuccess(completedExercise);
     }
 
+    @Operation(summary = "세트 완료")
+    @PatchMapping("userExercises/{userExerciseId}/sets/{setId}/complete")
+    public ApiResponse<UserExerciseResponseDTO> completeSet(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long userExerciseId,
+            @PathVariable Long setId
+    ) {
+        Long userId = userDetails.getUser().getId();
+        UserExerciseResponseDTO result = exerciseService.completeSet(userId, userExerciseId, setId);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "다음 세트 시작 (휴식 후)")
+    @PatchMapping("userExercises/{userExerciseId}/next-set")
+    public ApiResponse<UserExerciseResponseDTO> startNextSet(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long userExerciseId
+    ) {
+        Long userId = userDetails.getUser().getId();
+        UserExerciseResponseDTO result = exerciseService.startNextSet(userId, userExerciseId);
+        return ApiResponse.onSuccess(result);
+    }
 //    @Operation(summary = "운동 세트 수 변경")
 //    @PatchMapping("userExercises/{userExerciseId}/setCount")
 //    public ApiResponse<UserExerciseResponseDTO> updateSetCount(

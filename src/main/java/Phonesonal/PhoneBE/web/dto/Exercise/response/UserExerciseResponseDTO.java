@@ -11,6 +11,8 @@ import java.util.List;
 public class UserExerciseResponseDTO {
     private Long userExerciseId; // 사용자 운동 기록 ID
     private String recordType; // "PLANNED" 또는 "CUSTOM"
+    private Integer currentSetNumber; // 현재 세트 번호 (PLANNED 운동의 경우, 현재 진행 중인 세트 번호)
+    private Integer totalSets; // 총 세트 수 (PLANNED 운동의 경우, 계획된 세트 수)
 
     // 공통 필드
     private String exerciseName; // 운동 이름 (계획된 운동의 name 또는 직접 입력한 이름)
