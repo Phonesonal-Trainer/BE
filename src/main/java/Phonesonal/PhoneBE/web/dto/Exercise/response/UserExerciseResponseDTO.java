@@ -4,11 +4,15 @@ import Phonesonal.PhoneBE.domain.enums.exercise.Weekday;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class UserExerciseResponseDTO {
     private Long userExerciseId; // 사용자 운동 기록 ID
     private String recordType; // "PLANNED" 또는 "CUSTOM"
+    private Integer currentSetNumber; // 현재 세트 번호 (PLANNED 운동의 경우, 현재 진행 중인 세트 번호)
+    private Integer totalSets; // 총 세트 수 (PLANNED 운동의 경우, 계획된 세트 수)
 
     // 공통 필드
     private String exerciseName; // 운동 이름 (계획된 운동의 name 또는 직접 입력한 이름)
@@ -19,10 +23,21 @@ public class UserExerciseResponseDTO {
 
     // 계획된 운동용 필드 (recordType이 "PLANNED"일 때만 값 존재)
     private Long exerciseId; // 운동 ID
-    private Integer count; // 반복 횟수
-    private Integer weight; // 중량
-    private Integer sets; // 세트 수
+    private List<ExerciseSetDTO> exerciseSets;
+//    private Integer count; // 반복 횟수
+//    private Integer weight; // 중량
+//    private Integer sets; // 세트 수
 
     // 직접 기록용 필드 (recordType이 "CUSTOM"일 때만 값 존재)
     private Integer caloriesBurned; // 소모 칼로리
+
+    @Getter
+    @Builder
+    public static class ExerciseSetDTO {
+        private Long setId; // 세트 ID
+        private Integer setNumber;
+        private Integer count; // 반복 횟수
+        private Integer weight; // 중량
+        private Boolean completed; // 완료 여부
+    }
 }

@@ -36,7 +36,7 @@ public class UserMealController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         UserMealResponseDTO result = userMealCommandService.addUserMealFromFood(requestDTO, goalPeriodId);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
@@ -49,7 +49,7 @@ public class UserMealController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         userMealCommandService.addUserMealCustom(requestDTO, userId, goalPeriodId);
 
@@ -61,10 +61,12 @@ public class UserMealController {
     @Operation(summary = "추가 식단 전체 조회 (직접 입력 + 기존 음식 기반)")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserMealResponseDTO>>> getUserMeals(
-            @RequestParam Long goalPeriodId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam MealTime mealTime
+            @RequestParam MealTime mealTime,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
+
         List<UserMealResponseDTO> result = userMealQueryService.getUserMeals(goalPeriodId, date, mealTime);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
@@ -78,5 +80,16 @@ public class UserMealController {
         userMealCommandService.updateQuantity(recordId, requestDTO.getQuantity());
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "수정 완료"));
     }
+
+    @Operation(summary = "추가 식단 기록 삭제")
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<ApiResponse<String>> deleteUserMeal(
+            @PathVariable Long recordId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userMealCommandService.deleteUserMeal(recordId, userDetails.getUser().getId());
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "삭제 완료"));
+    }
+
 
 }

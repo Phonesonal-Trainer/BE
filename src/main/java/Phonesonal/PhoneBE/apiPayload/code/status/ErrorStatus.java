@@ -32,6 +32,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 목표 관리 에러
     INVALID_GOAL_PERIOD(HttpStatus.BAD_REQUEST, "GOAL4002","해당 목표 기간이 존재하지 않습니다."),
+    INVALID_WEEK(HttpStatus.BAD_REQUEST, "GOAL4003","범위에 해당하지 않는 주차입니다."),
 
     //운동 관련 에러
     EXERCISE_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4041", "운동을 찾을 수 없습니다."),
@@ -41,7 +42,9 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_EXERCISE_ALREADY_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4003", "이미 시작된 운동입니다."),
     USER_EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4004", "이미 완료된 운동입니다."),
     USER_EXERCISE_NOT_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4005", "운동이 시작되지 않았습니다."),
-    BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다.");
+    BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다."),
+    EXERCISE_SET_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4043", "운동 세트를 찾을 수 없습니다."),
+    INVALID_EXERCISE_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4006", "유효하지 않은 운동 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

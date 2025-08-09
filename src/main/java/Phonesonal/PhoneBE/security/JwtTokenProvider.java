@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.security;
 
+import Phonesonal.PhoneBE.domain.enums.SocialType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -105,43 +107,42 @@ public class JwtTokenProvider {
         }
     }
 
-    // 임시 토큰 생성 (5분 만료)
-    public String createTempToken(String email, Map<String, Object> kakaoUserInfo) {
+    // 임시 토큰 생성 (5분 만료) - 카카오/구글 공통
+    public String createTempToken(String email, Map<String, Object> userInfo, SocialType socialType) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + 300000); // 5분
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("type", "temp")
-                .claim("kakaoUserInfo", kakaoUserInfo)
+                .claim("userInfo", userInfo)  // kakaoUserInfo -> userInfo
+                .claim("socialType", socialType.name())  // 소셜 타입 추가
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
-                .signWith(key, SignatureAlgorithm.HS256)  // key 사용
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 임시 토큰에서 카카오 정보 추출
-    public Map<String, Object> getKakaoInfoFromTempToken(String token) {
+    // 임시 토큰에서 사용자 정보 추출 (카카오/구글 공통)
+    public Map<String, Object> getUserInfoFromTempToken(String token) {
         try {
-            System.out.println("토큰 파싱 시작: " + token.substring(0, 20) + "...");
-
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            System.out.println("파싱 성공!");
-            System.out.println("토큰 타입: " + claims.get("type"));
-
             if (!"temp".equals(claims.get("type"))) {
                 throw new IllegalArgumentException("Invalid token type");
             }
 
-            return (Map<String, Object>) claims.get("kakaoUserInfo");
+            Map<String, Object> result = new HashMap<>();
+            result.put("userInfo", claims.get("userInfo"));
+            result.put("socialType", SocialType.valueOf(claims.get("socialType", String.class)));
+
+            return result;
 
         } catch (Exception e) {
-            System.out.println("파싱 실패: " + e.getMessage());
             throw e;
         }
     }

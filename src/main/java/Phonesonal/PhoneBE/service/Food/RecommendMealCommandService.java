@@ -9,18 +9,20 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+// 식단 플랜 관련
 public class RecommendMealCommandService {
 
     private final RecommendMealRepository recommendMealRepository;
 
-    public CompleteStatusResponseDTO updateCompleteStatus(UpdateCompleteStatusRequestDTO request, Long userId) {
+    public CompleteStatusResponseDTO updateCompleteStatus(UpdateCompleteStatusRequestDTO request, Long userId, Long goalPeriodId) {
         recommendMealRepository.updateCompleteStatusByGoalPeriod(
-                request.getGoalPeriodId(),
+                goalPeriodId,
                 request.getFoodId(),
                 request.getDate(),
                 request.getMealTime(),
                 request.getComplete()
         );
+
 
         return CompleteStatusResponseDTO.builder()
                 .foodId(request.getFoodId())

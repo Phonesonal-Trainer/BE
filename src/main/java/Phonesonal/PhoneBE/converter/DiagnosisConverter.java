@@ -33,7 +33,7 @@ public class DiagnosisConverter {
 
             // null 체크를 위한 헬퍼 메서드 사용
             BigDecimal targetBodyFatRate = getBigDecimalOrNull(jsonNode, "targetBodyFatRate");
-            String targetMuscleMass = getStringOrNull(jsonNode, "targetMuscleMass");
+            BigDecimal targetMuscleMass = getBigDecimalOrNull(jsonNode, "targetMuscleMass");
 
             return Diagnosis.builder()
                     .targetWeight(new BigDecimal(jsonNode.get("targetWeight").asText()))

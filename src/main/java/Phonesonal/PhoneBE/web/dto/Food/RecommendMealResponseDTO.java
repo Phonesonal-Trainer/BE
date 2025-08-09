@@ -19,5 +19,6 @@ public class RecommendMealResponseDTO {
     private Float quantity;
     private String complete;
     private Integer weekNumber;
+    private String imageUrl;
 }
 

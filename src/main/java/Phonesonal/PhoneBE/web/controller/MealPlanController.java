@@ -38,7 +38,7 @@ public class MealPlanController {
             @RequestParam("mealTime") MealTime mealTime,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-                Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+                Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         List<RecommendMealResponseDTO> plans = recommendMealQueryService.getMealPlans(
                 goalPeriodId,
@@ -56,7 +56,10 @@ public class MealPlanController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        CompleteStatusResponseDTO result = recommendMealCommandService.updateCompleteStatus(request, userId);
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
+        CompleteStatusResponseDTO result =
+                recommendMealCommandService.updateCompleteStatus(request, userId, goalPeriodId); 
+
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 }

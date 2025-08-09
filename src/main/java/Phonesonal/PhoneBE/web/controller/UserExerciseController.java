@@ -81,28 +81,50 @@ public class UserExerciseController {
         return ApiResponse.onSuccess(completedExercise);
     }
 
-    @Operation(summary = "운동 세트 수 변경")
-    @PatchMapping("userExercises/{userExerciseId}/setCount")
-    public ApiResponse<UserExerciseResponseDTO> updateSetCount(
+    @Operation(summary = "세트 완료")
+    @PatchMapping("userExercises/{userExerciseId}/sets/{setId}/complete")
+    public ApiResponse<UserExerciseResponseDTO> completeSet(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long userExerciseId,
-            @RequestParam int setCount
+            @PathVariable Long setId
     ) {
         Long userId = userDetails.getUser().getId();
-        UserExerciseResponseDTO updatedExercise = exerciseService.updateSetCount(userId, userExerciseId, setCount);
-        return ApiResponse.onSuccess(updatedExercise);
+        UserExerciseResponseDTO result = exerciseService.completeSet(userId, userExerciseId, setId);
+        return ApiResponse.onSuccess(result);
     }
 
-    @Operation(summary = "운동 세트 당 횟수 변경")
-    @PatchMapping("userExercises/{userExerciseId}/count")
-    public ApiResponse<UserExerciseResponseDTO> updateCountPerSet(
+    @Operation(summary = "다음 세트 시작 (휴식 후)")
+    @PatchMapping("userExercises/{userExerciseId}/next-set")
+    public ApiResponse<UserExerciseResponseDTO> startNextSet(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long userExerciseId,
-            @RequestParam int countPerSet
+            @PathVariable Long userExerciseId
     ) {
         Long userId = userDetails.getUser().getId();
-        UserExerciseResponseDTO updatedExercise = exerciseService.updateCountPerSet(userId, userExerciseId, countPerSet);
-        return ApiResponse.onSuccess(updatedExercise);
+        UserExerciseResponseDTO result = exerciseService.startNextSet(userId, userExerciseId);
+        return ApiResponse.onSuccess(result);
     }
+//    @Operation(summary = "운동 세트 수 변경")
+//    @PatchMapping("userExercises/{userExerciseId}/setCount")
+//    public ApiResponse<UserExerciseResponseDTO> updateSetCount(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @PathVariable Long userExerciseId,
+//            @RequestParam int setCount
+//    ) {
+//        Long userId = userDetails.getUser().getId();
+//        UserExerciseResponseDTO updatedExercise = exerciseService.updateSetCount(userId, userExerciseId, setCount);
+//        return ApiResponse.onSuccess(updatedExercise);
+//    }
+//
+//    @Operation(summary = "운동 세트 당 횟수 변경")
+//    @PatchMapping("userExercises/{userExerciseId}/count")
+//    public ApiResponse<UserExerciseResponseDTO> updateCountPerSet(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @PathVariable Long userExerciseId,
+//            @RequestParam int countPerSet
+//    ) {
+//        Long userId = userDetails.getUser().getId();
+//        UserExerciseResponseDTO updatedExercise = exerciseService.updateCountPerSet(userId, userExerciseId, countPerSet);
+//        return ApiResponse.onSuccess(updatedExercise);
+//    }
 
 }

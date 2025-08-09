@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+// 추가 식단 관련
 public class UserMealQueryServiceImpl implements UserMealQueryService {
 
     private final GoalPeriodRepository goalPeriodRepository;
@@ -37,7 +38,7 @@ public class UserMealQueryServiceImpl implements UserMealQueryService {
         return value * ratio;
     }
 
-
+    // 추가 식단 조회
     @Override
     public List<UserMealResponseDTO> getUserMeals(Long goalPeriodId, LocalDate date, MealTime mealTime) {
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)

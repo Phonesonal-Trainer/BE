@@ -1,6 +1,5 @@
 package Phonesonal.PhoneBE.repository;
 
-import Phonesonal.PhoneBE.domain.enums.exercise.ExerciseType;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +18,10 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     // 사용자의 북마크된 운동 목록 조회
     List<UserExercise> findByUserIdAndBookmarkTrue(Long userId);
 
+    List<UserExercise> findByUserIdAndGoalPeriodIdAndExerciseDateBetween(
+            Long userId, Long goalPeriodId, LocalDate start, LocalDate end
+    );
+
     // 특정 사용자의 특정 운동 조회
     @Query("SELECT ue FROM UserExercise ue WHERE ue.user.id = :userId AND ue.exercise.id = :exerciseId")
     List<UserExercise> findByUserIdAndExerciseId(@Param("userId") Long userId, @Param("exerciseId") Long exerciseId);
@@ -27,6 +30,6 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
 
     //홈화면 조회시 필요한 추천 운동에 대한 칼로리소비 데이터 끌어오기
     @Query("SELECT ue FROM UserExercise ue JOIN FETCH ue.exercise WHERE ue.user.id = :userId AND ue.exerciseDate = :exerciseDate")
-    List<UserExercise> findWithExerciseByUserIdAndDate(@Param("userId") Long userId, @Param("exerciseDate") LocalDate exerciseDate);
+    List<UserExercise> findWithExerciseByUserIdAndDate(@Param("userId") Long userId, @Param("exerciseDate") LocalDate exerciseDate, @Param("goalPeriodId") Long goalPeriodId);
 
 }
