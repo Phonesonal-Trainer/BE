@@ -30,6 +30,9 @@ public class UserExercise {
 //    @Column
 //    private Integer setCount; // 유저 설정 운동 세트 수
 
+    @Column
+    private Integer currentSetNumber; // 현재 운동 세트 수 (진행 중인 세트 수)
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private State state; // 운동 상태 (예: 진행 중, 완료 등)

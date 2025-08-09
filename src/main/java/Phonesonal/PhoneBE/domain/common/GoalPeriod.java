@@ -5,6 +5,7 @@ import Phonesonal.PhoneBE.domain.enums.ExerciseFeedback;
 import Phonesonal.PhoneBE.domain.enums.FoodFeedback;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -29,6 +30,7 @@ public class GoalPeriod extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @Column
