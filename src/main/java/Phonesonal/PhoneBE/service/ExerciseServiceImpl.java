@@ -130,6 +130,8 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .exerciseType(ue.getCustomExerciseType() != null ? ue.getCustomExerciseType().name() : "etc")
                     .caloriesBurned(ue.getCaloriesBurned())
                     .actualMinutes(ue.getActualMinutes())
+                    .currentSetNumber(null) // 커스텀 운동은 세트 개념 없음
+                    .totalSets(null)
                     .build();
         } else {
             // 일반 계획된 운동인 경우
@@ -156,6 +158,8 @@ public class ExerciseServiceImpl implements ExerciseService {
 //                    .weight(ue.getWeight())
 //                    .sets(ue.getSetCount())
                     .actualMinutes(ue.getActualMinutes())
+                    .totalSets(sets.size())
+                    .exerciseSets(setDTOS)
                     .build();
         }
     }
@@ -445,6 +449,79 @@ public class ExerciseServiceImpl implements ExerciseService {
         } else {
             return userExercise.getExercise().getType() == ExerciseType.aerobic;
         }
+    }
+
+    @Override
+    public UserExerciseResponseDTO completeSet(Long userId, Long userExerciseId, Long setId) {
+        // 1. UserExercise와 ExerciseSet 조회
+        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+
+        ExerciseSet exerciseSet = exerciseSetRepository.findById(setId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.EXERCISE_SET_NOT_FOUND));
+
+        // 2. 권한 확인
+        if (!userExercise.getUser().getId().equals(userId)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 3. 세트 완료 처리
+        exerciseSet.setCompleted(true);
+        exerciseSetRepository.save(exerciseSet);
+
+        // 4. 현재 세트 번호 업데이트
+        userExercise.setCurrentSetNumber(exerciseSet.getSetNumber());
+
+        // 5. 모든 세트가 완료되었는지 확인
+        List<ExerciseSet> allSets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(userExercise);
+        boolean allCompleted = allSets.stream().allMatch(ExerciseSet::getCompleted);
+
+        if (allCompleted) {
+            // 모든 세트 완료 시 기존 완료 로직 실행
+            userExercise.setState(State.completed);
+
+            // 운동 시간 계산 및 상태 변경
+            Integer actualMinutes = calculateExerciseMinutes(userExercise);
+            userExercise.setActualMinutes(actualMinutes);
+
+            UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+            // 일일 운동 데이터 업데이트
+            updateDailyExerciseRecord(savedUserExercise);
+
+            // 스탬프 체크 및 부여
+            checkAndUpdateStamp(savedUserExercise.getUser().getId(), savedUserExercise.getExerciseDate());
+
+        } else {
+            // 아직 남은 세트가 있으면 휴식 상태로 변경
+            userExercise.setState(State.resting);
+            userExerciseRepository.save(userExercise);
+        }
+
+        return convertToUserExerciseResponseDTO(userExercise);
+    }
+
+    @Override
+    public UserExerciseResponseDTO startNextSet(Long userId, Long userExerciseId) {
+        // 1. UserExercise 조회
+        UserExercise userExercise = userExerciseRepository.findById(userExerciseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_EXERCISE_NOT_FOUND));
+
+        // 2. 권한 확인
+        if (!userExercise.getUser().getId().equals(userId)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 3. 휴식 상태에서만 다음 세트 시작 가능
+        if (userExercise.getState() != State.resting) {
+            throw new GeneralException(ErrorStatus.INVALID_EXERCISE_STATE);
+        }
+
+        // 4. 다시 진행 상태로 변경
+        userExercise.setState(State.inProgress);
+        UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
+
+        return convertToUserExerciseResponseDTO(savedUserExercise);
     }
 
 //    // 세트 수 업데이트 -> 피드백 기능 구현 후 추가 구현 예정

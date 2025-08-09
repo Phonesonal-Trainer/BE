@@ -42,7 +42,9 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_EXERCISE_ALREADY_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4003", "이미 시작된 운동입니다."),
     USER_EXERCISE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "EXERCISE4004", "이미 완료된 운동입니다."),
     USER_EXERCISE_NOT_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4005", "운동이 시작되지 않았습니다."),
-    BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다.");
+    BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다."),
+    EXERCISE_SET_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4043", "운동 세트를 찾을 수 없습니다."),
+    INVALID_EXERCISE_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4006", "유효하지 않은 운동 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
