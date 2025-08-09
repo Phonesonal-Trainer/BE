@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.service.Home;
 
 import Phonesonal.PhoneBE.domain.*;
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
@@ -11,13 +12,17 @@ import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Home.HomeFullResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Home.HomeResultDTO;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,10 +40,11 @@ public class HomeServiceImpl {
     private final UserExerciseRepository userExerciseRepository;
     private final DiagnosisRepository diagnosesRepository;
     private final ExerciseSetRepository exerciseSetRepository;
+    private static final Logger log = LoggerFactory.getLogger(HomeServiceImpl.class);
 
     //추천 운동 소모 칼로리
     @Transactional(readOnly = true)
-    public int getBurnedCaloriesOnDate(Long user, LocalDate date, Long goalPeriodId) {
+    public int getRecommanedBurnedCaloriesOnDate(Long user, LocalDate date, Long goalPeriodId) {
         List<UserExercise> exercises = userExerciseRepository.findWithExerciseByUserIdAndDate(user, date, goalPeriodId);
 
         return exercises.stream()
@@ -59,7 +65,7 @@ public class HomeServiceImpl {
                 })
                 .sum();
     }
-    //추천 칼로리
+    //추천 섭취 칼로리
     public double getRecommendedCaloriesByDate(Long userId,LocalDate date, Long goalPeriodId) {
         List<RecommendMeal> recommandedMeals = recommendMealRepository.findWithFoodByUserIdAndDate(userId,date, goalPeriodId);
 
@@ -235,9 +241,10 @@ public class HomeServiceImpl {
         // 기존 진단이 있는지 확인
         Optional<Diagnosis> existingDiagnosis = diagnosisRepository.findByUserId(userId);
         LocalDate date = LocalDate.now();
+        String koreanDay = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.KOREAN);
 
         double recommendedCalories = getRecommendedCaloriesByDate(userId, date,goalPeriodId);//추천 섭취 칼로리
-        int recommendedBurnedCalories = getBurnedCaloriesOnDate(userId, date,goalPeriodId);//추천 소비 칼로리
+        int recommendedBurnedCalories = getRecommanedBurnedCaloriesOnDate(userId, date,goalPeriodId);//추천 소비 칼로리
         double todayConsumedCalories = getTodayConsumedCaloriesByDate(userId, date);// 오늘 섭취한 칼로리
         int todayBurnedCalories = getTodayCaloriesBurnedByUser(userId, date);//오늘 소비한 칼로리
 
@@ -253,11 +260,13 @@ public class HomeServiceImpl {
         String comment = todayComment(date);
 
 
+
         return HomeResultDTO.HomeMainDTO.builder()
                 .userId(userId)
                 .targetCalories(targetCalories)
                 .todayCalories(todayCalories)
                 .date(date)
+                .koreanDate(koreanDay)
                 .presentWeek(presentWeek)
                 .targetWeight(targetWeight)
                 .comment(comment)
@@ -268,9 +277,9 @@ public class HomeServiceImpl {
         String focusedBodyPart = "하체"; // 더미 데이터 집중 부위
         int anaerobicExerciseTime =getTodayAnaerobicExerciseTimeByDate(userId); // 무산소 시간
         int aerobicExerciseTime = getTodayAerobicExerciseTimeByDate(userId); // 유산소 시간
-        int todayBurnedCalories = getTodayCaloriesBurnedByUser(userId, LocalDate.now());//오늘 칼로리 소비량
-        int todayRecommanedBurnedCalories = getBurnedCaloriesOnDate(userId, LocalDate.now(),goalPeriodId);//추천 칼로리 소비량
-        int exercisePercentage = (todayBurnedCalories/todayRecommanedBurnedCalories);//현재 byzero 문제 발생
+        int todayBurnedCalories  = getTodayCaloriesBurnedByUser(userId, LocalDate.now());//오늘 칼로리 소비량
+        int todayRecommanedBurnedCalories = getRecommanedBurnedCaloriesOnDate(userId, LocalDate.now(),goalPeriodId);//추천 칼로리 소비량
+        int exercisePercentage = (todayBurnedCalories/todayRecommanedBurnedCalories)*100;//현재 byzero 문제 발생
         String exerciseStatus = HomeExercisePercentageStatus(exercisePercentage);
 
         return HomeResultDTO.HomeExerciseDTO.builder()
@@ -292,7 +301,7 @@ public class HomeServiceImpl {
         double carb = getRecommendedCarbByDate(userId, date, goalPeriodId);//추천된 탄수화물 그램수
         double protein = getRecommendedProteinByDate(userId,date, goalPeriodId);//오늘 추천된 단백질 그램수
         double fat = getRecommendedFatByDate(userId,date, goalPeriodId);//오늘 추천된 지방 그램수
-        int caloriePercentage = (int)(calorie/recommendedCalories);
+        int caloriePercentage = (int)(calorie/recommendedCalories)*100;
         String calorieStatus = HomeMealPercentageStatus(caloriePercentage);
 
 

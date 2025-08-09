@@ -23,6 +23,7 @@ import java.time.LocalDate;
             private String comment;
             private int presentWeek;
             private LocalDate date;
+            private String koreanDate;
         }
 
         @Builder
