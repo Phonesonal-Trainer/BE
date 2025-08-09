@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Exercise;
 
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.GeneralException;

@@ -1,8 +1,7 @@
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
-import Phonesonal.PhoneBE.domain.mapping.UserExercise;
-import Phonesonal.PhoneBE.service.ExerciseService;
+import Phonesonal.PhoneBE.service.Exercise.ExerciseService;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
