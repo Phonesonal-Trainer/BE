@@ -13,5 +13,4 @@ import java.time.LocalDateTime;
 public class WeightRecordResponseDTO {
     private BigDecimal weight;
     private LocalDateTime recordDate;
-    private Long userId;
 }

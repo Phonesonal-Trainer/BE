@@ -1,7 +1,6 @@
 package Phonesonal.PhoneBE.service.Home;
 
 import Phonesonal.PhoneBE.domain.*;
-import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
