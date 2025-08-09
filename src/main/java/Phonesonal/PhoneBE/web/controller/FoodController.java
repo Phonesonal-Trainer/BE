@@ -57,7 +57,7 @@ public class FoodController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         Long userId = userDetails.getUser().getId();
-        Long goalPeriodId = userDetails.getUser().getCurrentGoalPeriodId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         NutritionSummaryResponseDTO response = mealQueryService.getNutritionSummary(userId, goalPeriodId, date);
         return ResponseEntity.ok(response);
