@@ -16,11 +16,13 @@ import Phonesonal.PhoneBE.web.dto.Auth.LoginResultDTO;
 import Phonesonal.PhoneBE.web.dto.InfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -43,12 +45,31 @@ public class AuthController {
     private final GoalPeriodRepository goalPeriodRepository;
 
     @GetMapping("/kakao/login")
-    public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
-        // 리다이렉트 대신 JSON으로 code 반환
-        Map<String, String> response = new HashMap<>();
-        response.put("code", code);
-        response.put("status", "success");
-        return ResponseEntity.ok(response);
+    public void kakaoCallback(@RequestParam String code, HttpServletResponse response) throws IOException {
+        try {
+            // 1. 카카오에서 토큰 받기
+            String accessToken = kakaoService.getAccessToken(code);
+            Map<String, Object> userInfo = kakaoService.getUserInfo(accessToken);
+
+            // 2. 기존 POST 로직 그대로 사용
+            String kakaoEmail = userInfo.get("email").toString();
+            Optional<User> user = userRepository.findByEmail(kakaoEmail);
+
+            if (user.isPresent()) {
+                // 기존 유저 - JWT 토큰 발급
+                String jwtAccessToken = jwtTokenProvider.createToken(kakaoEmail);
+                String appScheme = "phonesonaltrainer://auth/callback?token=" + jwtAccessToken + "&isNewUser=false";
+                response.sendRedirect(appScheme);
+            } else {
+                // 신규 유저 - 임시 토큰 발급
+                String tempToken = jwtTokenProvider.createTempToken(kakaoEmail, userInfo, SocialType.KAKAO);
+                String appScheme = "phonesonaltrainer://auth/callback?tempToken=" + tempToken + "&isNewUser=true";
+                response.sendRedirect(appScheme);
+            }
+
+        } catch (Exception e) {
+            response.sendRedirect("phonesonaltrainer://auth/callback?error=login_failed");
+        }
     }
 
     @PostMapping("/kakao/login")
