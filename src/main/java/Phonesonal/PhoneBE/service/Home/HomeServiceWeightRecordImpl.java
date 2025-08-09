@@ -12,6 +12,9 @@ import Phonesonal.PhoneBE.web.dto.Home.WeightRecordResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
 public class HomeServiceWeightRecordImpl {
@@ -19,6 +22,7 @@ public class HomeServiceWeightRecordImpl {
     private final UserRepository userRepository;
     private final GoalPeriodRepository goalPeriodRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(HomeServiceWeightRecordImpl.class);
 
     public WeightRecord saveWeightRecord(CustomUserDetails userDetails, WeightRecordRequestDTO dto) {
         Long userId = userDetails.getUser().getId();
@@ -37,7 +41,11 @@ public class HomeServiceWeightRecordImpl {
                 .goalPeriod(goalPeriod)
                 .build();
 
-        return weightRecordRepository.save(weightRecord);
+            WeightRecord saved = weightRecordRepository.save(weightRecord);
+            // 로그 출력
+            log.info("저장된 WeightRecord ID: {}, GoalPeriod ID: {}", saved.getId(), saved.getGoalPeriod().getId());
+        return saved;
+
     }
 
     public WeightRecordResponseDTO getLatestWeight(CustomUserDetails userDetails) {
