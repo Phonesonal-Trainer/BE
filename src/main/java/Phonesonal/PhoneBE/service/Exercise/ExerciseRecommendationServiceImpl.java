@@ -57,7 +57,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        Diagnosis diagnosis = new Diagnosis();
+        Diagnosis diagnosis = user.getDiagnosis();
         if (diagnosis == null) {
             throw new CommonExceptionHandler(ErrorStatus.DIAGNOSIS_NOT_FOUND);
         }
@@ -155,7 +155,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
     public void processWeeklyFeedbackBatch() {
         LocalDate lastSunday = LocalDate.now().minusDays(1);
 
-        // 지난 주 일요알에 제출된 피드백들을 조회
+        // 지난 주 일요일에 제출된 피드백들을 조회
         int lastWeek = calculateWeekNumber(lastSunday);
 
         //Dislike 피드백 받은 유저들 재추천
@@ -198,7 +198,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
 
         //MANY 피드백 받은 유저들 -운동 종류 증가
         List<Object[]> manyUsers = feedbackRepository
-                .findUsersWithExerciseFeedbackInWeek(lastWeek, ExerciseFeedback.MANY);
+                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.MANY);
 
         for (Object[] result : manyUsers) {
             Long userId = (Long) result[0];
@@ -212,7 +212,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
 
         // FEW 피드백 받은 유저들 - 운동량 감소
         List<Object[]> fewUsers = feedbackRepository
-                .findUsersWithExerciseFeedbackInWeek(lastWeek, ExerciseFeedback.FEW);
+                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.FEW);
 
         for (Object[] result : fewUsers) {
             Long userId = (Long) result[0];
@@ -321,7 +321,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
     //강도 피드백 처리
     private void processIntensityFeedback(int week, ExerciseFeedback feedback) {
         List<Object[]> users = feedbackRepository
-                .findUsersWithExerciseFeedbackInWeek(week,feedback);
+                .findUsersWithExerciseFeedback(week,feedback);
 
         for(Object[] result : users){
             Long userId = (Long)result[0];
@@ -338,7 +338,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
                 List<UserExercise> thisWeekExercises = userExerciseRepository
                         .findByUserIdAndExerciseDateBetween(userId, thisMonday, thisMonday.plusDays(6));
 
-                adjustWeight(lastWeekExercises, feedback);
+                adjustWeight(thisWeekExercises, feedback);
             }catch (Exception e) {
                 log.error("강도 조절 실패 userId: {}, feedback: {}", userId, feedback, e);
             }

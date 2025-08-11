@@ -24,14 +24,4 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
             @Param("week") Integer week,
             @Param("exerciseFeedback") ExerciseFeedback exerciseFeedback);
 
-
-    //특정 주차에 특정 운동 피드백을 준 사용자들 조회 (기간 기반)
-    @Query("SELECT DISTINCT f.user.id, f.exerciseFeedback " +
-            "FROM Feedback f " +
-            "WHERE f.week = :week " +
-            "AND f.exerciseFeedback = :exerciseFeedback")
-    List<Object[]> findUsersWithExerciseFeedbackInWeek(
-            @Param("week") Integer week,
-            @Param("exerciseFeedback") ExerciseFeedback exerciseFeedback);
-
 }

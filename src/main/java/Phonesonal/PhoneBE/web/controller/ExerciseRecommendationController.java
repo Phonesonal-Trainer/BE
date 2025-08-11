@@ -2,23 +2,16 @@ package Phonesonal.PhoneBE.web.controller;
 
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
-import Phonesonal.PhoneBE.domain.User;
-import Phonesonal.PhoneBE.repository.UserExerciseRepository;
-import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import Phonesonal.PhoneBE.service.Exercise.ExerciseRecommendationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/exercise-recommendation")
@@ -27,8 +20,6 @@ import java.util.List;
 public class ExerciseRecommendationController {
 
     private final ExerciseRecommendationService exerciseRecommendationService;
-    private final UserExerciseRepository userExerciseRepository;
-    private final UserRepository userRepository;
 
     @PostMapping("/generate")
     @Operation(summary = "운동 추천 생성 API")
