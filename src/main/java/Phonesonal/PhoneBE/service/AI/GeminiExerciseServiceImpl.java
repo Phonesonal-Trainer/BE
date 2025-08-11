@@ -29,9 +29,8 @@ public class GeminiExerciseServiceImpl implements GeminiExerciseService {
 
     @Value("${gemini.api.key}")
     private String apiKey;
-
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public String generateWeeklyExerciseRecommendation(User user, Diagnosis diagnosis,

@@ -4,6 +4,7 @@ import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.Diagnosis;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.domain.common.Feedback;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
 import Phonesonal.PhoneBE.domain.enums.ExerciseFeedback;
 import Phonesonal.PhoneBE.domain.enums.exercise.State;
@@ -21,8 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -126,7 +129,9 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
         LocalDate nextWeekStart = weekStart.plusWeeks(1);
 
         switch (feedback) {
-            //case SATISFIED -> copyToNextWeek(weekExercises, nextWeekStart);
+            case SATISFIED -> {
+                copyToNextWeek(weekExercises, nextWeekStart);
+            }
             case HIGH -> {
                 copyToNextWeek(weekExercises, nextWeekStart);
                 adjustWeight(getNextWeekExercises(userId, nextWeekStart), feedback);
@@ -150,78 +155,68 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
     }
 
     @Override
-    @Scheduled(cron = "0 0 1 * * MON") // 매주 월요일 자정에 실행
+    @Scheduled(cron = "0 0 1 * * MON")
     @Transactional
     public void processWeeklyFeedbackBatch() {
         LocalDate lastSunday = LocalDate.now().minusDays(1);
+        LocalDate lastMonday = lastSunday.minusDays(6);
 
-        // 지난 주 일요일에 제출된 피드백들을 조회
-        int lastWeek = calculateWeekNumber(lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.DISLIKE, lastMonday, lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.SATISFIED, lastMonday, lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.HIGH, lastMonday, lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.LOW, lastMonday, lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.MANY, lastMonday, lastSunday);
+        processUsersByFeedbackType(ExerciseFeedback.FEW, lastMonday, lastSunday);
+    }
 
-        //Dislike 피드백 받은 유저들 재추천
-        List<Object[]> dislikeUsers = feedbackRepository
-                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.DISLIKE);
+    private void processUsersByFeedbackType(ExerciseFeedback feedbackType, LocalDate lastMonday, LocalDate lastSunday) {
+        List<User> allUsers = userRepository.findAll();
 
-        for (Object[] result : dislikeUsers) {
-            Long userId = (Long) result[0];
+        for (User user : allUsers) {
             try {
-                List<Long> excludeIds = getLastWeekExerciseIds(userId, lastSunday.minusDays(6));
-                User user = userRepository.findById(userId).orElse(null);
-                if (user != null) {
-                    generateWeeklyRecommendation(user, excludeIds);
+                if (user.getGoalPeriod() == null) continue;
+
+                int userLastWeek = calculateWeekNumberFromGoalPeriod(lastSunday, user.getGoalPeriod().getStartDate());
+
+                Optional<Feedback> feedback = feedbackRepository.findByUserIdAndGoalPeriod_IdAndWeek(
+                        user.getId(), user.getGoalPeriod().getId(), userLastWeek
+                );
+
+                if (feedback.isPresent() && feedback.get().getExerciseFeedback() == feedbackType) {
+                    processFeedbackForUser(user, feedbackType, lastMonday, lastSunday);
                 }
+
             } catch (Exception e) {
-                log.warn("배치 재추천 실패 userId: {}", userId, e);
+                // 개별 사용자 실패가 전체에 영향 주지 않도록 continue
             }
         }
+    }
 
-        // SATISFIED 피드백 받은 유저들 - 동일 운동 복사
-        List<Object[]> satisfiedUsers = feedbackRepository
-                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.SATISFIED);
+    private void processFeedbackForUser(User user, ExerciseFeedback feedbackType, LocalDate lastMonday, LocalDate lastSunday) {
+        Long userId = user.getId();
+        LocalDate thisMonday = LocalDate.now();
 
-        for (Object[] result : satisfiedUsers) {
-            Long userId = (Long) result[0];
-            try {
-                LocalDate lastMonday = lastSunday.minusDays(6);
-                LocalDate thisMonday = LocalDate.now();
+        switch (feedbackType) {
+            case DISLIKE -> {
+                List<Long> excludeIds = getLastWeekExerciseIds(userId, lastMonday);
+                generateWeeklyRecommendation(user, excludeIds);
+            }
+            case SATISFIED -> {
                 List<UserExercise> lastWeekExercises = userExerciseRepository
                         .findByUserIdAndExerciseDateBetween(userId, lastMonday, lastSunday);
                 copyToNextWeek(lastWeekExercises, thisMonday);
-            } catch (Exception e) {
-                log.error("만족 피드백 처리 실패 userId: {}", userId, e);
             }
-        }
+            case HIGH, LOW -> {
+                List<UserExercise> lastWeekExercises = userExerciseRepository
+                        .findByUserIdAndExerciseDateBetween(userId, lastMonday, lastSunday);
+                copyToNextWeek(lastWeekExercises, thisMonday);
 
-        // HIGH/LOW 피드백 받은 유저들 - 중량 조정
-        processIntensityFeedback(lastWeek, ExerciseFeedback.HIGH);
-        processIntensityFeedback(lastWeek, ExerciseFeedback.LOW);
-
-        //MANY 피드백 받은 유저들 -운동 종류 증가
-        List<Object[]> manyUsers = feedbackRepository
-                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.MANY);
-
-        for (Object[] result : manyUsers) {
-            Long userId = (Long) result[0];
-            try {
-                LocalDate thisMonday = LocalDate.now();
-                copyLastWeekAndIncreaseVariety(userId, thisMonday);
-            } catch (Exception e) {
-                log.error("운동 종류 증가 실패 userId: {}", userId, e);
+                List<UserExercise> thisWeekExercises = userExerciseRepository
+                        .findByUserIdAndExerciseDateBetween(userId, thisMonday, thisMonday.plusDays(6));
+                adjustWeight(thisWeekExercises, feedbackType);
             }
-        }
-
-        // FEW 피드백 받은 유저들 - 운동량 감소
-        List<Object[]> fewUsers = feedbackRepository
-                .findUsersWithExerciseFeedback(lastWeek, ExerciseFeedback.FEW);
-
-        for (Object[] result : fewUsers) {
-            Long userId = (Long) result[0];
-            try {
-                LocalDate thisMonday = LocalDate.now();
-                copyLastWeekAndReduceVolume(userId, thisMonday);
-            } catch (Exception e) {
-                log.error("운동량 감소 실패 userId: {}", userId, e);
-            }
+            case MANY -> copyLastWeekAndIncreaseVariety(userId, thisMonday);
+            case FEW -> copyLastWeekAndReduceVolume(userId, thisMonday);
         }
     }
 
@@ -318,32 +313,32 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
         }
     }
 
-    //강도 피드백 처리
-    private void processIntensityFeedback(int week, ExerciseFeedback feedback) {
-        List<Object[]> users = feedbackRepository
-                .findUsersWithExerciseFeedback(week,feedback);
-
-        for(Object[] result : users){
-            Long userId = (Long)result[0];
-            try {
-                LocalDate lastSunday = LocalDate.now().minusDays(1);
-                LocalDate lastMonday = lastSunday.minusDays(6);
-                LocalDate thisMonday = LocalDate.now();
-
-                List<UserExercise> lastWeekExercises = userExerciseRepository
-                        .findByUserIdAndExerciseDateBetween(userId, lastMonday, lastSunday);
-
-                copyToNextWeek(lastWeekExercises, thisMonday);
-
-                List<UserExercise> thisWeekExercises = userExerciseRepository
-                        .findByUserIdAndExerciseDateBetween(userId, thisMonday, thisMonday.plusDays(6));
-
-                adjustWeight(thisWeekExercises, feedback);
-            }catch (Exception e) {
-                log.error("강도 조절 실패 userId: {}, feedback: {}", userId, feedback, e);
-            }
-        }
-    }
+//    //강도 피드백 처리
+//    private void processIntensityFeedback(int week, ExerciseFeedback feedback) {
+//        List<Object[]> users = feedbackRepository
+//                .findUsersWithExerciseFeedback(week,feedback);
+//
+//        for(Object[] result : users){
+//            Long userId = (Long)result[0];
+//            try {
+//                LocalDate lastSunday = LocalDate.now().minusDays(1);
+//                LocalDate lastMonday = lastSunday.minusDays(6);
+//                LocalDate thisMonday = LocalDate.now();
+//
+//                List<UserExercise> lastWeekExercises = userExerciseRepository
+//                        .findByUserIdAndExerciseDateBetween(userId, lastMonday, lastSunday);
+//
+//                copyToNextWeek(lastWeekExercises, thisMonday);
+//
+//                List<UserExercise> thisWeekExercises = userExerciseRepository
+//                        .findByUserIdAndExerciseDateBetween(userId, thisMonday, thisMonday.plusDays(6));
+//
+//                adjustWeight(thisWeekExercises, feedback);
+//            }catch (Exception e) {
+//                log.error("강도 조절 실패 userId: {}, feedback: {}", userId, feedback, e);
+//            }
+//        }
+//    }
 
     //지난 주 복사 후 운동 종류 증가
     private  void copyLastWeekAndIncreaseVariety(Long userId, LocalDate thisMonday) {
@@ -400,10 +395,13 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
     }
 
     //주차 계산
-    private int calculateWeekNumber(LocalDate date) {
-        // 실제 구현에서는 GoalPeriod의 startDate 기준으로 계산
-        // 여기서는 간단히 연초 기준으로 계산
-        return date.getDayOfYear() / 7 + 1;
+    private int calculateWeekNumberFromGoalPeriod(LocalDate date, LocalDate goalStartDate) {
+        // goalStartDate 기준으로 몇 번째 주인지 계산
+        LocalDate startMonday = goalStartDate.with(DayOfWeek.MONDAY);
+        LocalDate targetMonday = date.with(DayOfWeek.MONDAY);
+
+        long weeksBetween = ChronoUnit.WEEKS.between(startMonday, targetMonday);
+        return (int) weeksBetween + 1; // 1주차부터 시작
     }
 
     //제미나이 응답 파싱
@@ -463,9 +461,7 @@ public class ExerciseRecommendationServiceImpl implements ExerciseRecommendation
         }
     }
 
-    /**
-     * 기본 세트 생성
-     */
+    //기본 세트 생성
     private void createDefaultSets(UserExercise userExercise, Exercise exercise) {
         int defaultSets = exercise.getDefaultSet() != null ? exercise.getDefaultSet() : 3;
 
