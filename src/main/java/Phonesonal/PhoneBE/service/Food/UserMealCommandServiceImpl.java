@@ -124,17 +124,59 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
     @Transactional
     @Override
-    public void updateQuantity(Long recordId, Float quantity) {
+    public UserMealResponseDTO updateQuantity(Long recordId, Float quantity) {
+        if (quantity == null || quantity < 0f) {
+            throw new IllegalArgumentException("유효하지 않은 양입니다.");
+        }
+
         UserMeal userMeal = userMealRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식단입니다."));
 
-        // isCustom == true인 경우 수정 불가(검색 리스트에서 추가한 식단만 수정 가능)
         if (Boolean.TRUE.equals(userMeal.getFood().getIsCustom())) {
             throw new IllegalArgumentException("직접 입력한 식단은 수정할 수 없습니다.");
         }
 
+        Food food = userMeal.getFood();
+        float baseQty = (food.getQuantity() == null || food.getQuantity() <= 0f) ? 100f : food.getQuantity();
+        float ratio = quantity / baseQty;
+
+        float kcal = safeMul(food.getCalorie(), ratio);
+        float carb = safeMul(food.getCarb(), ratio);
+        float protein = safeMul(food.getProtein(), ratio);
+        float fat = safeMul(food.getFat(), ratio);
+
         userMeal.setQuantity(quantity);
+
+        return UserMealResponseDTO.builder()
+                .recordId(userMeal.getId())
+                .foodId(food.getFoodId())
+                .foodName(food.getName())
+                .mealTime(userMeal.getMealTime())
+                .date(userMeal.getDate())
+                .isCustom(Boolean.TRUE.equals(food.getIsCustom()))
+                .carb(round1(carb))
+                .protein(round1(protein))
+                .fat(round1(fat))
+                .calorie(round1(kcal))
+                .quantity(round1(quantity))
+                .displayedServingSize(buildDisplay(quantity, kcal))
+                .defaultServingSize(food.getServingSize())
+                .imageUrl(food.getImageUrl())
+                .build();
     }
+
+    private float safeMul(Float val, float ratio) {
+        return val == null ? 0f : val * ratio;
+    }
+
+    private float round1(float v) {
+        return Math.round(v * 10f) / 10f;
+    }
+
+    private String buildDisplay(float qty, float kcal) {
+        return ((int)Math.round(qty)) + "g (" + ((int)Math.round(kcal)) + "kcal)";
+    }
+
 
     public void deleteUserMeal(Long recordId, Long userId) {
         UserMeal userMeal = userMealRepository.findById(recordId)
