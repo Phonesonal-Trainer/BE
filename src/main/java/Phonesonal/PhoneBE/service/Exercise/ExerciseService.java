@@ -1,4 +1,4 @@
-package Phonesonal.PhoneBE.service;
+package Phonesonal.PhoneBE.service.Exercise;
 
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
