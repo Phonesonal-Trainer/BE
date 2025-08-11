@@ -33,10 +33,11 @@ public class FoodController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<SearchFoodResponseDTO>>> searchFoods(
             @RequestParam String keyword,
+            @RequestParam(defaultValue = "popular") String sort, // 디폴트 빈도순
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        List<SearchFoodResponseDTO> result = foodQueryService.searchFoods(keyword, userId);
+        List<SearchFoodResponseDTO> result = foodQueryService.searchFoods(keyword, userId, sort);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
 
