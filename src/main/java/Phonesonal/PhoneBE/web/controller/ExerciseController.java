@@ -2,7 +2,7 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
-import Phonesonal.PhoneBE.service.ExerciseService;
+import Phonesonal.PhoneBE.service.Exercise.ExerciseService;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;

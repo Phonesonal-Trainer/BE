@@ -44,7 +44,20 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_EXERCISE_NOT_STARTED(HttpStatus.BAD_REQUEST, "EXERCISE4005", "운동이 시작되지 않았습니다."),
     BODY_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4004", "운동 부위를 찾을 수 없습니다."),
     EXERCISE_SET_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4043", "운동 세트를 찾을 수 없습니다."),
-    INVALID_EXERCISE_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4006", "유효하지 않은 운동 상태입니다.");
+    INVALID_EXERCISE_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4006", "유효하지 않은 운동 상태입니다."),
+    EXERCISE_WEEK_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4044", "해당 주차의 운동을 찾을 수 없습니다."),
+    EXERCISE_RECOMMENDATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EXERCISE5001", "운동 추천에 실패했습니다."),
+
+    //AI API 관련 에러
+    AI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "AI5001", "AI API 호출에 실패했습니다."),
+    AI_API_EMPTY_RESPONSE(HttpStatus.BAD_GATEWAY, "AI5002", "AI API 응답이 비어있습니다."),
+    AI_API_NO_CANDIDATES(HttpStatus.BAD_GATEWAY, "AI5003", "AI API 응답에 후보가 없습니다."),
+    AI_API_NO_CONTENT(HttpStatus.BAD_GATEWAY, "AI5004", "AI API 응답에 컨텐츠가 없습니다."),
+    AI_API_NO_PARTS(HttpStatus.BAD_GATEWAY, "AI5005", "AI API 응답에 파트가 없습니다."),
+    AI_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI5006", "AI 응답 파싱에 실패했습니다."),
+
+    // 진단 관련 에러
+    DIAGNOSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "DIAGNOSIS4041", "진단 결과를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

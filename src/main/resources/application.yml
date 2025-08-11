@@ -42,6 +42,19 @@ jwt:
   expiration: 3600000
   refreshTokenValidity: 604800000
 
+# 운동 관련 설정
+exercise:
+  feedback:
+    batch:
+      enabled: true
+      cron: "0 0 1 * * MON"
+
+#API 타임아웃
+http:
+  client:
+    connect-timeout: 5000
+    read-timeout: 30000
+
 gemini:
   api:
     key: ${GEMINI_KEY}
