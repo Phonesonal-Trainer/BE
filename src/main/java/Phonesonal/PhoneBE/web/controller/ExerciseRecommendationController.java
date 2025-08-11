@@ -3,36 +3,52 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.User;
+import Phonesonal.PhoneBE.repository.UserExerciseRepository;
+import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
+import Phonesonal.PhoneBE.service.Exercise.ExerciseRecommendationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/exercise-recommendation")
-@Tag(name = "Exercise Recommendation", description = "운동 추천 관련 API")
+@Tag(name = "Exercise Recommendation", description = "AI 운동 추천 관련 API")
 @RequiredArgsConstructor
 public class ExerciseRecommendationController {
 
-    @GetMapping("/current")
-    @Operation(summary = "현재 주차 운동 추천 조회 API", description = "현재 주차의 운동 추천을 조회합니다. 없으면 자동 생성")
-    public ApiResponse<ExerciseRecmmendationResponseDTO> getCurrentRecommendation(
+    private final ExerciseRecommendationService exerciseRecommendationService;
+    private final UserExerciseRepository userExerciseRepository;
+    private final UserRepository userRepository;
+
+    @PostMapping("/generate")
+    @Operation(summary = "운동 추천 생성 API")
+    public ApiResponse<String> generateRecommendation(
             @AuthenticationPrincipal CustomUserDetails userDetails
-            ) {
+    ){
+        Long userId = userDetails.getUser().getId();
+        exerciseRecommendationService.generateInitialWeeklyRecommendation(userId);
 
-        User user = userDetails.getUser();
+        return ApiResponse.onSuccess("SUCCESS");
+    }
 
-        // 현재 주차 운동 추천(없으면 자동 생성)
-        WeeklyRecoomendation recommendation = exerciseRecommendationService.getCurrentWeeklyRecommendation(user);
+    @PostMapping("/regenerate")
+    @Operation(summary = "운동 재추천 API")
+    public ApiResponse<String> regenerateRecommendation(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // JSON을 DTO로 변환
-        ExerciseRecommendationResponseDTO response = exerciseRecommendationConverter
-                .convertToResponseDTO(recommendation.getGeminiResponseJson());
+        Long userId = userDetails.getUser().getId();
+        exerciseRecommendationService.regenerateCurrentWeekRecommendation(userId); // 기존 메서드 사용
 
-        return ApiResponse.onSuccess(response);
+        return ApiResponse.onSuccess("SUCCESS");
     }
 }

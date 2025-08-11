@@ -1,5 +1,5 @@
 package Phonesonal.PhoneBE.domain.enums;
 
 public enum ExerciseFeedback {
-    MANY, FEW, HIGH, LOW, DISLIKE;
+    MANY, FEW, HIGH, LOW, DISLIKE, SATISFIED;
 }
