@@ -65,6 +65,7 @@ cloud:
       bucket: phonesonaltrainer
       path:
         meals: meal_images
+        inbodys: Inbody_images
     region:
       static: ap-northeast-2
     stack:
