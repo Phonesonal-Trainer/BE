@@ -4,6 +4,7 @@ package Phonesonal.PhoneBE.service.AI;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class OpenAiVisionService {
 
     private final OkHttpClient httpClient = new OkHttpClient();
 
-    @Value("${OPENAI_API_KEY}")
+    @Value("${openai.api-key}")
     private String apiKey;
 
     public String analyzeInbodyImage(String imageUrl) throws IOException {
