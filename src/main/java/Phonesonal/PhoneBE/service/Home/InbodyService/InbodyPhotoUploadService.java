@@ -3,7 +3,6 @@ package Phonesonal.PhoneBE.service.Home.InbodyService;
 import Phonesonal.PhoneBE.aws.s3.AmazonS3Manager;
 import Phonesonal.PhoneBE.domain.Uuid;
 import Phonesonal.PhoneBE.repository.*;
-import Phonesonal.PhoneBE.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +16,7 @@ public class InbodyPhotoUploadService {
     private final UuidRepository uuidRepository;
     private final AmazonS3Manager s3Manager;
 
-    public String createInbodyPhotoUpload(CustomUserDetails userDetails, MultipartFile InbodyPicture) {
+    public String createInbodyPhotoUpload(MultipartFile InbodyPicture) {
 
         String uuid = UUID.randomUUID().toString();
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
@@ -28,7 +27,7 @@ public class InbodyPhotoUploadService {
         s3Manager.generateReviewKeyName(savedUuid) : S3에 저장할 때 사용할 'key' (경로 + 파일명) 생성
         s3Manager.uploadFile(keyName, bodyPicture) : S3에 파일 업로드 후 업로드된 파일의 URL 반환
         */
-        String inbodyPictureUrl = s3Manager.uploadFile(s3Manager.generateReviewKeyName(savedUuid), InbodyPicture);
+        String inbodyPictureUrl = s3Manager.uploadFile(s3Manager.generateInbodyKeyName(savedUuid), InbodyPicture);
 
         return inbodyPictureUrl;
     }
