@@ -13,8 +13,7 @@ import java.util.Optional;
 public interface WeightRecordRepository extends JpaRepository<WeightRecord, Long> {
     @Query(value = "SELECT * FROM weight_record WHERE user_id = :userId ORDER BY record_date DESC LIMIT 1", nativeQuery = true)
     Optional<WeightRecord> findLatestByUserId(@Param("userId") Long userId);
-
-
+    List<WeightRecord> findByUserIdAndGoalPeriodIdOrderByRecordDateAsc(Long userId, Long goalPeriodId);
 
     List<WeightRecord> findByUserIdAndGoalPeriodIdAndRecordDateBetween(
             Long userId,

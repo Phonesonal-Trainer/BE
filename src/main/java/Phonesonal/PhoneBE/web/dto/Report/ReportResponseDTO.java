@@ -50,4 +50,36 @@ public class ReportResponseDTO {
         private Number totalTargetCalories;
         private Number averageDailyCalories;
     }
+
+    @Getter
+    @Builder
+    public static class MetricProgress {
+        private Number initial;       // 0주차 값
+        private Number current;       // 현재 값
+        private boolean achieved;     // 목표 달성 여부
+    }
+
+    @Getter
+    @Builder
+    public static class WeightProgress {
+        private String changeFromInitial;
+        private Number initial;       // 0주차 값
+        private Number average;
+        private Number current;       // 현재 값
+        private Number target;
+    }
+
+    @Getter
+    @Builder
+    public static class OverallFeedbackDTO {
+        private String purpose;
+        private LocalDate weekStart;
+        private LocalDate weekEnd;
+        private Integer deadline;
+
+        private WeightProgress weight;
+        private MetricProgress bmi;
+        private MetricProgress bodyFat;
+        private MetricProgress muscleMass;
+    }
 }

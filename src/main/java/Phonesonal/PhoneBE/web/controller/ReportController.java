@@ -32,7 +32,7 @@ public class ReportController {
         Long userId = userDetails.getUser().getId();
         Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
-        ReportResponseDTO.WeightFeedbackDTO result = reportQueryService.getWeeklyWeightFeedback(userId, goalPeriodId, week);
+        ReportResponseDTO.WeightFeedbackDTO result = reportQueryService.getWeeklyWeightReport(userId, goalPeriodId, week);
         return ApiResponse.onSuccess(result);
     }
 
@@ -44,7 +44,7 @@ public class ReportController {
         Long userId = userDetails.getUser().getId();
         Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
-        ReportResponseDTO.ExerciseFeedbackDTO result = reportQueryService.getWeeklyExerciseFeedback(userId, goalPeriodId, week);
+        ReportResponseDTO.ExerciseFeedbackDTO result = reportQueryService.getWeeklyExerciseReport(userId, goalPeriodId, week);
         return ApiResponse.onSuccess(result);
     }
 
@@ -57,6 +57,17 @@ public class ReportController {
         Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         ReportResponseDTO.MealFeedbackDTO result = reportQueryService.getWeeklyMealReport(userId, goalPeriodId, week);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @GetMapping("/overall")
+    public ApiResponse<ReportResponseDTO.OverallFeedbackDTO> getOverallFeedback(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
+
+        ReportResponseDTO.OverallFeedbackDTO result = reportQueryService.getOverallReport(userId, goalPeriodId);
         return ApiResponse.onSuccess(result);
     }
 
