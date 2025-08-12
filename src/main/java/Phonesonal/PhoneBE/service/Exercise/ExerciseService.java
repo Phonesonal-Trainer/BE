@@ -19,6 +19,7 @@ public interface ExerciseService {
     UserExerciseResponseDTO completeUserExercise(Long userId, Long exerciseId);
     UserExerciseResponseDTO completeSet(Long userId, Long userExerciseId, Long setId);
     UserExerciseResponseDTO startNextSet(Long userId, Long userExerciseId);
+    List<UserExerciseResponseDTO> createMultipleUserExercises(List<Long> exerciseIds, Long userId);
     //UserExerciseResponseDTO updateSetCount(Long userId, Long userExerciseId, Integer setCount);
     //UserExerciseResponseDTO updateCountPerSet(Long userId, Long userExerciseId, Integer countPerSet);
 }
