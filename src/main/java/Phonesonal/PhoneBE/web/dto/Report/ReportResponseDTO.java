@@ -2,6 +2,7 @@ package Phonesonal.PhoneBE.web.dto.Report;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -52,7 +53,7 @@ public class ReportResponseDTO {
     }
 
     @Getter
-    @Builder
+    @SuperBuilder
     public static class MetricProgress {
         private Number initial;       // 0주차 값
         private Number current;       // 현재 값
@@ -60,12 +61,10 @@ public class ReportResponseDTO {
     }
 
     @Getter
-    @Builder
-    public static class WeightProgress {
+    @SuperBuilder
+    public static class WeightProgress extends MetricProgress{
         private String changeFromInitial;
-        private Number initial;       // 0주차 값
         private Number average;
-        private Number current;       // 현재 값
         private Number target;
     }
 

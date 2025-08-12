@@ -435,16 +435,27 @@ public class ReportQueryServiceImpl implements ReportQueryService {
                 ? formatWeightChange(currentWeight.floatValue() - initialWeight.floatValue())
                 : null;
 
+        // 목표 몸무게 달성 여부
+        Boolean achievedWeight = false;
+        boolean isWeightGoalIncrease = targetWeight.compareTo(initialWeight) > 0;
+        if (currentWeight != null && targetWeight != null) {
+            if (isWeightGoalIncrease) {
+                achievedWeight = currentWeight.compareTo(targetWeight) >= 0;  // 현재 BMI가 목표 이상이면 달성
+            } else {
+                achievedWeight = currentWeight.compareTo(targetWeight) <= 0;  // 현재 BMI가 목표 이하이면 달성
+            }
+        }
+
         // BMI 달성 여부
         BigDecimal targetBMI = diagnosis.getTargetBMI();
         BigDecimal initialBMI = calculateBMI(user.getWeight(), user.getHeight());
         BigDecimal currentBMI = calculateBMI(currentWeight, user.getHeight());
 
-        boolean isGoalIncrease = targetBMI.compareTo(initialBMI) > 0;
+        boolean isBMIGoalIncrease = targetBMI.compareTo(initialBMI) > 0;
 
-        Boolean achievedBMI = null;
+        Boolean achievedBMI = false;
         if (currentBMI != null && targetBMI != null) {
-            if (isGoalIncrease) {
+            if (isBMIGoalIncrease) {
                 achievedBMI = currentBMI.compareTo(targetBMI) >= 0;  // 현재 BMI가 목표 이상이면 달성
             } else {
                 achievedBMI = currentBMI.compareTo(targetBMI) <= 0;  // 현재 BMI가 목표 이하이면 달성
@@ -460,6 +471,7 @@ public class ReportQueryServiceImpl implements ReportQueryService {
                 .current(convertFloatOrNull(currentWeight != null ? currentWeight.floatValue() : null))
                 .average(convertFloatOrNull(averageWeight != null ? averageWeight.floatValue() : null))
                 .target(convertFloatOrNull(targetWeight != null ? targetWeight.floatValue() : null))
+                .achieved(achievedWeight)
                 .changeFromInitial(changeFromInitial)
                 .build();
 
