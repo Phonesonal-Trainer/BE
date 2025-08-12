@@ -11,6 +11,7 @@ import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Food.UpdateUserMealQuantityResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -124,17 +125,36 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
     @Transactional
     @Override
-    public void updateQuantity(Long recordId, Float quantity) {
+    public UpdateUserMealQuantityResponseDTO updateQuantity(Long recordId, Float quantity) {
+        if (quantity == null || quantity < 0f) {
+            throw new IllegalArgumentException("유효하지 않은 양입니다.");
+        }
+
         UserMeal userMeal = userMealRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식단입니다."));
 
-        // isCustom == true인 경우 수정 불가(검색 리스트에서 추가한 식단만 수정 가능)
         if (Boolean.TRUE.equals(userMeal.getFood().getIsCustom())) {
             throw new IllegalArgumentException("직접 입력한 식단은 수정할 수 없습니다.");
         }
 
         userMeal.setQuantity(quantity);
+
+        return UpdateUserMealQuantityResponseDTO.builder()
+                .recordId(userMeal.getId())
+                .quantity(round1(quantity))
+                .displayedServingSize(displayQty(quantity))
+                .build();
     }
+
+
+    private float round1(float v) {
+        return Math.round(v * 10f) / 10f;
+    }
+
+    private String displayQty(float qty) {
+        return Math.round(qty) + "g";
+    }
+
 
     public void deleteUserMeal(Long recordId, Long userId) {
         UserMeal userMeal = userMealRepository.findById(recordId)

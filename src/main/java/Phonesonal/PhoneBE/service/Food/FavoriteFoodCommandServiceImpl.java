@@ -6,6 +6,7 @@ import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.repository.FavoriteFoodRepository;
 import Phonesonal.PhoneBE.repository.FoodRepository;
 import Phonesonal.PhoneBE.repository.UserRepository;
+import Phonesonal.PhoneBE.web.dto.Food.ToggleFavoriteResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,23 +21,25 @@ public class FavoriteFoodCommandServiceImpl implements FavoriteFoodCommandServic
     private final UserRepository userRepository;
 
     @Override
-    public void toggleFavorite(Long foodId, Long userId) {
+    public ToggleFavoriteResponseDTO toggleFavorite(Long foodId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
         Food food = foodRepository.findById(foodId)
                 .orElseThrow(() -> new IllegalArgumentException("음식 없음"));
 
-        favoriteFoodRepository.findByUserAndFood(user, food).ifPresentOrElse(
-                favoriteFoodRepository::delete,
-                () -> {
+        boolean nowFavorite = favoriteFoodRepository.findByUserAndFood(user, food)
+                .map(fav -> { favoriteFoodRepository.delete(fav); return false; }) // 해제
+                .orElseGet(() -> {                                              // 등록
                     FavoriteFood favorite = FavoriteFood.builder()
-                            .user(user)
-                            .food(food)
-                            .createdAt(LocalDate.now())
-                            .build();
+                            .user(user).food(food).createdAt(LocalDate.now()).build();
                     favoriteFoodRepository.save(favorite);
-                }
-        );
+                    return true;
+                });
+
+        return ToggleFavoriteResponseDTO.builder()
+                .foodId(foodId)
+                .isFavorite(nowFavorite)
+                .build();
     }
 }
 

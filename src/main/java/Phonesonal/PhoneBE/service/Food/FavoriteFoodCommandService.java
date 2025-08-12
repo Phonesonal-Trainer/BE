@@ -1,5 +1,7 @@
 package Phonesonal.PhoneBE.service.Food;
 
+import Phonesonal.PhoneBE.web.dto.Food.ToggleFavoriteResponseDTO;
+
 public interface FavoriteFoodCommandService {
-    void toggleFavorite(Long foodId, Long userId);
+    ToggleFavoriteResponseDTO toggleFavorite(Long foodId, Long userId);
 }
