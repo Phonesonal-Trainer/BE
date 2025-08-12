@@ -41,4 +41,5 @@ public class S3TestController {
         MealImage mealImage = photoUploadTestService.createPhoto(userDetails,picture);
         return ResponseEntity.ok(mealImage);
     }
+
 }

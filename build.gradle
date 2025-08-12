@@ -54,6 +54,12 @@ dependencies {
 	//S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	//OpenAi vision
+    implementation 'com.theokanning.openai-gpt3-java:service:0.18.2'
+
+	//gson
+	implementation 'com.google.code.gson:gson:2.10.1'
+
 }
 
 tasks.named('test') {
