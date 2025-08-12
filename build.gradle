@@ -68,8 +68,6 @@ tasks.named('test') {
 }
 test {
 
-	systemProperty "spring.profiles.active", "test"
-
 	testLogging {
 
 		events "failed"
