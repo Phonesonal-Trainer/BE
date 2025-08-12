@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+
 @Service
 @RequiredArgsConstructor
 public class InbodyServiceImpl {

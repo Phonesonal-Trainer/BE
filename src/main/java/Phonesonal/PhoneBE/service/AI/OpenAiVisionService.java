@@ -14,7 +14,7 @@ public class OpenAiVisionService {
 
     private final OkHttpClient httpClient = new OkHttpClient();
 
-    @Value("${OPENAI_API_KEY}")
+    @Value("${openai.api-key}")
     private String apiKey;
 
     public String analyzeInbodyImage(String imageUrl) throws IOException {
