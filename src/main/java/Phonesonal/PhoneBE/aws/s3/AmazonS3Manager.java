@@ -40,4 +40,9 @@ public class AmazonS3Manager {
     public String generateReviewKeyName(Uuid uuid) {
         return amazonConfig.getMealPath() + '/' + uuid.getUuid();
     }
+
+    //인바디 사진 업로드
+    public String generateInbodyKeyName(Uuid uuid, Uuid savedUuid) {
+        return amazonConfig.getInbodyPath() + '/' + uuid.getUuid();
+    }
 }

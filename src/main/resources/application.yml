@@ -59,12 +59,16 @@ gemini:
   api:
     key: ${GEMINI_KEY}
 
+openai:
+  api-key: ${OPENAI_API_KEY}
+
 cloud:
   aws:
     s3:
       bucket: phonesonaltrainer
       path:
         meals: meal_images
+        inbodys: Inbody_images
     region:
       static: ap-northeast-2
     stack:
