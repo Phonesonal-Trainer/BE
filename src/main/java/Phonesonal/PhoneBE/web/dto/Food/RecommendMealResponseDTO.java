@@ -17,6 +17,7 @@ public class RecommendMealResponseDTO {
     private MealTime mealTime;
     private LocalDate date;
     private Float quantity;
+    private Float calories;
     private String complete;
     private Integer weekNumber;
     private String imageUrl;

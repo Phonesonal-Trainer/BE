@@ -1,12 +1,14 @@
 package Phonesonal.PhoneBE.web.dto.Food;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
 @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserMealResponseDTO {
     private Long recordId;
     private Long foodId;

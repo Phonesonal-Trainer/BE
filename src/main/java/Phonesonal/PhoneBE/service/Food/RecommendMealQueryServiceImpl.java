@@ -44,6 +44,7 @@ public class RecommendMealQueryServiceImpl implements RecommendMealQueryService 
                             .mealTime(meal.getMealTime())
                             .date(meal.getDate())
                             .quantity(meal.getQuantity())
+                            .calories(meal.getFood().getCalorie())
                             .complete(meal.getComplete().name())
                             .weekNumber(weekNumber)
                             .imageUrl(meal.getFood().getImageUrl())
