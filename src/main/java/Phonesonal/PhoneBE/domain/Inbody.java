@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,9 @@ public class Inbody {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long inbodyId;
+
+    @SerializedName("weight")
+    private BigDecimal weight;
 
     @SerializedName("muscle_mass")
     private double muscleMass;   // 골격근량

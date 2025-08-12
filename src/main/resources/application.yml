@@ -59,6 +59,9 @@ gemini:
   api:
     key: ${GEMINI_KEY}
 
+openai:
+  api-key: ${OPENAI_API_KEY}
+
 cloud:
   aws:
     s3:
