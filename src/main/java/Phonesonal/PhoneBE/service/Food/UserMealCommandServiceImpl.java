@@ -11,6 +11,7 @@ import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.repository.UserRepository;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealCustomRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.AddUserMealFromFoodRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Food.UpdateUserMealQuantityResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UserMealResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -124,7 +125,7 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
 
     @Transactional
     @Override
-    public UserMealResponseDTO updateQuantity(Long recordId, Float quantity) {
+    public UpdateUserMealQuantityResponseDTO updateQuantity(Long recordId, Float quantity) {
         if (quantity == null || quantity < 0f) {
             throw new IllegalArgumentException("유효하지 않은 양입니다.");
         }
@@ -136,45 +137,22 @@ public class UserMealCommandServiceImpl implements UserMealCommandService {
             throw new IllegalArgumentException("직접 입력한 식단은 수정할 수 없습니다.");
         }
 
-        Food food = userMeal.getFood();
-        float baseQty = (food.getQuantity() == null || food.getQuantity() <= 0f) ? 100f : food.getQuantity();
-        float ratio = quantity / baseQty;
-
-        float kcal = safeMul(food.getCalorie(), ratio);
-        float carb = safeMul(food.getCarb(), ratio);
-        float protein = safeMul(food.getProtein(), ratio);
-        float fat = safeMul(food.getFat(), ratio);
-
         userMeal.setQuantity(quantity);
 
-        return UserMealResponseDTO.builder()
+        return UpdateUserMealQuantityResponseDTO.builder()
                 .recordId(userMeal.getId())
-                .foodId(food.getFoodId())
-                .foodName(food.getName())
-                .mealTime(userMeal.getMealTime())
-                .date(userMeal.getDate())
-                .isCustom(Boolean.TRUE.equals(food.getIsCustom()))
-                .carb(round1(carb))
-                .protein(round1(protein))
-                .fat(round1(fat))
-                .calorie(round1(kcal))
                 .quantity(round1(quantity))
-                .displayedServingSize(buildDisplay(quantity, kcal))
-                .defaultServingSize(food.getServingSize())
-                .imageUrl(food.getImageUrl())
+                .displayedServingSize(displayQty(quantity))
                 .build();
     }
 
-    private float safeMul(Float val, float ratio) {
-        return val == null ? 0f : val * ratio;
-    }
 
     private float round1(float v) {
         return Math.round(v * 10f) / 10f;
     }
 
-    private String buildDisplay(float qty, float kcal) {
-        return ((int)Math.round(qty)) + "g (" + ((int)Math.round(kcal)) + "kcal)";
+    private String displayQty(float qty) {
+        return Math.round(qty) + "g";
     }
 
 
