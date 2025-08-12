@@ -14,25 +14,35 @@ public class OpenAiVisionService {
 
     private final OkHttpClient httpClient = new OkHttpClient();
 
-    @Value("${openai.api-key}")
+    @Value("${OPENAI_API_KEY}")
     private String apiKey;
 
     public String analyzeInbodyImage(String imageUrl) throws IOException {
         String jsonRequest = """
+{
+  "model": "gpt-4o",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
         {
-          "model": "gpt-4o",
-          "messages": [
-            {
-              "role": "user",
-              "content": [
-                {"type": "text", "text": "이 인바디 결과 이미지에서 다음 항목의 값을 찾아 JSON으로 반환하세요:\n" +
-                        "{\\n  \\"muscle_mass\\": \\"골격근량(kg)\\",\\n  \\"body_fat_mass\\": \\"체지방량(kg)\\"},
-                {"type": "image_url", "image_url": {"url": "%s"}}
-              ]
-            }
-          ]
+          "type": "text",
+          "text": "이 인바디 결과 이미지에서 다음 항목의 값을 찾아 JSON으로 반환하세요:\\n{\\n  \\\"muscle_mass\\\": \\\"골격근량(kg)\\\",\\n  \\\"body_fat_mass\\\": \\\"체지방량(kg)\\\",\\n  \\\"weight\\\": \\\"체중(kg)\\\"\\n}"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "%s"
+          }
         }
-        """.formatted(imageUrl);
+      ]
+    }
+  ],
+  "max_tokens": 1000
+}
+""".formatted(imageUrl);
+
+
 
         RequestBody body = RequestBody.create( MediaType.get("application/json"),jsonRequest);
 

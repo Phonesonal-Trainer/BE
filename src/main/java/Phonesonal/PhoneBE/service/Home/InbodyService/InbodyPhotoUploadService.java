@@ -1,9 +1,7 @@
 package Phonesonal.PhoneBE.service.Home.InbodyService;
 
 import Phonesonal.PhoneBE.aws.s3.AmazonS3Manager;
-import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.Uuid;
-import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +15,6 @@ import java.util.UUID;
 public class InbodyPhotoUploadService {
 
     private final UuidRepository uuidRepository;
-    private final UserRepository userRepository;
-    private final GoalPeriodRepository goalPeriodRepository;
     private final AmazonS3Manager s3Manager;
 
     public String createInbodyPhotoUpload(CustomUserDetails userDetails, MultipartFile InbodyPicture) {
