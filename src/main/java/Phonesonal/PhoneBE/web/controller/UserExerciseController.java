@@ -2,6 +2,7 @@ package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.service.Exercise.ExerciseService;
+import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateMultipleUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
@@ -38,13 +39,13 @@ public class UserExerciseController {
 
     @Operation(summary = "내 운동 생성(DB에 존재하는 운동)")
     @PostMapping("/{ExerciseId}/userExercise")
-    public ApiResponse<UserExerciseResponseDTO> createUserExercise(
+    public ApiResponse<List<UserExerciseResponseDTO>> createUserExercise(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long ExerciseId
+            @Valid @RequestBody CreateMultipleUserExerciseRequestDTO request
     ) {
         Long userId = userDetails.getUser().getId();
-        UserExerciseResponseDTO createdExercise = exerciseService.createUserExercise(ExerciseId, userId);
-        return ApiResponse.onSuccess(createdExercise);
+        List<UserExerciseResponseDTO> createdExercises = exerciseService.createMultipleUserExercises(request.getExerciseIds(), userId);
+        return ApiResponse.onSuccess(createdExercises);
     }
 
     @Operation(summary = "내 운동 생성(DB에 존재하지 않는 운동)")
