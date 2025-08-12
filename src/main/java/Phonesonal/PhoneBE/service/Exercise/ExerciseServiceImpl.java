@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.sql.Types.NULL;
-
 @Service
 @RequiredArgsConstructor
 public class ExerciseServiceImpl implements ExerciseService {
@@ -178,57 +176,29 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 3. UserExercise 생성
         UserExercise userExercise = UserExercise.builder()
                 .user(user)
-                .exercise(exercise) // 999999 ID 사용
-                .customExerciseName(exercise.getName()) // 실제 운동 이름
-                .caloriesBurned(null)
-                .customExerciseType(convertToCustomType(exercise.getType()))
-                .exerciseDate(LocalDate.now())
-                .state(State.completed)
-                .bookmark(false)
-                .actualMinutes(15) // 커스텀 운동은 기본적으로 15분으로 설정
+                .exercise(exercise)
+                .state(State.pending) // 초기 상태: 진행 대기 중
+                .exerciseDate(LocalDate.now()) // 오늘 날짜로 설정
+                .bookmark(false) // 북마크 기본값 false
                 .build();
 
         // 4. UserExercise 저장
         UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
 
-        // 5. UserExerciseResponseDTO로 변환하여 반환
-        return convertToUserExerciseResponseDTO(savedUserExercise);
-    }
-
-    @Override
-    public List<UserExerciseResponseDTO> createMultipleUserExercises(List<Long> exerciseIds, Long userId) {
-        // 1. 사용자 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
-
-        List<UserExerciseResponseDTO> results = new ArrayList<>();
-
-        // 3. 각 운동에 대해 UserExercise 생성
-        for (Long exerciseId : exerciseIds) {
-            // 운동 조회
-            Exercise exercise = findExerciseById(exerciseId);
-
-            // UserExercise 생성
-            UserExercise userExercise = UserExercise.builder()
-                    .user(user)
-                    .exercise(exercise) // 999999 ID 사용
-                    .customExerciseName(exercise.getName()) // 실제 운동 이름
-                    .caloriesBurned(null)
-                    .customExerciseType(convertToCustomType(exercise.getType()))
-                    .exerciseDate(LocalDate.now())
-                    .state(State.completed) // 바로 완료 상태로 저장
-                    .bookmark(false)
-                    .actualMinutes(15) // 기본 15분으로 설정
+        // 5. 기본 세트들 생성
+        List<ExerciseSet> exerciseSets = new ArrayList<>();
+        for (int i = 1; i <= exercise.getDefaultSet(); i++){
+            ExerciseSet set = ExerciseSet.builder()
+                    .userExercise(savedUserExercise)
+                    .setNumber(i) // 세트 번호
+                    .weight(exercise.getDefaultWeight()) // 기본 중량
+                    .reps(exercise.getDefaultCount()) // 기본 횟수
+                    .completed(false) // 초기 상태: 완료되지 않음
                     .build();
-
-            // UserExercise 저장
-            UserExercise savedUserExercise = userExerciseRepository.save(userExercise);
-
-            // DTO 변환 후 결과 리스트에 추가
-            results.add(convertToUserExerciseResponseDTO(savedUserExercise));
         }
 
-        return results;
+        // 5. UserExerciseResponseDTO로 변환하여 반환
+        return convertToUserExerciseResponseDTO(savedUserExercise);
     }
 
     @Override
