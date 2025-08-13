@@ -11,7 +11,6 @@ import Phonesonal.PhoneBE.service.AI.OpenAiVisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -30,6 +29,7 @@ public class InbodyServiceImpl {
     private final InbodyPhotoUploadService inbodyPhotoUploadService;
     private final InbodyImageRepository inbodyImageRepository;
 
+
     public Inbody extractInbodyData(CustomUserDetails userDetails, MultipartFile inbodyPicture) throws IOException {
 
         Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
@@ -43,7 +43,7 @@ public class InbodyServiceImpl {
 
         String inbodyPictureUrl = inbodyPhotoUploadService.createInbodyPhotoUpload(inbodyPicture);
 
-        // OpenAI API 호출
+        // 2. Openai API 호출 및 구현
         String responseJson = openAiVisionService.analyzeInbodyImage(inbodyPictureUrl);
 
         // JSON 파싱
@@ -56,11 +56,14 @@ public class InbodyServiceImpl {
         // GPT가 반환한 JSON 문자열을 Inbody 객체로 변환
         Inbody extractedInbody = objectMapper.readValue(content, Inbody.class);
 
+        // 추가 데이터 세팅
         extractedInbody.setUser(user);
         extractedInbody.setGoalPeriod(goalPeriod);
-        extractedInbody.setImageUrl(inbodyPictureUrl);
         extractedInbody.setCreatedAt(LocalDateTime.now());
+        extractedInbody.setImageUrl(inbodyPictureUrl);
 
+        // 저장 및 반환
         return inbodyImageRepository.save(extractedInbody);
+
     }
 }

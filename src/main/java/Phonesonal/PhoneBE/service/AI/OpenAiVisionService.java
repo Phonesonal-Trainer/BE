@@ -44,7 +44,6 @@ public class OpenAiVisionService {
 
 
 
-
         RequestBody body = RequestBody.create( MediaType.get("application/json"),jsonRequest);
 
         Request request = new Request.Builder()
