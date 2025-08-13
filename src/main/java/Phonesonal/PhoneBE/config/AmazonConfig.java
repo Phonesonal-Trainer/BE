@@ -34,6 +34,9 @@ public class AmazonConfig {
     @Value("${cloud.aws.s3.path.meals}")
     private String mealPath;
 
+    @Value("${cloud.aws.s3.path.inbodys}")
+    private String InbodyPath;
+
 
     @PostConstruct
     public void init() {
