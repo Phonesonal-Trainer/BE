@@ -1,7 +1,6 @@
 package Phonesonal.PhoneBE.domain;
 
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,14 +23,14 @@ public class Inbody {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long inbodyId;
 
-    @JsonProperty("weight")
+    @SerializedName("weight")
     private BigDecimal weight;
 
-    @JsonProperty("muscle_mass")
+    @SerializedName("muscle_mass")
     private double muscleMass;   // 골격근량
 
-    @JsonProperty("body_fat_percentage")
-    private double bodyFatPercentage;  // 체지방량
+    @SerializedName("body_fat_percentage")
+    private double bodyFatMass;  // 체지방량
 
     // 사용자 기준으로 소유자 명시
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,6 +41,8 @@ public class Inbody {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_period_id")
     private GoalPeriod goalPeriod;
+
+    private LocalDate date;
 
     @Column(length = 255)
     private String imageUrl;
