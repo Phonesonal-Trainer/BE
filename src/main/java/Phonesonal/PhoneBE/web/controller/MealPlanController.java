@@ -1,14 +1,19 @@
 package Phonesonal.PhoneBE.web.controller;
 
+import Phonesonal.PhoneBE.domain.Diagnosis;
+import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
+import Phonesonal.PhoneBE.service.AI.GeminiMealService;
 import Phonesonal.PhoneBE.service.Food.RecommendMealCommandService;
 import Phonesonal.PhoneBE.service.Food.RecommendMealQueryService;
 import Phonesonal.PhoneBE.web.dto.Food.CompleteStatusResponseDTO;
+import Phonesonal.PhoneBE.web.dto.Food.GenerateMealRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.RecommendMealResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.UpdateCompleteStatusRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
@@ -29,6 +34,7 @@ public class MealPlanController {
 
     private final RecommendMealQueryService recommendMealQueryService;
     private final RecommendMealCommandService recommendMealCommandService;
+    private final GeminiMealService geminiMealService;
 
 
     @Operation(summary = "식단 플랜 조회")
@@ -61,5 +67,18 @@ public class MealPlanController {
                 recommendMealCommandService.updateCompleteStatus(request, userId, goalPeriodId); 
 
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
+    }
+
+    @Operation(summary = "식단 플랜 생성")
+    @PostMapping("plans/generate")
+    public ResponseEntity<ApiResponse<Integer>> generateWeeklyMeals(
+            @RequestBody @Valid GenerateMealRequestDTO req,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        User user = userDetails.getUser();
+        Diagnosis diagnosis = user.getDiagnosis();
+
+        int saved = geminiMealService.generateAndSaveWeeklyAllMeals(user, diagnosis, req);
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, saved));
     }
 }
