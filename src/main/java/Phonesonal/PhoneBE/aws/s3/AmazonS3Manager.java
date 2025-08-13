@@ -42,7 +42,7 @@ public class AmazonS3Manager {
     }
 
     //인바디 사진 업로드
-    public String generateInbodyKeyName(Uuid uuid, Uuid savedUuid) {
+    public String generateInbodyKeyName(Uuid uuid) {
         return amazonConfig.getInbodyPath() + '/' + uuid.getUuid();
     }
 }
