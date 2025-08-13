@@ -27,7 +27,7 @@ public class OpenAiVisionService {
       "content": [
         {
           "type": "text",
-          "text": "이 인바디 결과 이미지에서 다음 항목의 값을 찾아 JSON 객체로, 코드블록 없이 오직 JSON 문자열만 반환하세요:\\n{\\n  \\\"muscle_mass\\\": \\\"골격근량(kg)\\\",\\n  \\\"body_fat_percentage\\\": \\\"체지방률\\\",\\n  \\\"weight\\\": \\\"체중(kg)\\\"\\n}"
+          "text": "이 인바디 결과 이미지에서 다음 항목의 값을 찾아 JSON으로 반환하세요:\\n{\\n  \\\"muscle_mass\\\": \\\"골격근량(kg)\\\",\\n  \\\"body_fat_mass\\\": \\\"체지방량(kg)\\\",\\n  \\\"weight\\\": \\\"체중(kg)\\\"\\n}"
         },
         {
           "type": "image_url",
@@ -41,7 +41,6 @@ public class OpenAiVisionService {
   "max_tokens": 1000
 }
 """.formatted(imageUrl);
-
 
 
 
