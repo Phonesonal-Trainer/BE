@@ -463,7 +463,8 @@ public class ReportQueryServiceImpl implements ReportQueryService {
         String purpose = user.getPurpose().toString();
 
         // 인바디
-        Inbody inbody = inbodyImageRepository.findByUserIdAndGoalPeriodId(userId, goalPeriodId)
+        Inbody inbody = inbodyImageRepository
+                .findTopByUserIdAndGoalPeriodIdOrderByCreatedAtDesc(userId, goalPeriodId)
                 .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INBODY_NOT_FOUND));
 
         // 체지방률
