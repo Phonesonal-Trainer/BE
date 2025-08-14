@@ -4,17 +4,16 @@ import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.apiPayload.code.status.SuccessStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
-import Phonesonal.PhoneBE.service.Food.UserMealCommandService;
+import Phonesonal.PhoneBE.service.Food.MealImageCommandService;
+import Phonesonal.PhoneBE.web.dto.Food.MealImageResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -24,26 +23,28 @@ import java.time.LocalDate;
 @RequestMapping("/foods/meal-images")
 @Tag(name = "MealImage", description = "식단 이미지 관련 API")
 public class MealImageController {
-    /*
-    private final UserMealCommandService userMealCommandService;
 
-    @Operation(summary = "식단 이미지 업로드")
-    @PostMapping(value = "/meal-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<String>> uploadMealImage(
-            @RequestPart("image") MultipartFile image,
-            @RequestPart("goalPeriodId") Long goalPeriodId,
-            @RequestPart("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestPart("mealTime") MealTime mealTime,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    private final MealImageCommandService mealImageCommandService;
+
+    @Operation(summary = "식단 사진 업로드")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<MealImageResponseDTO>> uploadMealImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam("mealTime") MealTime mealTime
     ) {
         Long userId = userDetails.getUser().getId();
+        Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
-        mealImageCommandService.uploadMealImage(image, userId, goalPeriodId, date, mealTime);
-        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "이미지 업로드 완료"));
+        MealImageResponseDTO result = mealImageCommandService.uploadMealImage(
+                userId,
+                goalPeriodId,
+                file,
+                date,
+                mealTime
+        );
+
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, result));
     }
-
-     */
-
 }
-
-
