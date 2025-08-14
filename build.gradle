@@ -57,11 +57,6 @@ dependencies {
 	//OpenAi vision
     implementation 'com.theokanning.openai-gpt3-java:service:0.18.2'
 
-
-	//h2 for test
-	testImplementation("com.h2database:h2")
-
-
 }
 
 tasks.named('test') {
@@ -70,7 +65,7 @@ tasks.named('test') {
 }
 test {
 
-	systemProperty("spring.profiles.active", "test")
+	systemProperty "spring.profiles.active", "test"
 
 	testLogging {
 
@@ -79,7 +74,6 @@ test {
 		exceptionFormat "full"
 
 	}
-
 
 }
 jar{
