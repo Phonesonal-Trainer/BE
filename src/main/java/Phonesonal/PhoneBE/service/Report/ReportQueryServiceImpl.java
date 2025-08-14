@@ -504,7 +504,7 @@ public class ReportQueryServiceImpl implements ReportQueryService {
                 .changeFromInitial(changeFromInitial)
                 .build();
 
-        // MetricProgress (현재값은 추후 구현 예정 → null)
+        // MetricProgress
         ReportResponseDTO.MetricProgress bmiProgress = ReportResponseDTO.MetricProgress.builder()
                 .initial(convertBigDecimalOrNull(initialBMI))
                 .current(convertBigDecimalOrNull(currentBMI))
