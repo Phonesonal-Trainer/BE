@@ -56,8 +56,13 @@ public enum ErrorStatus implements BaseErrorCode {
     AI_API_NO_PARTS(HttpStatus.BAD_GATEWAY, "AI5005", "AI API 응답에 파트가 없습니다."),
     AI_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI5006", "AI 응답 파싱에 실패했습니다."),
 
+    // 인바디 관련 에러
+    INBODY_NOT_FOUND(HttpStatus.NOT_FOUND, "INBODY4001", "인바디 데이터를 찾을 수 없습니다."),
+
     // 진단 관련 에러
     DIAGNOSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "DIAGNOSIS4041", "진단 결과를 찾을 수 없습니다.");
+
+
 
     private final HttpStatus httpStatus;
     private final String code;

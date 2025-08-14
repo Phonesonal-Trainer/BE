@@ -17,13 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +34,9 @@ public class ReportQueryServiceImpl implements ReportQueryService {
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final ExerciseSetRepository exerciseSetRepository;
+    private final UserRepository userRepository;
+    private final DiagnosisRepository diagnosisRepository;
+    private final InbodyImageRepository inbodyImageRepository;
 
     private Number convertFloat(float value) {
         return value % 1.0 == 0 ? (int) value : value;
@@ -50,10 +50,22 @@ public class ReportQueryServiceImpl implements ReportQueryService {
         return value == null ? null : Math.round(value); // or floor, trunc, etc.
     }
 
+    private Number convertBigDecimalOrNull(BigDecimal value) {
+        if (value == null) return null;
+        float floatVal = value.floatValue();
+        return floatVal % 1.0 == 0 ? (int) floatVal : floatVal;
+    }
+
     private String formatWeightChange(float diff) {
         String sign = diff > 0 ? "+" : (diff < 0 ? "-" : "");
         float abs = Math.abs(diff);
-        return String.format("%s%.1fkg", sign, abs);
+        if (abs == (int) abs) {
+            // 소수점 이하가 0이면 정수로 출력
+            return String.format("%s%d", sign, (int) abs);
+        } else {
+            // 아니면 소수점 첫째 자리까지 출력
+            return String.format("%s%.1f", sign, abs);
+        }
     }
 
     // 도우미 메서드들
@@ -73,10 +85,11 @@ public class ReportQueryServiceImpl implements ReportQueryService {
         return map;
     }
 
-    public ReportResponseDTO.ExerciseFeedbackDTO getWeeklyExerciseFeedback(Long userId, Long goalPeriodId, int week) {
+    @Override
+    public ReportResponseDTO.ExerciseFeedbackDTO getWeeklyExerciseReport(Long userId, Long goalPeriodId, int week) {
 
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
-                .orElseThrow(() -> new RuntimeException("GoalPeriod not found"));
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
 
         LocalDate startDate = goalPeriod.getStartDate().plusWeeks(week - 1);
         LocalDate endDate = startDate.plusDays(6);
@@ -143,8 +156,10 @@ public class ReportQueryServiceImpl implements ReportQueryService {
 
 
 
+
+
     @Override
-    public ReportResponseDTO.WeightFeedbackDTO getWeeklyWeightFeedback(Long userId, Long goalPeriodId, int week) {
+    public ReportResponseDTO.WeightFeedbackDTO getWeeklyWeightReport(Long userId, Long goalPeriodId, int week) {
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
 
@@ -335,9 +350,6 @@ public class ReportQueryServiceImpl implements ReportQueryService {
             }
         }
 
-        System.out.println("weekend: " + weekEnd);
-        System.out.println("now: " + LocalDate.now());
-        System.out.println("stampcount: " + stampCount);
 
         String stampLevelMessage = null;
         if (countOfRecordedDays > 0) {
@@ -375,5 +387,165 @@ public class ReportQueryServiceImpl implements ReportQueryService {
                 .build();
     }
 
+
+    @Override
+    public ReportResponseDTO.OverallFeedbackDTO getOverallReport(Long userId, Long goalPeriodId) {
+
+        GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
+
+        // 기간 정보
+        LocalDate weekStart = goalPeriod.getStartDate();
+        LocalDate weekEnd = goalPeriod.getEndDate();
+
+        // 유저 정보
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        Integer deadline = user.getDeadline();
+
+        // 진단 정보
+        Diagnosis diagnosis = diagnosisRepository.findByUserId(userId)
+                .orElse(null);
+
+        // 몸무게 기록
+        List<WeightRecord> weightRecords = weightRecordRepository
+                .findByUserIdAndGoalPeriodIdOrderByRecordDateAsc(userId, goalPeriodId);
+
+        // 초기 몸무게
+        BigDecimal initialWeight = user.getWeight();
+        // 최근 몸무게 (current)
+        BigDecimal currentWeight = weightRecords.isEmpty() ? null
+                : weightRecords.get(weightRecords.size() - 1).getWeight();
+        // 평균 몸무게
+        BigDecimal averageWeight = weightRecords.isEmpty() ? null :
+                BigDecimal.valueOf(weightRecords.stream()
+                        .mapToDouble(w -> w.getWeight().doubleValue())
+                        .average()
+                        .orElse(0.0));
+
+        // 목표 몸무게
+        BigDecimal targetWeight = (diagnosis != null) ? diagnosis.getTargetWeight() : null;
+
+        // 몸무게 변화량 문자열
+        String changeFromInitial = (currentWeight != null && initialWeight != null)
+                ? formatWeightChange(currentWeight.floatValue() - initialWeight.floatValue())
+                : null;
+
+        // 목표 몸무게 달성 여부
+        Boolean achievedWeight = false;
+        boolean isWeightGoalIncrease = targetWeight.compareTo(initialWeight) > 0;
+        if (currentWeight != null && targetWeight != null) {
+            if (isWeightGoalIncrease) {
+                achievedWeight = currentWeight.compareTo(targetWeight) >= 0;  // 현재 BMI가 목표 이상이면 달성
+            } else {
+                achievedWeight = currentWeight.compareTo(targetWeight) <= 0;  // 현재 BMI가 목표 이하이면 달성
+            }
+        }
+
+        // BMI 달성 여부
+        BigDecimal targetBMI = diagnosis.getTargetBMI();
+        BigDecimal initialBMI = calculateBMI(user.getWeight(), user.getHeight());
+        BigDecimal currentBMI = calculateBMI(currentWeight, user.getHeight());
+
+        boolean isBMIGoalIncrease = targetBMI.compareTo(initialBMI) > 0;
+
+        Boolean achievedBMI = false;
+        if (currentBMI != null && targetBMI != null) {
+            if (isBMIGoalIncrease) {
+                achievedBMI = currentBMI.compareTo(targetBMI) >= 0;  // 현재 BMI가 목표 이상이면 달성
+            } else {
+                achievedBMI = currentBMI.compareTo(targetBMI) <= 0;  // 현재 BMI가 목표 이하이면 달성
+            }
+        }
+
+        // 사용자 목적
+        String purpose = user.getPurpose().toString();
+
+        // 인바디
+        Inbody inbody = inbodyImageRepository.findByUserIdAndGoalPeriodId(userId, goalPeriodId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INBODY_NOT_FOUND));
+
+        // 체지방률
+        BigDecimal currentBodyFat = BigDecimal.valueOf(inbody.getBodyFatPercentage());
+        BigDecimal targetFat = diagnosis.getTargetBodyFatRate();
+
+        boolean isFatIncrease = targetFat.compareTo(user.getBodyFatRate()) > 0;
+        Boolean achievedFat = false;
+
+        if (currentBodyFat != null && targetFat != null) {
+            if (isFatIncrease) {
+                achievedFat = currentBodyFat.compareTo(targetFat) >= 0;
+            } else {
+                achievedFat = currentBodyFat.compareTo(targetFat) <= 0;
+            }
+        }
+
+        // 골격근량
+        BigDecimal currentMuscleMass = BigDecimal.valueOf(inbody.getMuscleMass());
+        BigDecimal targetMuscle = diagnosis.getTargetMuscleMass();
+        boolean isMuscleIncrease = targetMuscle.compareTo(user.getMuscleMass()) > 0;
+        Boolean achievedMuscle = false;
+        if (currentMuscleMass != null && targetMuscle != null) {
+            if (isMuscleIncrease) {
+                achievedMuscle = currentMuscleMass.compareTo(targetMuscle) >= 0;
+            } else {
+                achievedMuscle = currentMuscleMass.compareTo(targetMuscle) <= 0;
+            }
+        }
+
+        // WeightProgress 생성
+        ReportResponseDTO.WeightProgress weightProgress = ReportResponseDTO.WeightProgress.builder()
+                .initial(convertFloatOrNull(initialWeight != null ? initialWeight.floatValue() : null))
+                .current(convertFloatOrNull(currentWeight != null ? currentWeight.floatValue() : null))
+                .average(convertFloatOrNull(averageWeight != null ? averageWeight.floatValue() : null))
+                .target(convertFloatOrNull(targetWeight != null ? targetWeight.floatValue() : null))
+                .achieved(achievedWeight)
+                .changeFromInitial(changeFromInitial)
+                .build();
+
+        // MetricProgress
+        ReportResponseDTO.MetricProgress bmiProgress = ReportResponseDTO.MetricProgress.builder()
+                .initial(convertBigDecimalOrNull(initialBMI))
+                .current(convertBigDecimalOrNull(currentBMI))
+                .achieved(achievedBMI)
+                .build();
+
+        ReportResponseDTO.MetricProgress bodyFatProgress = ReportResponseDTO.MetricProgress.builder()
+                .initial(convertFloatOrNull(user.getBodyFatRate() != null ? user.getBodyFatRate().floatValue() : null))
+                .current(convertBigDecimalOrNull(currentBodyFat))
+                .achieved(achievedFat)
+                .build();
+
+        ReportResponseDTO.MetricProgress muscleMassProgress = ReportResponseDTO.MetricProgress.builder()
+                .initial(convertFloatOrNull(user.getMuscleMass() != null ? user.getMuscleMass().floatValue() : null))
+                .current(convertBigDecimalOrNull(currentMuscleMass))
+                .achieved(achievedMuscle)
+                .build();
+
+        return ReportResponseDTO.OverallFeedbackDTO.builder()
+                .purpose(purpose)
+                .weekStart(weekStart)
+                .weekEnd(weekEnd)
+                .deadline(deadline)
+                .weight(weightProgress)
+                .bmi(bmiProgress)
+                .bodyFat(bodyFatProgress)
+                .muscleMass(muscleMassProgress)
+                .build();
+    }
+
+
+    public BigDecimal calculateBMI(BigDecimal weight, BigDecimal height) {
+        if (weight == null || height == null) {
+            return null;
+        }
+
+        BigDecimal heightInMeters = height.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal squaredHeight = heightInMeters.multiply(heightInMeters);
+        BigDecimal bmi = weight.divide(squaredHeight, 2, RoundingMode.HALF_UP);
+
+        return bmi;
+    }
 
 }
