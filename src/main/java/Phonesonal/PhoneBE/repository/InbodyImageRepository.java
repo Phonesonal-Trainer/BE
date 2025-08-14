@@ -12,5 +12,5 @@ import java.util.Optional;
 
 @Repository
 public interface InbodyImageRepository extends JpaRepository<Inbody,Long> {
-    Optional<Inbody> findByUserIdAndGoalPeriodId(Long userId, Long goalPeriodId);
+    Optional<Inbody> findTopByUserIdAndGoalPeriodIdOrderByCreatedAtDesc(Long userId, Long goalPeriodId);
 }
