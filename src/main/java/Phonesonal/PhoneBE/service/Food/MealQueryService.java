@@ -6,7 +6,7 @@ import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.enums.CompleteStatus;
 import Phonesonal.PhoneBE.domain.enums.MealTime;
 import Phonesonal.PhoneBE.repository.GoalPeriodRepository;
-import Phonesonal.PhoneBE.repository.MealImageRepository; // 이미지 조회
+import Phonesonal.PhoneBE.repository.MealImageRepository;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Food.NutritionData;
@@ -61,9 +61,9 @@ public class MealQueryService {
                 bucket.add(meal.getFood(), meal.getQuantity());
             }
 
-            // 3) recordCount = UserMeal 수 + RecommendMeal(완료) 수  ←★ 핵심 변경
-            long recordCount = userMeals.size() + recommendMeals.size(); // ★
-            bucket.setRecordCount(recordCount);                          // ★
+            // 3) recordCount = UserMeal 수 + RecommendMeal(완료) 수
+            long recordCount = userMeals.size() + recommendMeals.size();
+            bucket.setRecordCount(recordCount);
 
             // 4) 최신 이미지 URL 조회
             String imageUrl = mealImageRepository
