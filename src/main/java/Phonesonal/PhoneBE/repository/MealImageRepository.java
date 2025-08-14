@@ -9,9 +9,9 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface MealImageRepository extends JpaRepository<MealImage, Long> {
-    /*
-    Optional<MealImage> findByUserAndGoalPeriodAndDateAndMealTime(User user, GoalPeriod goalPeriod, LocalDate date, MealTime mealTime);
 
+    Optional<MealImage> findTopByUserIdAndGoalPeriodIdAndDateAndMealTimeOrderByCreatedAtDesc(
+            Long userId, Long goalPeriodId, LocalDate date, MealTime mealTime
+    );
 
-     */
 }
