@@ -20,11 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +36,7 @@ public class ReportQueryServiceImpl implements ReportQueryService {
     private final ExerciseSetRepository exerciseSetRepository;
     private final UserRepository userRepository;
     private final DiagnosisRepository diagnosisRepository;
+    private final InbodyImageRepository inbodyImageRepository;
 
     private Number convertFloat(float value) {
         return value % 1.0 == 0 ? (int) value : value;
@@ -465,6 +462,38 @@ public class ReportQueryServiceImpl implements ReportQueryService {
         // 사용자 목적
         String purpose = user.getPurpose().toString();
 
+        // 인바디
+        Inbody inbody = inbodyImageRepository.findByUserIdAndGoalPeriodId(userId, goalPeriodId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INBODY_NOT_FOUND));
+
+        // 체지방률
+        BigDecimal currentBodyFat = BigDecimal.valueOf(inbody.getBodyFatPercentage());
+        BigDecimal targetFat = diagnosis.getTargetBodyFatRate();
+
+        boolean isFatIncrease = targetFat.compareTo(user.getBodyFatRate()) > 0;
+        Boolean achievedFat = false;
+
+        if (currentBodyFat != null && targetFat != null) {
+            if (isFatIncrease) {
+                achievedFat = currentBodyFat.compareTo(targetFat) >= 0;
+            } else {
+                achievedFat = currentBodyFat.compareTo(targetFat) <= 0;
+            }
+        }
+
+        // 골격근량
+        BigDecimal currentMuscleMass = BigDecimal.valueOf(inbody.getMuscleMass());
+        BigDecimal targetMuscle = diagnosis.getTargetMuscleMass();
+        boolean isMuscleIncrease = targetMuscle.compareTo(user.getMuscleMass()) > 0;
+        Boolean achievedMuscle = false;
+        if (currentMuscleMass != null && targetMuscle != null) {
+            if (isMuscleIncrease) {
+                achievedMuscle = currentMuscleMass.compareTo(targetMuscle) >= 0;
+            } else {
+                achievedMuscle = currentMuscleMass.compareTo(targetMuscle) <= 0;
+            }
+        }
+
         // WeightProgress 생성
         ReportResponseDTO.WeightProgress weightProgress = ReportResponseDTO.WeightProgress.builder()
                 .initial(convertFloatOrNull(initialWeight != null ? initialWeight.floatValue() : null))
@@ -484,14 +513,14 @@ public class ReportQueryServiceImpl implements ReportQueryService {
 
         ReportResponseDTO.MetricProgress bodyFatProgress = ReportResponseDTO.MetricProgress.builder()
                 .initial(convertFloatOrNull(user.getBodyFatRate() != null ? user.getBodyFatRate().floatValue() : null))
-                .current(null) // TODO: 추후 구현
-                .achieved(false)
+                .current(convertBigDecimalOrNull(currentBodyFat))
+                .achieved(achievedFat)
                 .build();
 
         ReportResponseDTO.MetricProgress muscleMassProgress = ReportResponseDTO.MetricProgress.builder()
                 .initial(convertFloatOrNull(user.getMuscleMass() != null ? user.getMuscleMass().floatValue() : null))
-                .current(null) // TODO: 추후 구현
-                .achieved(false)
+                .current(convertBigDecimalOrNull(currentMuscleMass))
+                .achieved(achievedMuscle)
                 .build();
 
         return ReportResponseDTO.OverallFeedbackDTO.builder()
