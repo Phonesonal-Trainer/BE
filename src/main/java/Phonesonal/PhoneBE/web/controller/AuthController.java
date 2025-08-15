@@ -47,37 +47,15 @@ public class AuthController {
     @GetMapping("/kakao/login")
     public void kakaoCallback(@RequestParam String code, HttpServletResponse response) throws IOException {
         // 코드만 전달
-        response.sendRedirect("/auth/success?code=" + code);
+        response.sendRedirect("/auth/kakao/success?code=" + code);
     }
 
-    @GetMapping("/success")
+    @GetMapping("/kakao/success")
     public void authSuccess(@RequestParam String code, HttpServletResponse response) throws IOException {
-        try {
-            String accessToken = kakaoService.getAccessToken(code);
-            Map<String, Object> userInfo = kakaoService.getUserInfo(accessToken);
-            String kakaoEmail = userInfo.get("email").toString();
-            Optional<User> user = userRepository.findByEmail(kakaoEmail);
-
-            response.setContentType("application/json; charset=UTF-8");
-
-            if (user.isPresent()) {
-                // 기존 유저 - 바로 accessToken 발급
-                String jwtAccessToken = jwtTokenProvider.createToken(kakaoEmail);
-                response.getWriter().write(
-                        "{\"success\": true, \"accessToken\": \"" + jwtAccessToken + "\", \"isNewUser\": false}"
-                );
-            } else {
-                // 신규 유저 - tempToken 발급 (하지만 키 이름은 통일)
-                String tempToken = jwtTokenProvider.createTempToken(kakaoEmail, userInfo, SocialType.KAKAO);
-                response.getWriter().write(
-                        "{\"success\": true, \"accessToken\": \"" + tempToken + "\", \"isNewUser\": true}"
-                );
-            }
-
-        } catch (Exception e) {
-            response.setContentType("application/json; charset=UTF-8");
-            response.getWriter().write("{\"success\": false, \"error\": \"login_failed\"}");
-        }
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(
+                "{\"success\": true, \"authCode\": \"" + code + "\"}"
+        );
     }
 
     @PostMapping("/kakao/login")
