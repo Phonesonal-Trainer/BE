@@ -15,13 +15,13 @@ public class KakaoService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${spring.security.oauth2.client.registration.kakao-local.client-id}")
+    @Value("${spring.security.oauth2.client.registration.kakao-prod.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.kakao-local.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.kakao-prod.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.kakao-local.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.kakao-prod.redirect-uri}")
     private String redirectUri;
 
     public KakaoService() {
