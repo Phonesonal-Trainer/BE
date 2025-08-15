@@ -5,6 +5,7 @@ import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.enums.Gender;
 import Phonesonal.PhoneBE.domain.enums.Purpose;
 import Phonesonal.PhoneBE.domain.enums.SocialType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -70,6 +71,7 @@ public class User {
     //목표기간
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_period_id")
+    @JsonIgnore
     private GoalPeriod goalPeriod;
 
     // Diagnosis와의 1:1 관계
