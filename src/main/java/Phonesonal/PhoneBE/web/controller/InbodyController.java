@@ -1,6 +1,7 @@
 package Phonesonal.PhoneBE.web.controller;
 
 
+import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.Inbody;
 import Phonesonal.PhoneBE.domain.MealImage;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
@@ -33,18 +34,15 @@ public class InbodyController {
 */
 
     @PostMapping(value = "/inbody-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<String> extractInbody(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+    public ApiResponse<String> extractInbody(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
                                                 @AuthenticationPrincipal CustomUserDetails userDetails,
-                                                @RequestParam("file") MultipartFile file) { //여기서 @RequestPart는 프론트앤드에서 필요한값 프론트와 연동시 맞춰줘야함
+                                             @RequestParam("file") MultipartFile file) { //여기서 @RequestPart는 프론트앤드에서 필요한값 프론트와 연동시 맞춰줘야함
         try {
             Inbody result = inbodyService.extractInbodyData(userDetails, file);
-            return ResponseEntity.ok("성공이긴해");
+            return ApiResponse.onSuccess(result.toString());
         } catch (IOException e) {
-            // 예외 처리, 필요하면 로그 찍기
             e.printStackTrace();
-            // 적절한 에러 응답 반환 (예: 500 Internal Server Error)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to process inbody image: " + e.getMessage());
+            return ApiResponse.onFailure(HttpStatus.INTERNAL_SERVER_ERROR.toString(),"Failed to process inbody image: ",e.getMessage());
         }
 
     }
