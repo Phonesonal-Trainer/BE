@@ -6,20 +6,21 @@ import Phonesonal.PhoneBE.web.dto.Home.HomeResultDTO;
 import java.time.LocalDate;
 
 public interface HomeCommandService {
-    HomeFullResponseDTO getHomeFullResponse(Long userId);
-    HomeResultDTO.HomeMainDTO getHomeData(Long userId);
-    HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId);
-    HomeResultDTO.HomeMealPlanDTO getHomeMealPlan(Long userId);
-    int getBurnedCaloriesOnDate(Long user, LocalDate date);
-    double getRecommendedCaloriesByDate(Long userId,LocalDate date);
-    double getRecommendedProteinByDate(Long userId,LocalDate date);
-    double getRecommendedCarbByDate(Long userId,LocalDate date);
-    double getRecommendedFatByDate(Long userId,LocalDate date);
+    HomeFullResponseDTO getHomeFullResponse(Long userId, Long goalPeriodId);
+    HomeResultDTO.HomeMainDTO getHomeData(Long userId, Long goalPeriodId);
+    HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId, Long goalPeriodId);
+    HomeResultDTO.HomeMealPlanDTO getHomeMealPlan(Long userId, Long goalPeriodId);
+    int getRecommendedBurnedCaloriesOnDate(Long userId,LocalDate date, Long goalPeriodId);
+    double getRecommendedCaloriesByDate(Long userId,LocalDate date, Long goalPeriodId);
+    double getRecommendedProteinByDate(Long userId,LocalDate date, Long goalPeriodId);
+    double getRecommendedCarbByDate(Long userId,LocalDate date, Long goalPeriodId);
+    double getRecommendedFatByDate(Long userId,LocalDate date, Long goalPeriodId);
     double getTodayConsumedCaloriesByDate(Long userId,LocalDate date);
     int getTodayCaloriesBurnedByUser(Long userId, LocalDate date);
     String HomeMealPercentageStatus(int percentage);
     String HomeExercisePercentageStatus(int percentage);
     int getTodayAnaerobicExerciseTimeByDate(Long userId);
     int getTodayAerobicExerciseTimeByDate(Long userId);
+    String todayComment(LocalDate date);
 
 }

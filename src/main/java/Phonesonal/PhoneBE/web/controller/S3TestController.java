@@ -1,3 +1,7 @@
+/*
+
+미사용으로 주석처리
+
 package Phonesonal.PhoneBE.web.controller;
 
 import Phonesonal.PhoneBE.aws.s3.AmazonS3Manager;
@@ -19,6 +23,7 @@ import java.util.UUID;
 @RequestMapping("/S3tset")
 @RequiredArgsConstructor
 public class S3TestController {
+*/
 /*
 
     private final AmazonS3Manager amazonS3Manager;
@@ -30,7 +35,8 @@ public class S3TestController {
         String fileUrl = amazonS3Manager.uploadFile(key, file);
         return ResponseEntity.ok(fileUrl);
     }
-*/
+*//*
+
 
     private final photoUploadTestService photoUploadTestService;
 
@@ -43,3 +49,4 @@ public class S3TestController {
     }
 
 }
+*/

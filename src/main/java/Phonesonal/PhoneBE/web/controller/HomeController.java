@@ -5,9 +5,9 @@ import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.domain.BodyPhoto;
 import Phonesonal.PhoneBE.domain.WeightRecord;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
-import Phonesonal.PhoneBE.service.Home.BodyPhotoServiceImpl;
-import Phonesonal.PhoneBE.service.Home.HomeServiceImpl;
-import Phonesonal.PhoneBE.service.Home.HomeServiceWeightRecordImpl;
+import Phonesonal.PhoneBE.service.Home.BodyPhotoCommandServiceImpl;
+import Phonesonal.PhoneBE.service.Home.HomeCommandServiceImpl;
+import Phonesonal.PhoneBE.service.Home.HomeWeightRecordCommandServiceImpl;
 import Phonesonal.PhoneBE.web.dto.Home.BodyPhoto.BodyPhotoRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Home.BodyPhoto.BodyPhotoResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Home.HomeFullResponseDTO;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/home")
 public class HomeController {
-    private final HomeServiceImpl homeService; // 서비스 주입
-    private final HomeServiceWeightRecordImpl homeServiceWeightRecord;
-    private final BodyPhotoServiceImpl bodyPhotoService;
+    private final HomeCommandServiceImpl homeService; // 서비스 주입
+    private final HomeWeightRecordCommandServiceImpl homeServiceWeightRecord;
+    private final BodyPhotoCommandServiceImpl bodyPhotoService;
 
     @GetMapping("/{userId}/main")
     @Operation(summary = "홈화면 조회 API", description = "홈화면")
