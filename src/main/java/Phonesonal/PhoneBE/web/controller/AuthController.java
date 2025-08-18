@@ -46,30 +46,16 @@ public class AuthController {
 
     @GetMapping("/kakao/login")
     public void kakaoCallback(@RequestParam String code, HttpServletResponse response) throws IOException {
-        try {
-            // 1. 카카오에서 토큰 받기
-            String accessToken = kakaoService.getAccessToken(code);
-            Map<String, Object> userInfo = kakaoService.getUserInfo(accessToken);
+        // 코드만 전달
+        response.sendRedirect("/auth/kakao/success?code=" + code);
+    }
 
-            // 2. 기존 POST 로직 그대로 사용
-            String kakaoEmail = userInfo.get("email").toString();
-            Optional<User> user = userRepository.findByEmail(kakaoEmail);
-
-            if (user.isPresent()) {
-                // 기존 유저 - JWT 토큰 발급
-                String jwtAccessToken = jwtTokenProvider.createToken(kakaoEmail);
-                String appScheme = "phonesonaltrainer://auth/callback?token=" + jwtAccessToken + "&isNewUser=false";
-                response.sendRedirect(appScheme);
-            } else {
-                // 신규 유저 - 임시 토큰 발급
-                String tempToken = jwtTokenProvider.createTempToken(kakaoEmail, userInfo, SocialType.KAKAO);
-                String appScheme = "phonesonaltrainer://auth/callback?tempToken=" + tempToken + "&isNewUser=true";
-                response.sendRedirect(appScheme);
-            }
-
-        } catch (Exception e) {
-            response.sendRedirect("phonesonaltrainer://auth/callback?error=login_failed");
-        }
+    @GetMapping("/kakao/success")
+    public void authSuccess(@RequestParam String code, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(
+                "{\"success\": true, \"authCode\": \"" + code + "\"}"
+        );
     }
 
     @PostMapping("/kakao/login")

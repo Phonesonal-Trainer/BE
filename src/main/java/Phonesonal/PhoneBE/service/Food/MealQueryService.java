@@ -33,39 +33,38 @@ public class MealQueryService {
 
     @Transactional(readOnly = true)
     public NutritionSummaryResponseDTO getNutritionSummary(Long userId, Long goalPeriodId, LocalDate date) {
-        // GoalPeriod 확인
+        // 0) GoalPeriod 확인
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 목표 기간입니다."));
 
-        // 식사시간별 DTO 준비
+        // 1) 식사시간별 버킷 준비
         Map<MealTime, NutritionData> map = new EnumMap<>(MealTime.class);
-
         for (MealTime time : MealTime.values()) {
-            NutritionData bucket = new NutritionData();
-            map.put(time, bucket);
+            map.put(time, new NutritionData());
+        }
 
-            // 1) UserMeal 합산
-            List<UserMeal> userMeals = userMealRepository
-                    .findByGoalPeriodAndDateAndMealTime(goalPeriod, date, time);
+        // 2) 각 시간대 집계
+        for (MealTime time : MealTime.values()) {
+            NutritionData bucket = map.get(time);
 
+            // 2-1) UserMeal (추가 식단) 합산
+            List<UserMeal> userMeals = userMealRepository.findByGoalPeriodAndDateAndMealTime(goalPeriod, date, time);
             for (UserMeal meal : userMeals) {
                 bucket.add(meal.getFood(), meal.getQuantity());
             }
 
-            // 2) RecommendMeal(completed) 합산
-            List<RecommendMeal> recommendMeals = recommendMealRepository
-                    .findByGoalPeriodAndDateAndMealTimeAndComplete(
-                            goalPeriod, date, time, CompleteStatus.COMPLETE);
-
-            for (RecommendMeal meal : recommendMeals) {
+            // 2-2) RecommendMeal (완료된 것만 actual에 합산)
+            List<RecommendMeal> completedRecs = recommendMealRepository
+                    .findByGoalPeriodAndDateAndMealTimeAndComplete(goalPeriod, date, time, CompleteStatus.COMPLETE);
+            for (RecommendMeal meal : completedRecs) {
                 bucket.add(meal.getFood(), meal.getQuantity());
             }
 
-            // 3) recordCount = UserMeal 수 + RecommendMeal(완료) 수
-            long recordCount = userMeals.size() + recommendMeals.size();
+            // 2-3) recordCount (UserMeal 개수 + 완료된 RecommendMeal 개수)
+            long recordCount = userMeals.size() + completedRecs.size();
             bucket.setRecordCount(recordCount);
 
-            // 4) 최신 이미지 URL 조회
+            // 2-4) 최신 이미지
             String imageUrl = mealImageRepository
                     .findTopByUserIdAndGoalPeriodIdAndDateAndMealTimeOrderByCreatedAtDesc(
                             userId, goalPeriod.getId(), date, time
@@ -74,25 +73,72 @@ public class MealQueryService {
                     .orElse(null);
             bucket.setImageUrl(imageUrl);
 
-            // 5) status 계산
+            // 2-5) status
             NutritionData.MealStatus status;
-            if (recordCount == 0L) {
-                status = NutritionData.MealStatus.NONE;
-            } else {
-                status = (imageUrl == null)
-                        ? NutritionData.MealStatus.NO_IMAGE
-                        : NutritionData.MealStatus.WITH_IMAGE;
-            }
+            if (recordCount == 0L) status = NutritionData.MealStatus.NONE;
+            else status = (imageUrl == null) ? NutritionData.MealStatus.NO_IMAGE : NutritionData.MealStatus.WITH_IMAGE;
             bucket.setStatus(status);
         }
 
-        MealSummary fixed = new MealSummary(
+        // 3) actual 총합 = 각 버킷의 calorie 합(반올림)
+        float actualSum = 0f;
+        for (MealTime time : MealTime.values()) {
+            actualSum += safe(map.get(time).getCalorie());
+        }
+        int actualTotalCalorie = Math.round(Math.max(actualSum, 0f));
+
+        // 4) planned 총합 = RecommendMeal(complete 여부 무관) 전부 합(동일 로직으로 환산)
+        float plannedSum = 0f;
+        for (MealTime time : MealTime.values()) {
+            List<RecommendMeal> plannedRecs = recommendMealRepository
+                    .findByGoalPeriodAndDateAndMealTime(goalPeriod, date, time);
+            for (RecommendMeal rm : plannedRecs) {
+                plannedSum += calcKcalUsingServingSize(rm.getFood(), rm.getQuantity());
+            }
+        }
+        int plannedTotalCalorie = Math.round(Math.max(plannedSum, 0f));
+
+        // 5) 응답 구성
+        NutritionSummaryResponseDTO.MealSummary fixed = new NutritionSummaryResponseDTO.MealSummary(
                 map.getOrDefault(MealTime.BREAKFAST, new NutritionData()),
                 map.getOrDefault(MealTime.LUNCH, new NutritionData()),
                 map.getOrDefault(MealTime.SNACK, new NutritionData()),
                 map.getOrDefault(MealTime.DINNER, new NutritionData())
         );
 
-        return new NutritionSummaryResponseDTO(date, fixed);
+        // 생성자 시그니처 변경 주의
+        return new NutritionSummaryResponseDTO(
+                date,
+                fixed,
+                plannedTotalCalorie,
+                actualTotalCalorie
+        );
     }
+
+    private float calcKcalUsingServingSize(Phonesonal.PhoneBE.domain.Food food, Float actualQuantity) {
+        if (food == null) return 0f;
+
+        Float baseQuantity = parseServingSizeToQuantity(food.getServingSize()); // "100g" → 100
+        float ratio;
+        if (baseQuantity == null || baseQuantity <= 0f)      ratio = 1.0f;
+        else if (actualQuantity == null)                     ratio = 1.0f;
+        else                                                 ratio = actualQuantity / baseQuantity;
+
+        float baseCal = safe(food.getCalorie());
+        return Math.max(baseCal * ratio, 0f);
+    }
+
+    private float safe(Float v) {
+        return v != null ? v : 0f;
+    }
+
+    private Float parseServingSizeToQuantity(String servingSize) {
+        if (servingSize == null) return null;
+        try {
+            return Float.parseFloat(servingSize.replaceAll("[^\\d.]", ""));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
