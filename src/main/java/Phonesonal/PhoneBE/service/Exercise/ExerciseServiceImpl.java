@@ -11,7 +11,7 @@ import Phonesonal.PhoneBE.domain.enums.exercise.State;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
-import Phonesonal.PhoneBE.service.Home.HomeServiceImpl;
+//import Phonesonal.PhoneBE.service.Home.HomeServiceImpl;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.DailyExerciseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
@@ -37,7 +37,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseSetRepository exerciseSetRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final WeeklyStampRepository weeklyStampRepository;
-    private final HomeServiceImpl homeService;
+    //private final HomeServiceImpl homeService;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
 
     // exerciseId로 운동을 찾는 메서드
