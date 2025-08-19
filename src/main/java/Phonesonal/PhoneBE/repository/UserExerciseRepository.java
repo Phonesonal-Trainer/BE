@@ -1,5 +1,6 @@
 package Phonesonal.PhoneBE.repository;
 
+import Phonesonal.PhoneBE.domain.common.GoalPeriod;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -51,4 +52,5 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     @Query("SELECT ue FROM UserExercise ue JOIN FETCH ue.exercise WHERE ue.user.id = :userId AND ue.exerciseDate = :exerciseDate")
     List<UserExercise> findWithExerciseByUserIdAndDate(@Param("userId") Long userId, @Param("exerciseDate") LocalDate exerciseDate, @Param("goalPeriodId") Long goalPeriodId);
 
+    List<UserExercise> findByUserIdAndExerciseDateAndGoalPeriod_Id(Long userId, LocalDate exerciseDate, Long goalPeriodId);
 }

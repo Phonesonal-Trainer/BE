@@ -3,9 +3,11 @@ package Phonesonal.PhoneBE.service.Home;
 import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
 import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.*;
-import Phonesonal.PhoneBE.domain.common.GoalPeriod;
+import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
+import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.repository.UserMealRepository;
@@ -22,6 +24,7 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 
 import static Phonesonal.PhoneBE.apiPayload.code.util.DateUtil.calculateWeek;
 
@@ -38,6 +41,22 @@ public class HomeCommandServiceImpl implements HomeCommandService{
     private final DiagnosisRepository diagnosesRepository;
     private final ExerciseSetRepository exerciseSetRepository;
     private final GoalPeriodRepository goalPeriodRepository;
+
+    //집중 운동 부위
+    public String getRecommandedBodyParts(Long userId,Long goalPeriodId) {
+        List<UserExercise> todayExercises = userExerciseRepository.findByUserIdAndExerciseDateAndGoalPeriod_Id(userId, LocalDate.now(),goalPeriodId);
+        if (todayExercises.isEmpty()) {
+            throw new IllegalStateException("해당 날짜에 등록된 운동이 없습니다.");
+        }
+        // 아무거나 하나 가져오기 (예: 첫 번째)
+        UserExercise ue = todayExercises.get(0);
+        return ue.getExercise().getBodyParts().stream()
+                .map(ExerciseBodyPart::getBodyPart) // BodyPart 엔티티
+                .map(BodyPart::getNameKo)           // 한국어 이름
+                .findFirst()
+                .orElse("UNKNOWN");
+
+    }
 
     //추천 운동 소모 칼로리
     @Transactional(readOnly = true)
@@ -264,7 +283,7 @@ public class HomeCommandServiceImpl implements HomeCommandService{
     }
 
     public HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId, Long goalPeriodId) {
-        String focusedBodyPart = "하체"; // 더미 데이터 집중 부위
+        String focusedBodyPart = getRecommandedBodyParts(userId,goalPeriodId); // 집중부위
         int anaerobicExerciseTime =getTodayAnaerobicExerciseTimeByDate(userId); // 무산소 시간
         int aerobicExerciseTime = getTodayAerobicExerciseTimeByDate(userId); // 유산소 시간
         int todayBurnedCalories  = getTodayCaloriesBurnedByUser(userId, LocalDate.now());//오늘 칼로리 소비량
