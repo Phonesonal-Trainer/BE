@@ -47,6 +47,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_EXERCISE_STATE(HttpStatus.BAD_REQUEST, "EXERCISE4006", "유효하지 않은 운동 상태입니다."),
     EXERCISE_WEEK_NOT_FOUND(HttpStatus.NOT_FOUND, "EXERCISE4044", "해당 주차의 운동을 찾을 수 없습니다."),
     EXERCISE_RECOMMENDATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EXERCISE5001", "운동 추천에 실패했습니다."),
+    RECOMMENDED_EXERCISE_BURNEDCALORIES_NOT_DEFINED(HttpStatus.NOT_FOUND,"EXERCISE4007","운동 추천을 받지 않은 상태입니다."),
 
     //AI API 관련 에러
     AI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "AI5001", "AI API 호출에 실패했습니다."),
@@ -60,8 +61,10 @@ public enum ErrorStatus implements BaseErrorCode {
     INBODY_NOT_FOUND(HttpStatus.NOT_FOUND, "INBODY4001", "인바디 데이터를 찾을 수 없습니다."),
 
     // 진단 관련 에러
-    DIAGNOSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "DIAGNOSIS4041", "진단 결과를 찾을 수 없습니다.");
+    DIAGNOSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "DIAGNOSIS4041", "진단 결과를 찾을 수 없습니다."),
 
+    //음식 관련 에러
+    RECOMMENDED_CALORIES_NOT_DEFINED(HttpStatus.NOT_FOUND,"MEAL4001","추천 식단을 받지 않은 상태입니다");
 
 
     private final HttpStatus httpStatus;

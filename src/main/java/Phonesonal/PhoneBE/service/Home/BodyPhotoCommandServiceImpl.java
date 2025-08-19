@@ -1,6 +1,8 @@
 package Phonesonal.PhoneBE.service.Home;
 
 
+import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
+import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.BodyPhoto;
 import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.repository.BodyPhotoRepository;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BodyPhotoServiceImpl {
+public class BodyPhotoCommandServiceImpl implements BodyPhotoCommandService{
 
     private final BodyPhotoRepository bodyPhotoRepository;
 
@@ -36,7 +38,7 @@ public class BodyPhotoServiceImpl {
         BodyPhoto photo = bodyPhotoRepository.findByUserId(userId)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("MetaBodyPhotoData not found"));
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
 
         return BodyPhotoResponseDTO.builder()

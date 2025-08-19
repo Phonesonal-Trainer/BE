@@ -1,17 +1,19 @@
 package Phonesonal.PhoneBE.service.Home;
 
+import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
+import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.*;
+import Phonesonal.PhoneBE.domain.common.exercise.BodyPart;
 import Phonesonal.PhoneBE.domain.common.exercise.DailyExerciseRecord;
 import Phonesonal.PhoneBE.domain.common.exercise.Exercise;
-import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
+import Phonesonal.PhoneBE.domain.mapping.ExerciseBodyPart;
+import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
 import Phonesonal.PhoneBE.repository.RecommendMealRepository;
 import Phonesonal.PhoneBE.repository.UserMealRepository;
 import Phonesonal.PhoneBE.web.dto.Home.HomeFullResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Home.HomeResultDTO;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +24,13 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 
 import static Phonesonal.PhoneBE.apiPayload.code.util.DateUtil.calculateWeek;
 
 @Service
 @RequiredArgsConstructor
-public class HomeServiceImpl {
+public class HomeCommandServiceImpl implements HomeCommandService{
 
     private final UserRepository userRepository;
     private final RecommendMealRepository recommendMealRepository;
@@ -37,7 +40,24 @@ public class HomeServiceImpl {
     private final UserExerciseRepository userExerciseRepository;
     private final DiagnosisRepository diagnosesRepository;
     private final ExerciseSetRepository exerciseSetRepository;
-    private static final Logger log = LoggerFactory.getLogger(HomeServiceImpl.class);
+    private final GoalPeriodRepository goalPeriodRepository;
+
+    //집중 운동 부위
+    public String getRecommandedBodyParts(Long userId,Long goalPeriodId) {
+        List<UserExercise> todayExercises = userExerciseRepository.findByUserIdAndExerciseDateAndGoalPeriod_Id(userId, LocalDate.now(),goalPeriodId);
+        if (todayExercises.isEmpty()) {
+            throw new IllegalStateException("해당 날짜에 등록된 운동이 없습니다.");
+        }
+        // 아무거나 하나 가져오기 (예: 첫 번째)
+        UserExercise ue = todayExercises.get(0);
+        return ue.getExercise().getBodyParts().stream()
+                .map(ExerciseBodyPart::getBodyPart)     // BodyPart 엔티티
+                .map(BodyPart::getBodyCategory)         // BodyCategory enum
+                .map(Enum::name)                        // "UPPER", "LOWER" 같은 문자열
+                .findFirst()
+                .orElse("UNKNOWN");
+
+    }
 
     //추천 운동 소모 칼로리
     @Transactional(readOnly = true)
@@ -50,7 +70,6 @@ public class HomeServiceImpl {
                 .mapToInt(ue -> {
                     Exercise ex = ue.getExercise();
                     return exerciseSetRepository.findByUserExerciseOrderBySetNumber(ue).stream()
-                            .filter(ExerciseSet::getCompleted)
                             .mapToInt(set -> ex.getKcal() * (set.getReps() != null ? set.getReps() : 0))
                             .sum();
                 })
@@ -150,7 +169,7 @@ public class HomeServiceImpl {
     //오늘 소비한 총 칼로리
     public int getTodayCaloriesBurnedByUser(Long userId, LocalDate date) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
         return dailyExerciseRecordRepository.findByUserAndDate(user, date)
                 .map(DailyExerciseRecord::getTotalCalories)
                 .orElse(0);
@@ -160,16 +179,15 @@ public class HomeServiceImpl {
     public String HomeMealPercentageStatus(int percentage){
 
         String status;
-        if(percentage == 0){
-            status = "시작전";
-        } else if (percentage < 90 || percentage > 25) {
-            status = "부족";
-        } else if (percentage > 90|| percentage < 110) {
-            status = "적정";
-        } else{
-            status = "초과";
+        if (percentage == 0) {
+            return "시작전";
+        } else if (percentage < 90) {
+            return "부족";
+        } else if (percentage <= 110) { // 90 ~ 110
+            return "적정";
+        } else {
+            return "초과"; // 110 초과
         }
-        return status;
     }
 
     //운동플랜 퍼센테이지
@@ -266,12 +284,17 @@ public class HomeServiceImpl {
     }
 
     public HomeResultDTO.HomeExerciseDTO getHomeExercise(Long userId, Long goalPeriodId) {
-        String focusedBodyPart = "하체"; // 더미 데이터 집중 부위
+        String focusedBodyPart = getRecommandedBodyParts(userId,goalPeriodId); // 집중부위
         int anaerobicExerciseTime =getTodayAnaerobicExerciseTimeByDate(userId); // 무산소 시간
         int aerobicExerciseTime = getTodayAerobicExerciseTimeByDate(userId); // 유산소 시간
         int todayBurnedCalories  = getTodayCaloriesBurnedByUser(userId, LocalDate.now());//오늘 칼로리 소비량
         int todayRecommanedBurnedCalories = getRecommendedBurnedCaloriesOnDate(userId, LocalDate.now(),goalPeriodId);//추천 칼로리 소비량
-        int exercisePercentage = (todayBurnedCalories/todayRecommanedBurnedCalories)*100;//현재 byzero 문제 발생
+
+        if (todayRecommanedBurnedCalories == 0) {
+            throw new CommonExceptionHandler(ErrorStatus.RECOMMENDED_EXERCISE_BURNEDCALORIES_NOT_DEFINED);
+        }
+
+        int exercisePercentage = (int)(((double) todayBurnedCalories / todayRecommanedBurnedCalories) * 100);
         String exerciseStatus = HomeExercisePercentageStatus(exercisePercentage);
 
         return HomeResultDTO.HomeExerciseDTO.builder()
@@ -293,10 +316,13 @@ public class HomeServiceImpl {
         double carb = getRecommendedCarbByDate(userId, date, goalPeriodId);//추천된 탄수화물 그램수
         double protein = getRecommendedProteinByDate(userId,date, goalPeriodId);//오늘 추천된 단백질 그램수
         double fat = getRecommendedFatByDate(userId,date, goalPeriodId);//오늘 추천된 지방 그램수
-        int caloriePercentage = (int)(calorie/recommendedCalories)*100;
+
+        if (recommendedCalories == 0) {
+            throw new CommonExceptionHandler(ErrorStatus.RECOMMENDED_CALORIES_NOT_DEFINED);
+        }
+
+        int caloriePercentage = (int)(( calorie / recommendedCalories) * 100);
         String calorieStatus = HomeMealPercentageStatus(caloriePercentage);
-
-
 
         return HomeResultDTO.HomeMealPlanDTO.builder()
                 .todayRecommendedCalories(recommendedCalories)
@@ -310,6 +336,13 @@ public class HomeServiceImpl {
     }
 
     public HomeFullResponseDTO getHomeFullResponse(Long userId, Long goalPeriodId) {
+
+        goalPeriodRepository.findById(goalPeriodId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
         return HomeFullResponseDTO.builder()
                 .main(getHomeData(userId,goalPeriodId))
                 .exercise(getHomeExercise(userId,goalPeriodId))
