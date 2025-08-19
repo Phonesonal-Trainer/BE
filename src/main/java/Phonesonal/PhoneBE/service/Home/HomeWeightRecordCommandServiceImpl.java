@@ -1,5 +1,7 @@
 package Phonesonal.PhoneBE.service.Home;
 
+import Phonesonal.PhoneBE.apiPayload.code.status.ErrorStatus;
+import Phonesonal.PhoneBE.apiPayload.exception.handler.CommonExceptionHandler;
 import Phonesonal.PhoneBE.domain.User;
 import Phonesonal.PhoneBE.domain.WeightRecord;
 import Phonesonal.PhoneBE.domain.common.GoalPeriod;
@@ -17,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class HomeServiceWeightRecordImpl {
+public class HomeWeightRecordCommandServiceImpl implements HomeWeightRecordCommandService{
     private final WeightRecordRepository weightRecordRepository;
     private final UserRepository userRepository;
     private final GoalPeriodRepository goalPeriodRepository;
@@ -27,10 +29,10 @@ public class HomeServiceWeightRecordImpl {
         Long goalPeriodId = userDetails.getUser().getGoalPeriod().getId();
 
         GoalPeriod goalPeriod = goalPeriodRepository.findById(goalPeriodId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 목표 기간입니다."));
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.INVALID_GOAL_PERIOD));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 유저아이디가 없습니다"));
+                .orElseThrow(() -> new CommonExceptionHandler(ErrorStatus.USER_NOT_FOUND_FOR_FIND_EMAIL));
 
 
         WeightRecord weightRecord = WeightRecord.builder()
@@ -70,7 +72,7 @@ public class HomeServiceWeightRecordImpl {
         }
 
         // 3. 둘 다 없으면 예외 던지기 or 기본값 처리
-        throw new RuntimeException("몸무게 기록이 없습니다.");
+        throw new RuntimeException("몸무게 기록이 없습니다. ");
 
         /*Long userId = userDetails.getUser().getId();
 
