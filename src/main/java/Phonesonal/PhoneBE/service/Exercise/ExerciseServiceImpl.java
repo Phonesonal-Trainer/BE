@@ -11,7 +11,9 @@ import Phonesonal.PhoneBE.domain.enums.exercise.State;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
+import Phonesonal.PhoneBE.service.Home.HomeServiceImpl;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.DailyExerciseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
@@ -35,6 +37,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseSetRepository exerciseSetRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final WeeklyStampRepository weeklyStampRepository;
+    private final HomeServiceImpl homeService;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
 
     // exerciseId로 운동을 찾는 메서드
@@ -110,12 +113,45 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<UserExerciseResponseDTO> getMyExercisesList(Long userId, LocalDate exerciseDate) {
+    public DailyExerciseDTO getMyExercisesList(Long userId, LocalDate exerciseDate) {
+        // 1. 기존 운동 목록 조회
         List<UserExercise> userExercises = userExerciseRepository.findByUserIdAndExerciseDate(userId, exerciseDate);
-
-        return userExercises.stream()
+        List<UserExerciseResponseDTO> exerciseDTOs = userExercises.stream()
                 .map(this::convertToUserExerciseResponseDTO)
                 .collect(Collectors.toList());
+
+        // 2. 하루 목표 사용 칼로리 계산
+        Integer targetCalories = homeService.getRecommendedBurnedCaloriesOnDate(userId, exerciseDate, getUserGoalPeriodId(userId));
+
+        // 3. 현재 사용한 칼로리 계산
+        Integer currentCalories = calculateCurrentBurnedCalories(userExercises);
+
+        // 4. DailySummary 생성
+        DailyExerciseDTO.DailyCalories dailyCalories = DailyExerciseDTO.DailyCalories.builder()
+                .targetCalories(targetCalories)
+                .currentCalories(currentCalories)
+                .build();
+
+        // 5. 최종 응답 DTO 생성
+        return DailyExerciseDTO.builder()
+                .dailyCalories(dailyCalories)
+                .exercises(exerciseDTOs)
+                .build();
+    }
+
+    // 현재 사용한 칼로리 계산 메서드
+    private Integer calculateCurrentBurnedCalories(List<UserExercise> userExercises) {
+        return userExercises.stream()
+                .filter(ue -> ue.getState() == State.completed) // 완료된 운동만
+                .mapToInt(this::calculateCalories)
+                .sum();
+    }
+
+    // 사용자의 현재 목표 기간 ID 조회
+    private Long getUserGoalPeriodId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+        return user.getGoalPeriod().getId();
     }
 
     private UserExerciseResponseDTO convertToUserExerciseResponseDTO(UserExercise ue) {
