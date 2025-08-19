@@ -51,8 +51,9 @@ public class HomeCommandServiceImpl implements HomeCommandService{
         // 아무거나 하나 가져오기 (예: 첫 번째)
         UserExercise ue = todayExercises.get(0);
         return ue.getExercise().getBodyParts().stream()
-                .map(ExerciseBodyPart::getBodyPart) // BodyPart 엔티티
-                .map(BodyPart::getNameKo)           // 한국어 이름
+                .map(ExerciseBodyPart::getBodyPart)     // BodyPart 엔티티
+                .map(BodyPart::getBodyCategory)         // BodyCategory enum
+                .map(Enum::name)                        // "UPPER", "LOWER" 같은 문자열
                 .findFirst()
                 .orElse("UNKNOWN");
 
