@@ -11,7 +11,9 @@ import Phonesonal.PhoneBE.domain.enums.exercise.State;
 import Phonesonal.PhoneBE.domain.mapping.ExerciseSet;
 import Phonesonal.PhoneBE.domain.mapping.UserExercise;
 import Phonesonal.PhoneBE.repository.*;
+//import Phonesonal.PhoneBE.service.Home.HomeServiceImpl;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.DailyExerciseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseDetailResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.ExerciseResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
@@ -35,6 +37,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseSetRepository exerciseSetRepository;
     private final DailyExerciseRecordRepository dailyExerciseRecordRepository;
     private final WeeklyStampRepository weeklyStampRepository;
+    //private final HomeServiceImpl homeService;
     private static final Long CUSTOM_EXERCISE_ID = 999999L; // 커스텀 운동용 고정 ID
 
     // exerciseId로 운동을 찾는 메서드
@@ -110,12 +113,61 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<UserExerciseResponseDTO> getMyExercisesList(Long userId, LocalDate exerciseDate) {
+    public DailyExerciseDTO getMyExercisesList(Long userId, LocalDate exerciseDate) {
+        // 1. 기존 운동 목록 조회
         List<UserExercise> userExercises = userExerciseRepository.findByUserIdAndExerciseDate(userId, exerciseDate);
-
-        return userExercises.stream()
+        List<UserExerciseResponseDTO> exerciseDTOs = userExercises.stream()
                 .map(this::convertToUserExerciseResponseDTO)
                 .collect(Collectors.toList());
+
+        // 2. 하루 목표 사용 칼로리 계산
+        Integer targetCalories = calculateTargetCaloriesForDate(userId, exerciseDate, getUserGoalPeriodId(userId));
+
+        // 3. 현재 사용한 칼로리 계산
+        Integer currentCalories = calculateCurrentBurnedCalories(userExercises);
+
+        // 4. DailySummary 생성
+        DailyExerciseDTO.DailyCalories dailyCalories = DailyExerciseDTO.DailyCalories.builder()
+                .targetCalories(targetCalories)
+                .currentCalories(currentCalories)
+                .build();
+
+        // 5. 최종 응답 DTO 생성
+        return DailyExerciseDTO.builder()
+                .dailyCalories(dailyCalories)
+                .exercises(exerciseDTOs)
+                .build();
+    }
+
+    // 현재 사용한 칼로리 계산 메서드
+    private Integer calculateCurrentBurnedCalories(List<UserExercise> userExercises) {
+        return userExercises.stream()
+                .filter(ue -> ue.getState() == State.completed) // 완료된 운동만
+                .mapToInt(this::calculateCalories)
+                .sum();
+    }
+
+    // 사용자의 현재 목표 기간 ID 조회
+    private Long getUserGoalPeriodId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+        return user.getGoalPeriod().getId();
+    }
+
+    // 목표 칼로리 계산 (완료 여부 무관하게 모든 계획된 운동)
+    private Integer calculateTargetCaloriesForDate(Long userId, LocalDate date, Long goalPeriodId) {
+        return userExerciseRepository.findWithExerciseByUserIdAndDate(userId, date, goalPeriodId).stream()
+                .filter(ue -> {
+                    Exercise ex = ue.getExercise();
+                    return ex != null && !ex.getId().equals(999999L) && ex.getKcal() != null;
+                })
+                .mapToInt(ue -> {
+                    Exercise ex = ue.getExercise();
+                    return exerciseSetRepository.findByUserExerciseOrderBySetNumber(ue).stream()
+                            .mapToInt(set -> ex.getKcal() * (set.getReps() != null ? set.getReps() : 0))
+                            .sum();
+                })
+                .sum();
     }
 
     private UserExerciseResponseDTO convertToUserExerciseResponseDTO(UserExercise ue) {
@@ -135,15 +187,25 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .build();
         } else {
             // 일반 계획된 운동인 경우
+            Exercise exercise = ue.getExercise();
             List<ExerciseSet> sets = exerciseSetRepository.findByUserExerciseOrderBySetNumber(ue);
+
+            Integer currentSetNumber = getCurrentSetNumber(ue, sets);
             List<UserExerciseResponseDTO.ExerciseSetDTO> setDTOS = sets.stream()
-                    .map(set -> UserExerciseResponseDTO.ExerciseSetDTO.builder()
-                            .setId(set.getId())
-                            .setNumber(set.getSetNumber())
-                            .count(set.getReps())
-                            .weight(set.getWeight())
-                            .completed(set.getCompleted())
-                            .build())
+                    .map(set -> {
+                        // 세트별 예상 시간 계산 (1회당 시간 * 횟수)
+                        Integer estimatedSeconds = (exercise.getSecondsPerRep() != null ? exercise.getSecondsPerRep() : 5) *
+                                (set.getReps() != null ? set.getReps() : 0);
+
+                        return UserExerciseResponseDTO.ExerciseSetDTO.builder()
+                                .setId(set.getId())
+                                .setNumber(set.getSetNumber())
+                                .count(set.getReps())
+                                .weight(set.getWeight())
+                                .completed(set.getCompleted())
+                                .estimatedSeconds(estimatedSeconds) // 새로 추가
+                                .build();
+                    })
                     .collect(Collectors.toList());
 
             return UserExerciseResponseDTO.builder()
@@ -159,10 +221,31 @@ public class ExerciseServiceImpl implements ExerciseService {
 //                    .sets(ue.getSetCount())
                     .actualMinutes(ue.getActualMinutes())
                     .totalSets(sets.size())
+                    .currentSetNumber(currentSetNumber)
                     .exerciseSets(setDTOS)
                     .build();
         }
     }
+
+    // 현재 세트 번호 계산 메서드
+    private Integer getCurrentSetNumber(UserExercise ue, List<ExerciseSet> sets) {
+        switch (ue.getState()) {
+            case pending:
+            case completed:
+                return sets.size(); // 완료된 운동은 마지막 세트 번호 반환
+            case inProgress:
+            case resting:
+                // 진행 중인 세트 번호 반환 (완료되지 않은 첫 번째 세트)
+                return sets.stream()
+                        .filter(set -> !set.getCompleted())
+                        .map(ExerciseSet::getSetNumber)
+                        .findFirst()
+                        .orElse(sets.size()); // 모든 세트 완료시 마지막 세트 번호
+            default:
+                return null;
+        }
+    }
+
 
     @Override
     public UserExerciseResponseDTO createUserExercise(Long exerciseId, Long userId) {

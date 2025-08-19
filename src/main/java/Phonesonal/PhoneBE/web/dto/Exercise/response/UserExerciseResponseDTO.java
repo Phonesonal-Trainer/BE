@@ -39,5 +39,6 @@ public class UserExerciseResponseDTO {
         private Integer count; // 반복 횟수
         private Integer weight; // 중량
         private Boolean completed; // 완료 여부
+        private Integer estimatedSeconds; // 예상 운동 시간
     }
 }

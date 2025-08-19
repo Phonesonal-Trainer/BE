@@ -4,6 +4,7 @@ import Phonesonal.PhoneBE.apiPayload.ApiResponse;
 import Phonesonal.PhoneBE.service.Exercise.ExerciseService;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateMultipleUserExerciseRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.request.CreateUserExerciseRequestDTO;
+import Phonesonal.PhoneBE.web.dto.Exercise.response.DailyExerciseDTO;
 import Phonesonal.PhoneBE.web.dto.Exercise.response.UserExerciseResponseDTO;
 import Phonesonal.PhoneBE.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,13 +28,13 @@ public class UserExerciseController {
 
     @Operation(summary = "내 운동 조회")
     @GetMapping("/userExercises")
-    public ApiResponse<List<UserExerciseResponseDTO>> getMyExercises(
+    public ApiResponse<DailyExerciseDTO> getMyExercises(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate exerciseDate
 
     ) {
         Long userId = userDetails.getUser().getId();
-        List<UserExerciseResponseDTO> myExercises = exerciseService.getMyExercisesList(userId, exerciseDate);
+        DailyExerciseDTO myExercises = exerciseService.getMyExercisesList(userId, exerciseDate);
         return ApiResponse.onSuccess(myExercises);
     }
 
