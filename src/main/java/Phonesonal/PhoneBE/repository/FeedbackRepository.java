@@ -27,7 +27,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     // 가장 최근주차 피드백
     Optional<Feedback> findTopByUserIdAndGoalPeriod_IdOrderByWeekDesc(Long userId, Long goalPeriodId);
-    // (신규) 특정 주차의 '식단' 피드백 사용자 조회
+    // 식단 피드백 준 사용자들 조회
     @Query("""
            SELECT DISTINCT f.user.id, f.foodFeedback
              FROM Feedback f

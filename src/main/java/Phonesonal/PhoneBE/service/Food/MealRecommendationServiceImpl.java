@@ -50,8 +50,7 @@ public class MealRecommendationServiceImpl implements MealRecommendationService 
                 );
                 if (!hasFeedback) return;
 
-                // 여기서 같은 클래스의 다른 메서드를 호출해도,
-                // 이미 이 @Scheduled 메서드에 @Transactional이 걸려 있으므로 트랜잭션 범위 안에서 실행됨.
+                // @Scheduled 메서드에 @Transactional이 걸려 있으므로 트랜잭션 범위 안에서 실행됨.
                 regenerateNextWeekByFeedback(user.getId());
 
             } catch (Exception e) {
@@ -98,15 +97,15 @@ public class MealRecommendationServiceImpl implements MealRecommendationService 
                 copyWeekWithScale(user, gp, srcMonday, dstMonday, 1.0);
             }
             case FEW -> {
-                // "섭취량이 너무 적다" → 10% 줄이기 (요청 명세대로 0.9배)
+                // few → 10% 늘림
                 copyWeekWithScale(user, gp, srcMonday, dstMonday, 1.1);
             }
             case MANY -> {
-                // "섭취량이 너무 많다" → 10% 늘리기
+                // many → 10% 줄임
                 copyWeekWithScale(user, gp, srcMonday, dstMonday, 0.9);
             }
             case DISLIKE -> {
-                // "음식이 마음에 들지 않음" → Gemini로 재생성
+                // "음식이 마음에 들지 않음" → 재생성
                 GenerateMealRequestDTO req = GenerateMealRequestDTO.builder()
                         .startDate(dstMonday)
                         .build();
