@@ -24,6 +24,11 @@ public interface RecommendMealRepository extends JpaRepository<RecommendMeal, Lo
             Long userId, Long goalPeriodId, LocalDate weekStart, LocalDate weekEnd
     );
 
+    // 다음 주차 중복 방지하기 위해 삭제함
+    void deleteByUserIdAndGoalPeriodIdAndDateBetween(
+            Long userId, Long goalPeriodId, LocalDate weekStart, LocalDate weekEnd
+    );
+
     // completeStatus 수정용
     @Modifying(clearAutomatically = true)
     @Transactional
