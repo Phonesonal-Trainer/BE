@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-// 식단 플랜 관련
 public class RecommendMealCommandService {
 
     private final RecommendMealRepository recommendMealRepository;
@@ -29,6 +28,4 @@ public class RecommendMealCommandService {
                 .complete(request.getComplete())
                 .build();
     }
-
-    // 나중에 meal record에 추가해야될수도 있음.
 }

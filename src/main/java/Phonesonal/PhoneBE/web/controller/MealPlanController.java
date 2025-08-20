@@ -10,6 +10,7 @@ import Phonesonal.PhoneBE.service.Food.RecommendMealQueryService;
 import Phonesonal.PhoneBE.web.dto.Food.CompleteStatusResponseDTO;
 import Phonesonal.PhoneBE.web.dto.Food.GenerateMealRequestDTO;
 import Phonesonal.PhoneBE.web.dto.Food.RecommendMealResponseDTO;
+import Phonesonal.PhoneBE.service.Food.MealRecommendationService;
 import Phonesonal.PhoneBE.web.dto.Food.UpdateCompleteStatusRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +36,7 @@ public class MealPlanController {
     private final RecommendMealQueryService recommendMealQueryService;
     private final RecommendMealCommandService recommendMealCommandService;
     private final GeminiMealService geminiMealService;
+    private final MealRecommendationService mealRecommendationService;
 
 
     @Operation(summary = "식단 플랜 조회")
@@ -70,7 +72,7 @@ public class MealPlanController {
     }
 
     @Operation(summary = "식단 플랜 생성")
-    @PostMapping("plans/generate")
+    @PostMapping("/plans/generate")
     public ResponseEntity<ApiResponse<Integer>> generateWeeklyMeals(
             @RequestBody @Valid GenerateMealRequestDTO req,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -80,5 +82,15 @@ public class MealPlanController {
 
         int saved = geminiMealService.generateAndSaveWeeklyAllMeals(user, diagnosis, req);
         return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, saved));
+    }
+
+    @Operation(summary = "식단 플랜 재생성 (피드백 반영)")
+    @PostMapping("/plans/regenerate")
+    public ResponseEntity<ApiResponse<String>> regenerateWeeklyMeals(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
+        mealRecommendationService.regenerateNextWeekByFeedback(userId);
+        return ResponseEntity.ok(ApiResponse.of(SuccessStatus._OK, "SUCCESS"));
     }
 }
